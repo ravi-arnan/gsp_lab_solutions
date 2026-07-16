@@ -252,24 +252,36 @@ gcloud iam service-accounts add-iam-policy-binding "$COMPUTE_SA" \
   --member="serviceAccount:$DATAPLEX_SA" \
   --role="roles/iam.serviceAccountTokenCreator"
 
+echo "Menunggu propagasi IAM (biasanya <1 menit)..."
+sleep 20
+
 DATA_SOURCE="//bigquery.googleapis.com/projects/$PROJECT/datasets/$BQ_DATASET/tables/$BQ_TABLE"
 
 if gcloud dataplex datascans describe "$SCAN_ID" --project="$PROJECT" --location="$REGION" >/dev/null 2>&1; then
   echo "Datascan sudah ada, dilewat pembuatannya."
 else
-  # --on-demand tidak konsisten antar versi gcloud; kalau ditolak, buat tanpa
-  # trigger lalu jalankan manual di bawah.
-  gcloud dataplex datascans create data-quality "$SCAN_ID" \
-    --project="$PROJECT" --location="$REGION" \
-    --data-source-resource="$DATA_SOURCE" \
-    --data-quality-spec-file="$WORK/$DQ_FILE" \
-    --service-account="$COMPUTE_SA" \
-    --on-demand=true \
-  || gcloud dataplex datascans create data-quality "$SCAN_ID" \
-    --project="$PROJECT" --location="$REGION" \
-    --data-source-resource="$DATA_SOURCE" \
-    --data-quality-spec-file="$WORK/$DQ_FILE" \
-    --service-account="$COMPUTE_SA"
+  # Binding serviceAccountTokenCreator butuh waktu menyebar. 403 di percobaan
+  # awal itu normal, bukan izin yang salah. Coba ulang, jangan langsung mati.
+  SCAN_OK=no
+  for attempt in 1 2 3 4 5 6; do
+    if gcloud dataplex datascans create data-quality "$SCAN_ID" \
+         --project="$PROJECT" --location="$REGION" \
+         --data-source-resource="$DATA_SOURCE" \
+         --data-quality-spec-file="$WORK/$DQ_FILE" \
+         --service-account="$COMPUTE_SA" \
+         --on-demand=true; then
+      SCAN_OK=yes; break
+    fi
+    echo
+    echo "Percobaan $attempt gagal (kemungkinan propagasi IAM). Tunggu 20 detik..."
+    sleep 20
+  done
+  if [[ "$SCAN_OK" != "yes" ]]; then
+    echo "ERROR: datascan gagal setelah 6 percobaan (~2 menit)."
+    echo "Kalau errornya tetap 403 impersonate, cek binding ini ada:"
+    echo "  gcloud iam service-accounts get-iam-policy $COMPUTE_SA --project=$PROJECT"
+    exit 1
+  fi
 fi
 
 step "Task 5c: jalankan datascan sekarang"
