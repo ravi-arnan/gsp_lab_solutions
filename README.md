@@ -18,12 +18,28 @@ less gsp416.sh
 bash gsp416.sh
 ```
 
+### Script yang butuh fase atau parameter
+
+Sebagian lab tidak bisa dijalankan sebagai one-liner. Download dulu, jangan di-pipe ke `bash`, karena `curl ... | bash -s <arg>` membuat script dan stdin berebut, dan biasanya filenya masih dibutuhkan untuk fase berikutnya.
+
+`gsp1143.sh` contohnya. Task 4 menghapus semua yang dibuat Task 1 sampai 3, jadi harus dipisah dan **checkpoint task 1-3 wajib hijau dulu** sebelum fase delete:
+
+```bash
+curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp1143.sh
+REGION=europe-west1 bash gsp1143.sh create   # Task 1-3
+# klik Check my progress task 1, 2, 3 sampai hijau
+REGION=europe-west1 bash gsp1143.sh delete   # Task 4
+```
+
+Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-mu. Default script `us-central1`.
+
 ## Daftar lab
 
 | ID | Judul | Coverage | Status | Terakhir diuji |
 |----|-------|----------|--------|----------------|
 | [GSP416](gsp416.sh) | Working with JSON, Arrays, and Structs in BigQuery | Task 1, 2, 3, 4, 6, 7, 8, 9 | Terverifikasi, skor 100/100 | 2026-07-16 |
 | [GSP340](gsp340.sh) | Build a Data Warehouse with BigQuery: Challenge Lab | Task 1, 2, 3, 4 | Terverifikasi, skor 40/40, satu varian task (lihat catatan) | 2026-07-16 |
+| [GSP1143](gsp1143.sh) | Knowledge Catalog (Dataplex): Qwik Start - Console | Task 1, 2, 3, 4 | Terverifikasi, skor 100/100 | 2026-07-17 |
 
 Keterangan status:
 
