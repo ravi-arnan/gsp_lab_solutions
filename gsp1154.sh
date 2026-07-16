@@ -143,8 +143,19 @@ GRILL_SCENARIO='Scenario:
 Based on this scenario, list three primary risk factors an underwriter should consider.'
 
 # ================================================================== Task 0
-step "Enable Vertex AI API"
-gcloud services enable aiplatform.googleapis.com --project="$PROJECT"
+step "Cek Vertex AI API"
+# Akun student lab tidak punya izin serviceusage, dan memang tidak perlu:
+# Qwiklabs sudah meng-enable API-nya waktu provisioning project. Jadi jangan
+# paksa enable, cukup lapor lalu lanjut. Kalau API-nya benar-benar mati,
+# panggilan pertama akan gagal dengan pesan yang jelas.
+if gcloud services list --enabled --project="$PROJECT" \
+     --filter="config.name=aiplatform.googleapis.com" --format="value(config.name)" 2>/dev/null \
+     | grep -q aiplatform; then
+  echo "aiplatform.googleapis.com sudah aktif."
+else
+  echo "Tidak bisa memastikan status API (biasanya karena akun lab dibatasi)."
+  echo "Lanjut saja; di lab ini API-nya sudah di-enable dari awal."
+fi
 
 # ================================================================== Task 1
 step "Task 1: ringkasan risiko SafeHarbor Warehousing ($FLASH)"
