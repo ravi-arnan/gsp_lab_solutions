@@ -182,10 +182,18 @@ gcloud dataplex entries update "$ENTRY" \
 
 # ----------------------------------------------------------------- verifikasi
 step "Verifikasi: aspect yang menempel di entry"
+# gcloud format tidak punya transform keys(), jadi parse JSON-nya sendiri.
 gcloud dataplex entries lookup "$ENTRY" \
   --project="$PROJECT" --location="$BQ_LOC" --entry-group=@bigquery \
   --view=custom --aspect-types="$ASPECT_ID" \
-  --format='value(entry.aspects.keys())'
+  --format=json \
+| python3 -c '
+import json, sys
+aspects = json.load(sys.stdin).get("entry", {}).get("aspects", {})
+print(f"{len(aspects)} aspect key menempel (harus 10 = 1 entry + 9 kolom):")
+for k in sorted(aspects):
+    print("  -", k.split("@")[1] if "@" in k else "(level entry)")
+'
 
 cat <<EOF
 
