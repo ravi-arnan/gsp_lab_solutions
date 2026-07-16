@@ -24,6 +24,7 @@ bash gsp416.sh
 |----|-------|----------|--------|----------------|
 | [GSP416](gsp416.sh) | Working with JSON, Arrays, and Structs in BigQuery | Task 1, 2, 3, 4, 6, 7, 8, 9 | Terverifikasi, skor 100/100 | 2026-07-16 |
 | [GSP340](gsp340.sh) | Build a Data Warehouse with BigQuery: Challenge Lab | Task 1, 2, 3, 4 | Terverifikasi, skor 40/40, satu varian task (lihat catatan) | 2026-07-16 |
+| [GSP1154](gsp1154.sh) | Getting Started with Agent Studio | Task 2, 3, 4, 5 (best-effort, lihat catatan) | Belum diuji | — |
 
 Keterangan status:
 
@@ -38,6 +39,8 @@ Lab dites ulang saat Google memperbarui materinya. Kolom "Terakhir diuji" menunj
 **Challenge lab** memilih task secara acak per instance, ditandai teks `Dynamically selected task will show up here...` di halaman labnya. Nama dataset, tabel, dan kolom berbeda tiap peserta, jadi script statis bisa salah parameter.
 
 `gsp340.sh` tetap disertakan, tapi semua nilai yang bisa berubah dikumpulkan di satu blok variabel di awal file. **Cocokkan blok itu dengan teks task di lab-mu sebelum menjalankan.** Kalau nama datasetnya beda, ubah variabelnya, jangan query di bawahnya.
+
+**Lab berbasis Console** seperti GSP1154 (Agent Studio) menilai aksi UI, bukan resource yang bisa dibuat lewat API. `gsp1154.sh` disertakan sebagai *best-effort*: script memanggil Vertex AI API dengan prompt dan konfigurasi yang setara tiap task, dengan asumsi checkpoint melihat jejak pemakaian API di project. **Asumsi ini belum diverifikasi.** Task 1 (Deploy as app ke Cloud Run) sudah pasti tidak bisa diotomasi karena tombol itu membangun container bawaan Agent Studio yang tidak punya padanan gcloud. Anggap script ini pendamping, bukan pengganti lab-nya.
 
 ## Yang tidak diotomasi
 
