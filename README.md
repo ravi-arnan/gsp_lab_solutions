@@ -23,6 +23,7 @@ bash gsp416.sh
 | ID | Judul | Coverage | Status | Terakhir diuji |
 |----|-------|----------|--------|----------------|
 | [GSP416](gsp416.sh) | Working with JSON, Arrays, and Structs in BigQuery | Task 1, 2, 3, 4, 6, 7, 8, 9 | Terverifikasi, skor 100/100 | 2026-07-16 |
+| [GSP340](gsp340.sh) | Build a Data Warehouse with BigQuery: Challenge Lab | Task 1, 2, 3, 4 | Belum diuji, task acak (lihat catatan) | 2026-07-16 |
 
 Keterangan status:
 
@@ -33,7 +34,9 @@ Lab dites ulang saat Google memperbarui materinya. Kolom "Terakhir diuji" menunj
 
 ### Lab yang tidak cocok diotomasi
 
-**Challenge lab** (misalnya GSP340) memilih task secara acak per instance, ditandai teks `Dynamically selected task will show up here...` di halaman labnya. Nama tabel, rentang tanggal, dan nama kolom berbeda tiap peserta, jadi script statis hampir pasti salah parameter. Lab jenis ini tidak dimasukkan ke repo kecuali dibuat versi yang parameternya diisi manual di awal file.
+**Challenge lab** memilih task secara acak per instance, ditandai teks `Dynamically selected task will show up here...` di halaman labnya. Nama dataset, tabel, dan kolom berbeda tiap peserta, jadi script statis bisa salah parameter.
+
+`gsp340.sh` tetap disertakan, tapi semua nilai yang bisa berubah dikumpulkan di satu blok variabel di awal file. **Cocokkan blok itu dengan teks task di lab-mu sebelum menjalankan.** Kalau nama datasetnya beda, ubah variabelnya, jangan query di bawahnya.
 
 ## Yang tidak diotomasi
 
