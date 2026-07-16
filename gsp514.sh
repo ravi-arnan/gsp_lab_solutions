@@ -174,29 +174,38 @@ else
                   --format='value(name)' 2>/dev/null \
                 | grep -F "/zones/$RAW_ZONE_ID" | grep -v '/assets/' | head -1 \
                 | sed 's|.*/entries/||' || true)"
-  [[ -n "$ZONE_ENTRY" ]] || {
-    echo "ERROR: entry untuk zone $RAW_ZONE_ID tidak ketemu di entry group @dataplex."
-    echo "Catalog butuh waktu meng-index zone baru. Tunggu beberapa menit, jalankan ulang."
-    echo "Kalau tetap gagal, kerjakan Task 2b lewat UI (lihat docs/gsp514.md, bagian fallback)."
-    exit 1
-  }
 fi
-echo "Entry zone ketemu: $ZONE_ENTRY"
 
-step "Task 2c: tempel aspect ke zone (kedua flag = Yes)"
-cat > "$WORK/aspects.json" <<EOF
+# Task 2b boleh gagal tanpa menjatuhkan Task 3-5. Satu task rapuh tidak layak
+# memblokir tiga task yang sehat.
+ASPECT_DONE=no
+if [[ -z "$ZONE_ENTRY" ]]; then
+  echo
+  echo "PERINGATAN: entry zone tidak ketemu di entry group @dataplex."
+  echo "Task 2b DILEWAT, script lanjut ke Task 3-5."
+  echo "Kerjakan Task 2b lewat UI nanti (lihat docs/gsp514.md, bagian fallback)."
+else
+  echo "Entry zone ketemu: $ZONE_ENTRY"
+
+  step "Task 2c: tempel aspect ke zone (kedua flag = Yes)"
+  cat > "$WORK/aspects.json" <<EOF
 {
   "$PROJECT.$REGION.$ASPECT_ID": {
     "data": { "$F1_ID": "Yes", "$F2_ID": "Yes" }
   }
 }
 EOF
-python3 -m json.tool "$WORK/aspects.json" >/dev/null
-cat "$WORK/aspects.json"
+  python3 -m json.tool "$WORK/aspects.json" >/dev/null
+  cat "$WORK/aspects.json"
 
-gcloud dataplex entries update "$ZONE_ENTRY" \
-  --project="$PROJECT" --location="$REGION" --entry-group=@dataplex \
-  --update-aspects="$WORK/aspects.json"
+  if gcloud dataplex entries update "$ZONE_ENTRY" \
+       --project="$PROJECT" --location="$REGION" --entry-group=@dataplex \
+       --update-aspects="$WORK/aspects.json"; then
+    ASPECT_DONE=yes
+  else
+    echo "PERINGATAN: penempelan aspect gagal. Task 2b dilewat, lanjut ke Task 3-5."
+  fi
+fi
 
 # ----------------------------------------------------------------- Task 3
 step "Task 3: grant $ROLE_WRITER ke $USER2 di asset '$GCS_ASSET_NAME'"
@@ -267,6 +276,7 @@ echo "--- assets curated zone:"
 gcloud dataplex assets list --project="$PROJECT" --location="$REGION" --lake="$LAKE_ID" --zone="$CUR_ZONE_ID" \
   --format='table(name.basename(), resourceSpec.name, state)'
 echo "--- aspect di zone:"
+if [[ "$ASPECT_DONE" == "yes" ]]; then
 gcloud dataplex entries lookup "$ZONE_ENTRY" \
   --project="$PROJECT" --location="$REGION" --entry-group=@dataplex \
   --view=custom --aspect-types="$ASPECT_ID" --format=json \
@@ -277,13 +287,17 @@ print(f"{len(a)} aspect menempel di zone (harus 1)")
 for k, v in a.items():
     print("  -", k, "=", v.get("data"))
 '
+else
+  echo "DILEWAT (Task 2b belum berhasil, kerjakan lewat UI)"
+fi
 echo "--- file dq di bucket:"
 gcloud storage ls "gs://$DQ_BUCKET/" --project="$PROJECT"
 
 cat <<EOF
 
 --------------------------------------------------------------
-Selesai. Klik Check my progress untuk kelima task.
+Selesai. Klik Check my progress untuk task yang sudah dikerjakan.
+Status Task 2b (aspect ke zone): $ASPECT_DONE
 
 Datascan butuh beberapa menit. Cek statusnya dengan:
   gcloud dataplex datascans jobs list --datascan=$SCAN_ID \\
