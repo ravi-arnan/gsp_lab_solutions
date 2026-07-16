@@ -61,8 +61,10 @@ if [[ "$PHASE" == "reader" ]]; then
 
   # Bucket disiapkan lab dengan pola '<sesuatu>-bucket'. Deteksi, jangan tebak.
   step "Cari bucket pre-created (pola *-bucket)"
+  # Buang prefix gs:// dan slash kalau ada: format 'value(name)' tidak dijamin polos,
+  # sementara --resource-name butuh nama telanjang.
   BUCKET="$(gcloud storage buckets list --project="$PROJECT" --format='value(name)' 2>/dev/null \
-            | grep -- '-bucket$' | head -1 || true)"
+            | sed 's|^gs://||; s|/$||' | grep -- '-bucket$' | head -1 || true)"
   if [[ -z "$BUCKET" ]]; then
     echo "ERROR: tidak ada bucket berakhiran '-bucket' di project ini."
     echo "Bucket itu resource pre-created lab. Bucket yang ada sekarang:"
@@ -153,8 +155,10 @@ else
   gcloud dataplex assets get-iam-policy "$ASSET_ID" \
     --project="$PROJECT" --location="$REGION" --lake="$LAKE_ID" --zone="$ZONE_ID"
 
+  # Buang prefix gs:// dan slash kalau ada: format 'value(name)' tidak dijamin polos,
+  # sementara --resource-name butuh nama telanjang.
   BUCKET="$(gcloud storage buckets list --project="$PROJECT" --format='value(name)' 2>/dev/null \
-            | grep -- '-bucket$' | head -1 || true)"
+            | sed 's|^gs://||; s|/$||' | grep -- '-bucket$' | head -1 || true)"
 
   cat <<EOF
 
