@@ -35,11 +35,13 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 
 ## Daftar lab
 
-| ID | Judul | Coverage | Status | Terakhir diuji |
-|----|-------|----------|--------|----------------|
-| [GSP416](gsp416.sh) | Working with JSON, Arrays, and Structs in BigQuery | Task 1, 2, 3, 4, 6, 7, 8, 9 | Terverifikasi, skor 100/100 | 2026-07-16 |
-| [GSP340](gsp340.sh) | Build a Data Warehouse with BigQuery: Challenge Lab | Task 1, 2, 3, 4 | Terverifikasi, skor 40/40, satu varian task (lihat catatan) | 2026-07-16 |
-| [GSP1143](gsp1143.sh) | Knowledge Catalog (Dataplex): Qwik Start - Console | Task 1, 2, 3, 4 | Terverifikasi, skor 100/100 | 2026-07-17 |
+| ID | Judul | Script | Runbook | Status | Terakhir diuji |
+|----|-------|--------|---------|--------|----------------|
+| GSP416 | Working with JSON, Arrays, and Structs in BigQuery | [gsp416.sh](gsp416.sh) | [docs/gsp416.md](docs/gsp416.md) | Terverifikasi, skor 100/100 | 2026-07-16 |
+| GSP340 | Build a Data Warehouse with BigQuery: Challenge Lab | [gsp340.sh](gsp340.sh) | [docs/gsp340.md](docs/gsp340.md) | Terverifikasi, skor 40/40, satu varian task | 2026-07-16 |
+| GSP1143 | Knowledge Catalog (Dataplex): Qwik Start - Console | [gsp1143.sh](gsp1143.sh) | [docs/gsp1143.md](docs/gsp1143.md) | Terverifikasi, skor 100/100 | 2026-07-17 |
+
+Tiap lab punya runbook di `docs/` berisi urutan perintah, nilai yang harus muncul sebagai sanity check, dan troubleshooting. **Baca runbook-nya dulu sebelum jalan**, terutama GSP340 (parameter acak) dan GSP1143 (dua fase).
 
 Keterangan status:
 
