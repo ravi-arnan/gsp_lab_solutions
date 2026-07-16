@@ -20,9 +20,20 @@ bash gsp416.sh
 
 ## Daftar lab
 
-| ID | Judul | Coverage |
-|----|-------|----------|
-| [GSP416](gsp416.sh) | Working with JSON, Arrays, and Structs in BigQuery | Task 1, 2, 3, 4, 6, 7, 8, 9 |
+| ID | Judul | Coverage | Status | Terakhir diuji |
+|----|-------|----------|--------|----------------|
+| [GSP416](gsp416.sh) | Working with JSON, Arrays, and Structs in BigQuery | Task 1, 2, 3, 4, 6, 7, 8, 9 | Terverifikasi, skor 100/100 | 2026-07-16 |
+
+Keterangan status:
+
+- **Terverifikasi** berarti script pernah dijalankan sampai selesai di lab instance sungguhan dan semua checkpoint hijau, dengan skor yang tercatat di kolom yang sama.
+- **Belum diuji** berarti script lolos pemeriksaan syntax dan `shellcheck`, tapi belum pernah dijalankan di lab instance sungguhan.
+
+Lab dites ulang saat Google memperbarui materinya. Kolom "Terakhir diuji" menunjukkan kapan verifikasi terakhir dilakukan, jadi kalau tanggalnya sudah lama sementara lab-nya baru saja diupdate, anggap statusnya perlu dikonfirmasi ulang.
+
+### Lab yang tidak cocok diotomasi
+
+**Challenge lab** (misalnya GSP340) memilih task secara acak per instance, ditandai teks `Dynamically selected task will show up here...` di halaman labnya. Nama tabel, rentang tanggal, dan nama kolom berbeda tiap peserta, jadi script statis hampir pasti salah parameter. Lab jenis ini tidak dimasukkan ke repo kecuali dibuat versi yang parameternya diisi manual di awal file.
 
 ## Yang tidak diotomasi
 
