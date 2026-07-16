@@ -43,7 +43,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP1145 | Create and Add Aspects to Knowledge Catalog Assets | [gsp1145.sh](gsp1145.sh) | [docs/gsp1145.md](docs/gsp1145.md) | Terverifikasi, semua checkpoint hijau | 2026-07-17 |
 | GSP1157 | Implementing Security in Knowledge Catalog | [gsp1157.sh](gsp1157.sh) | [docs/gsp1157.md](docs/gsp1157.md) | Terverifikasi, skor 100/100, Task 3 dan 5 manual (dua user) | 2026-07-17 |
 | GSP514 | Build a Data Mesh with Knowledge Catalog: Challenge Lab | [gsp514.sh](gsp514.sh) | [docs/gsp514.md](docs/gsp514.md) | Terverifikasi, Task 2b manual (UI) | 2026-07-17 |
-| GSP1183 | Gating Deployments with Binary Authorization | [gsp1183.sh](gsp1183.sh) | [docs/gsp1183.md](docs/gsp1183.md) | Belum diuji | - |
+| GSP1183 | Gating Deployments with Binary Authorization | [gsp1183.sh](gsp1183.sh) | [docs/gsp1183.md](docs/gsp1183.md) | Terverifikasi di us-east1, 7/7 checkpoint hijau sekali jalan | 2026-07-17 |
 
 Tiap lab punya runbook di `docs/` berisi urutan perintah, nilai yang harus muncul sebagai sanity check, dan troubleshooting. **Baca runbook-nya dulu sebelum jalan**, terutama GSP340 (parameter acak) dan GSP1143 (dua fase).
 
