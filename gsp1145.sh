@@ -24,7 +24,10 @@ ASPECT_ID="protected-data-aspect"
 ASPECT_NAME="Protected Data Aspect"
 FIELD_ID="protected-data-flag"
 FIELD_NAME="Protected Data Flag"
-COLUMNS=(zip state last_name country email latitude first_name city longitude)
+# JANGAN namai variabel ini COLUMNS: itu variabel spesial bash (lebar terminal).
+# Bash me-reset-nya via checkwinsize, dan assignment skalar ke array menulis ke
+# index 0, jadi elemen pertama diam-diam berubah jadi angka.
+ASPECT_COLUMNS=(zip state last_name country email latitude first_name city longitude)
 
 PROJECT="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
 [[ -n "$PROJECT" ]] || { echo "Project belum di-set. Jalankan: gcloud config set project <ID>"; exit 1; }
@@ -42,16 +45,26 @@ step "Enable Cloud Dataplex API (bisa ~1 menit)"
 gcloud services enable dataplex.googleapis.com --project="$PROJECT"
 
 # ----------------------------------------------------------------- Task 1
+# gcloud dataplex ... create tidak punya --force, jadi cek dulu biar script
+# bisa dijalankan ulang setelah gagal di tengah.
 step "Task 1a: lake '$LAKE_NAME' (bisa beberapa menit)"
-gcloud dataplex lakes create "$LAKE_ID" \
-  --project="$PROJECT" --location="$REGION" --display-name="$LAKE_NAME"
+if gcloud dataplex lakes describe "$LAKE_ID" --project="$PROJECT" --location="$REGION" >/dev/null 2>&1; then
+  echo "Lake sudah ada, dilewat."
+else
+  gcloud dataplex lakes create "$LAKE_ID" \
+    --project="$PROJECT" --location="$REGION" --display-name="$LAKE_NAME"
+fi
 
 step "Task 1b: zone '$ZONE_NAME' (CURATED, regional)"
-gcloud dataplex zones create "$ZONE_ID" \
-  --project="$PROJECT" --location="$REGION" --lake="$LAKE_ID" \
-  --display-name="$ZONE_NAME" \
-  --type=CURATED \
-  --resource-location-type=SINGLE_REGION
+if gcloud dataplex zones describe "$ZONE_ID" --project="$PROJECT" --location="$REGION" --lake="$LAKE_ID" >/dev/null 2>&1; then
+  echo "Zone sudah ada, dilewat."
+else
+  gcloud dataplex zones create "$ZONE_ID" \
+    --project="$PROJECT" --location="$REGION" --lake="$LAKE_ID" \
+    --display-name="$ZONE_NAME" \
+    --type=CURATED \
+    --resource-location-type=SINGLE_REGION
+fi
 
 # Dataset 'customers' disiapkan lab, bukan script. Cek dulu biar errornya jelas.
 if ! bq --project_id="$PROJECT" show --format=none "$BQ_DATASET" 2>/dev/null; then
@@ -62,11 +75,15 @@ fi
 
 step "Task 1c: attach asset '$ASSET_NAME' (BigQuery dataset $BQ_DATASET)"
 # Tanpa flag discovery = inherit dari zone, sesuai instruksi lab.
-gcloud dataplex assets create "$ASSET_ID" \
-  --project="$PROJECT" --location="$REGION" --lake="$LAKE_ID" --zone="$ZONE_ID" \
-  --display-name="$ASSET_NAME" \
-  --resource-type=BIGQUERY_DATASET \
-  --resource-name="projects/$PROJECT/datasets/$BQ_DATASET"
+if gcloud dataplex assets describe "$ASSET_ID" --project="$PROJECT" --location="$REGION" --lake="$LAKE_ID" --zone="$ZONE_ID" >/dev/null 2>&1; then
+  echo "Asset sudah ada, dilewat."
+else
+  gcloud dataplex assets create "$ASSET_ID" \
+    --project="$PROJECT" --location="$REGION" --lake="$LAKE_ID" --zone="$ZONE_ID" \
+    --display-name="$ASSET_NAME" \
+    --resource-type=BIGQUERY_DATASET \
+    --resource-name="projects/$PROJECT/datasets/$BQ_DATASET"
+fi
 
 # ----------------------------------------------------------------- Task 2
 step "Task 2: aspect type '$ASPECT_NAME' (enum wajib, Yes/No)"
@@ -90,10 +107,14 @@ cat > "$WORK/template.json" <<EOF
 }
 EOF
 
-gcloud dataplex aspect-types create "$ASPECT_ID" \
-  --project="$PROJECT" --location="$REGION" \
-  --display-name="$ASPECT_NAME" \
-  --metadata-template-file-name="$WORK/template.json"
+if gcloud dataplex aspect-types describe "$ASPECT_ID" --project="$PROJECT" --location="$REGION" >/dev/null 2>&1; then
+  echo "Aspect type sudah ada, dilewat."
+else
+  gcloud dataplex aspect-types create "$ASPECT_ID" \
+    --project="$PROJECT" --location="$REGION" \
+    --display-name="$ASPECT_NAME" \
+    --metadata-template-file-name="$WORK/template.json"
+fi
 
 # ----------------------------------------------------------------- Task 3
 # Entry BigQuery dibuat otomatis Dataplex di entry group @bigquery, dan letaknya
@@ -133,18 +154,26 @@ else
   echo "Entry ketemu: $ENTRY"
 fi
 
-step "Task 3b: tambah aspect ke entry + ${#COLUMNS[@]} kolom"
+step "Task 3b: tambah aspect ke entry + ${#ASPECT_COLUMNS[@]} kolom"
 KEY="$PROJECT.$REGION.$ASPECT_ID"
 {
   printf '{\n'
   printf '  "%s": { "data": { "%s": "Yes" } }' "$KEY" "$FIELD_ID"
-  for c in "${COLUMNS[@]}"; do
+  for c in "${ASPECT_COLUMNS[@]}"; do
     printf ',\n  "%s@Schema.%s": { "data": { "%s": "Yes" } }' "$KEY" "$c" "$FIELD_ID"
   done
   printf '\n}\n'
 } > "$WORK/aspects.json"
 
 python3 -m json.tool "$WORK/aspects.json" >/dev/null   # gagal cepat kalau JSON rusak
+
+# Nama kolom harus huruf, bukan angka. Kalau ada yang jadi angka, sebuah variabel
+# tertimpa shell dan aspect akan ditolak dengan "path is used but not provided".
+if grep -qE '@Schema\.[0-9]+"' "$WORK/aspects.json"; then
+  echo "ERROR: ada nama kolom yang berubah jadi angka. Cek variabel ASPECT_COLUMNS."
+  cat "$WORK/aspects.json"
+  exit 1
+fi
 cat "$WORK/aspects.json"
 
 gcloud dataplex entries update "$ENTRY" \
