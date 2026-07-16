@@ -60,7 +60,7 @@ Lab dites ulang saat Google memperbarui materinya. Kolom "Terakhir diuji" menunj
 
 `gsp340.sh` tetap disertakan, tapi semua nilai yang bisa berubah dikumpulkan di satu blok variabel di awal file. **Cocokkan blok itu dengan teks task di lab-mu sebelum menjalankan.** Kalau nama datasetnya beda, ubah variabelnya, jangan query di bawahnya.
 
-**Lab berbasis Console** menilai artefak yang dibuat lewat UI, bukan resource yang bisa dibuat lewat API. Contoh terdokumentasi: **GSP1154 (Getting Started with Agent Studio)**.
+**Lab berbasis Console** menilai artefak yang dibuat lewat UI, bukan resource yang bisa dibuat lewat API. Contoh terdokumentasi: **GSP1154 (Getting Started with Agent Studio)** — runbook lengkapnya di [docs/gsp1154.md](docs/gsp1154.md).
 
 `gsp1154.sh` ada di repo ini tapi **sudah terbukti menghasilkan 0 poin**, dan sengaja tidak dimasukkan ke tabel di atas. Dites di lab instance sungguhan pada 2026-07-17: skor 0/5.
 
