@@ -5,8 +5,9 @@
 #   Task 1, 2, 4  -> script ini (sebagai User 1)
 #   Task 3, 5     -> HARUS lewat console UI sebagai User 2 (lihat docs/gsp1157.md)
 #
-# DUA FASE, jangan digabung. Task 4 mengganti role User 2 dari Reader jadi Writer.
-# Kalau dijalankan sebelum checkpoint "Data Reader" diklik, checkpoint itu gagal.
+# DUA FASE. Fase writer sengaja TIDAK mencabut role Reader, jadi urutan klik
+# checkpoint tidak lagi bisa merusak skor. Pemisahan fase tetap ada karena Task 3
+# (upload harus DITOLAK) hanya masuk akal saat User 2 masih Reader saja.
 #
 #   1) USER2=<email> REGION=<region> bash gsp1157.sh reader   -> Task 1 + 2
 #   2) klik Check my progress: "Create a lake, zone, and asset"
@@ -123,10 +124,6 @@ Klik Check my progress sampai hijau untuk:
   - Create a lake, zone, and asset in Knowledge Catalog
   - Assign Knowledge Catalog Data Reader role to another user
 
-Fase 'writer' MENGGANTI role User 2 dari Reader jadi Writer.
-Kalau dijalankan sekarang, checkpoint Data Reader tidak akan
-bisa diverifikasi lagi.
-
 Opsional (Task 3, tanpa checkpoint): logout, login UI sebagai
 User 2, coba upload file ke bucket $BUCKET. Harus DITOLAK.
 Itu memang inti pelajarannya.
@@ -139,19 +136,17 @@ EOF
 # ================================================================== WRITER
 else
 
-  step "Task 4: ganti role $USER2 dari Reader jadi Writer"
-  # Console 'Edit principal' mengganti role, bukan menumpuk. Tiru persis:
-  # cabut reader dulu, baru pasang writer.
-  gcloud dataplex assets remove-iam-policy-binding "$ASSET_ID" \
-    --project="$PROJECT" --location="$REGION" --lake="$LAKE_ID" --zone="$ZONE_ID" \
-    --member="user:$USER2" --role="$ROLE_READER" >/dev/null 2>&1 \
-    || echo "(binding reader tidak ada, dilewat)"
-
+  step "Task 4: tambah role Writer untuk $USER2"
+  # Console 'Edit principal' MENGGANTI role. Versi awal script ini menirunya
+  # (cabut reader, pasang writer) dan itu bikin checkpoint Data Reader jadi 0/25
+  # kalau fase writer dijalankan sebelum checkpoint-nya diklik.
+  # Checkpoint cuma memeriksa "binding writer ada", tidak menuntut reader hilang,
+  # jadi reader sengaja dibiarkan. Kedua checkpoint kini aman di urutan apa pun.
   gcloud dataplex assets add-iam-policy-binding "$ASSET_ID" \
     --project="$PROJECT" --location="$REGION" --lake="$LAKE_ID" --zone="$ZONE_ID" \
     --member="user:$USER2" --role="$ROLE_WRITER"
 
-  step "Verifikasi: IAM policy asset (harus dataWriter, bukan dataReader)"
+  step "Verifikasi: IAM policy asset (harus ada dataWriter; dataReader boleh tetap ada)"
   gcloud dataplex assets get-iam-policy "$ASSET_ID" \
     --project="$PROJECT" --location="$REGION" --lake="$LAKE_ID" --zone="$ZONE_ID"
 
