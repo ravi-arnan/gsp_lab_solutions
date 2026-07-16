@@ -182,8 +182,9 @@ ASPECT_DONE=no
 if [[ -z "$ZONE_ENTRY" ]]; then
   echo
   echo "PERINGATAN: entry zone tidak ketemu di entry group @dataplex."
+  echo "Ini DIHARAPKAN: zone memang tidak ada di @dataplex. Jangan menunggu."
   echo "Task 2b DILEWAT, script lanjut ke Task 3-5."
-  echo "Kerjakan Task 2b lewat UI nanti (lihat docs/gsp514.md, bagian fallback)."
+  echo "Kerjakan Task 2b lewat UI (6 klik, lihat docs/gsp514.md)."
 else
   echo "Entry zone ketemu: $ZONE_ENTRY"
 
