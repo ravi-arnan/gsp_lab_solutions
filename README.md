@@ -40,7 +40,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP416 | Working with JSON, Arrays, and Structs in BigQuery | [gsp416.sh](gsp416.sh) | [docs/gsp416.md](docs/gsp416.md) | Terverifikasi, skor 100/100 | 2026-07-16 |
 | GSP340 | Build a Data Warehouse with BigQuery: Challenge Lab | [gsp340.sh](gsp340.sh) | [docs/gsp340.md](docs/gsp340.md) | Terverifikasi, skor 40/40, satu varian task | 2026-07-16 |
 | GSP1143 | Knowledge Catalog (Dataplex): Qwik Start - Console | [gsp1143.sh](gsp1143.sh) | [docs/gsp1143.md](docs/gsp1143.md) | Terverifikasi, skor 100/100 | 2026-07-17 |
-| GSP1145 | Create and Add Aspects to Knowledge Catalog Assets | [gsp1145.sh](gsp1145.sh) | [docs/gsp1145.md](docs/gsp1145.md) | Terverifikasi di us-east1 | 2026-07-17 |
+| GSP1145 | Create and Add Aspects to Knowledge Catalog Assets | [gsp1145.sh](gsp1145.sh) | [docs/gsp1145.md](docs/gsp1145.md) | Terverifikasi, semua checkpoint hijau | 2026-07-17 |
 
 Tiap lab punya runbook di `docs/` berisi urutan perintah, nilai yang harus muncul sebagai sanity check, dan troubleshooting. **Baca runbook-nya dulu sebelum jalan**, terutama GSP340 (parameter acak) dan GSP1143 (dua fase).
 
