@@ -1,17 +1,25 @@
 #!/usr/bin/env bash
 # GSP1154 - Getting Started with Agent Studio (Vertex AI Studio)
 #
-# BACA DULU. Lab ini hampir seluruhnya kerja klik di Console, dan checkpoint-nya
-# tidak transparan. Script ini TIDAK menggantikan lab-nya. Yang dilakukan script
-# ini adalah memanggil API yang setara dengan prompt tiap task, dengan asumsi
-# checkpoint melihat jejak pemakaian Vertex AI di project. Asumsi ini belum
-# diverifikasi di lab instance sungguhan.
+# ============================================================================
+# SCRIPT INI TIDAK MENGHASILKAN POIN. Sudah diuji 2026-07-17: skor 0/5.
 #
-# Yang PASTI tetap manual:
-#   Task 1  - "Deploy as app" ke Cloud Run. Tombol itu membangun container
-#             bawaan Agent Studio yang tidak ada padanan gcloud/API-nya.
-#             Checkpoint task 1 hanya bisa hijau lewat UI.
-#   Task 5  - bagian Chirp (opsional di lab) tidak disentuh script ini.
+# Task 1-3 jalan tuntas dan API-nya merespons dengan benar, tapi skornya tetap
+# nol. Checkpoint lab mencari artefak UI Agent Studio: prompt TERSIMPAN dengan
+# nama tertentu, app Cloud Run hasil "Deploy as app", dan media hasil generate.
+# Memanggil Vertex AI API dengan isi prompt yang sama tidak membuat satu pun
+# artefak itu. Bunyi checkpoint-nya:
+#
+#   "Please create the 'Insurance Risk Factor Identification' prompt ..."
+#   "Please run the prompt to generate an image with 'Nano Banana 2'"
+#
+# Kalau tujuanmu centang hijau: TUTUP FILE INI, kerjakan manual di Console.
+# Cuma ~15 menit klik. Lihat bagian "Lab yang tidak cocok diotomasi" di README.
+#
+# Gunanya script ini cuma satu: menjalankan semua prompt lab lewat API sekaligus
+# supaya gampang membandingkan efek temperature, top-P, few-shot, dan Flash
+# lawan Pro tanpa mengklik satu per satu. Pendamping belajar, bukan solusi.
+# ============================================================================
 #
 # Pemakaian:
 #   bash gsp1154.sh
@@ -40,6 +48,10 @@ IMAGE_URI="${IMAGE_URI:-gs://cloud-samples-data/generative-ai/image/timetable.pn
 
 # Gemini pakai endpoint global (sesuai instruksi "Region: Global").
 # Imagen belum ada di global, jadi tetap regional.
+#
+# CATATAN: materi lab terbaru sudah pindah ke "Nano Banana 2", bukan Imagen 4
+# seperti yang masih tertulis di teks tugas (checkpoint-nya menyebut Nano
+# Banana 2). Default di bawah belum tentu cocok; override kalau perlu.
 IMAGEN_MODEL="${IMAGEN_MODEL:-imagen-4.0-generate-001}"
 IMAGEN_REGION="${IMAGEN_REGION:-us-central1}"
 
@@ -288,10 +300,13 @@ gen "$FLASH" "$PAYLOAD_MIN" || {
 }
 
 step "Task 3e: compare model - $PRO"
+# $PRO gampang kena 429 di project lab. Jangan biarkan itu membunuh script,
+# nanti Task 4 dan 5 tidak kebagian jalan.
 gen "$PRO" "$(jq -n --arg sys "$SYS_ANALYST" --arg p "$GUIDELINES_PROMPT" \
   '{systemInstruction:{parts:[{text:$sys}]},
     contents:[{role:"user",parts:[{text:$p}]}],
-    generationConfig:{temperature:0.2}}')"
+    generationConfig:{temperature:0.2}}')" \
+  || echo "   (dilewat, lanjut ke task berikutnya)"
 
 # ================================================================== Task 4
 step "Task 4a: analisis gambar timetable.png ($FLASH)"
