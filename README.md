@@ -61,6 +61,31 @@ Lab dites ulang saat Google memperbarui materinya. Kolom "Terakhir diuji" menunj
 
 `gsp340.sh` tetap disertakan, tapi semua nilai yang bisa berubah dikumpulkan di satu blok variabel di awal file. **Cocokkan blok itu dengan teks task di lab-mu sebelum menjalankan.** Kalau nama datasetnya beda, ubah variabelnya, jangan query di bawahnya.
 
+**Lab berbasis Console** menilai artefak yang dibuat lewat UI, bukan resource yang bisa dibuat lewat API. Contoh terdokumentasi: **GSP1154 (Getting Started with Agent Studio)** — runbook lengkapnya di [docs/gsp1154.md](docs/gsp1154.md).
+
+`gsp1154.sh` ada di repo ini tapi **sudah terbukti menghasilkan 0 poin**, dan sengaja tidak dimasukkan ke tabel di atas. Dites di lab instance sungguhan pada 2026-07-17: skor 0/5.
+
+Yang menarik, kegagalannya bukan karena scriptnya error. Task 1, 2, dan 3 jalan tuntas, API-nya merespons, isinya sesuai lab — **dan tetap 0 poin**. Pesan checkpoint-nya yang menjelaskan kenapa:
+
+```
+Please create the 'Insurance Risk Factor Identification' prompt to see the 'Compare' feature
+Please run the prompt to generate an image with 'Nano Banana 2'
+```
+
+Yang dicari checkpoint adalah **prompt tersimpan dengan nama tertentu** di Agent Studio, app Cloud Run hasil "Deploy as app", dan media hasil generate di Media Studio. Memanggil Vertex AI API dengan isi prompt yang sama persis tidak meninggalkan satu pun artefak itu. Jadi asumsi "checkpoint melihat jejak pemakaian API di project" salah, dan tidak ada tambalan kecil yang bisa memperbaikinya.
+
+Pelajarannya untuk lab lain: **kalau checkpoint menyebut nama artefak UI, otomasi lewat API tidak akan menghasilkan poin** — sebanyak apa pun API call yang sukses. Kerjakan manual, GSP1154 cuma ~15 menit klik.
+
+Script-nya tetap disimpan sebagai pendamping belajar: dia menjalankan semua prompt lab lewat API sekaligus, jadi bisa dipakai membandingkan efek temperature, top-P, few-shot, dan Flash lawan Pro tanpa mengklik satu-satu. **Bukan pengganti lab-nya.**
+
+Catatan lain dari pengujian itu, kalau nanti ada yang meneruskan:
+
+- Model di lab: `gemini-3.5-flash` dan `gemini-2.5-pro` (pasangannya memang terbalik, Flash-nya lebih baru). Keduanya valid di endpoint `global`.
+- Gemini 3 pakai `thinkingConfig.thinkingLevel` (enum, mis. `MINIMAL`), bukan `thinkingBudget` (angka) seperti generasi 2.x.
+- `gemini-2.5-pro` gampang kena `429 Resource has been exhausted` di project lab.
+- Akun student lab tidak punya izin `serviceusage`, jadi jangan panggil `gcloud services enable` — Qwiklabs sudah meng-enable API-nya sejak provisioning.
+- Task 5 di materi terbaru pakai **Nano Banana 2**, bukan Imagen 4 seperti yang masih tertulis di teks tugas.
+
 ## Yang tidak diotomasi
 
 Script ini mengerjakan bagian yang di-score lewat **Check my progress**, yaitu pembuatan dataset, load tabel, dan eksekusi query. Yang tetap harus dikerjakan manual:
