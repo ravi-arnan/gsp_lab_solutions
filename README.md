@@ -23,12 +23,13 @@ bash gsp416.sh
 | ID | Judul | Coverage | Status | Terakhir diuji |
 |----|-------|----------|--------|----------------|
 | [GSP416](gsp416.sh) | Working with JSON, Arrays, and Structs in BigQuery | Task 1, 2, 3, 4, 6, 7, 8, 9 | Terverifikasi, skor 100/100 | 2026-07-16 |
-| [GSP340](gsp340.sh) | Build a Data Warehouse with BigQuery: Challenge Lab | Task 1, 2, 3, 4 | Belum diuji, task acak (lihat catatan) | 2026-07-16 |
+| [GSP340](gsp340.sh) | Build a Data Warehouse with BigQuery: Challenge Lab | Task 1, 2, 3, 4 | Terverifikasi, skor 40/40, satu varian task (lihat catatan) | 2026-07-16 |
 
 Keterangan status:
 
 - **Terverifikasi** berarti script pernah dijalankan sampai selesai di lab instance sungguhan dan semua checkpoint hijau, dengan skor yang tercatat di kolom yang sama.
 - **Belum diuji** berarti script lolos pemeriksaan syntax dan `shellcheck`, tapi belum pernah dijalankan di lab instance sungguhan.
+- **Satu varian task** khusus untuk challenge lab: script terbukti 100% pada varian task yang tercatat di file, tapi karena tasknya diacak per instance, varian lain bisa butuh penyesuaian variabel.
 
 Lab dites ulang saat Google memperbarui materinya. Kolom "Terakhir diuji" menunjukkan kapan verifikasi terakhir dilakukan, jadi kalau tanggalnya sudah lama sementara lab-nya baru saja diupdate, anggap statusnya perlu dikonfirmasi ulang.
 
