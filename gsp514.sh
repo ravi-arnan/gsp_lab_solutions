@@ -11,7 +11,7 @@
 set -euo pipefail
 
 # ----------------------------------------------------------------- parameter
-REGION="${REGION:-us-central1}"
+REGION="${REGION:-us-west1}"
 USER2="${USER2:-}"
 
 LAKE_ID="sales-lake";            LAKE_NAME="Sales Lake"
