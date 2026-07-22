@@ -69,12 +69,12 @@ fi
 q "Task 2: update $DS_MAIN.$TBL_CONSOLIDATED dengan mobility data" "
 UPDATE \`$DS_MAIN.$TBL_CONSOLIDATED\` AS main
 SET
-  mobility_data.avg_retail = m.avg_retail,
-  mobility_data.avg_grocery = m.avg_grocery,
-  mobility_data.avg_parks = m.avg_parks,
-  mobility_data.avg_transit = m.avg_transit,
-  mobility_data.avg_workplace = m.avg_workplace,
-  mobility_data.avg_residential = m.avg_residential
+  avg_retail = m.avg_retail,
+  avg_grocery = m.avg_grocery,
+  avg_parks = m.avg_parks,
+  avg_transit = m.avg_transit,
+  avg_workplace = m.avg_workplace,
+  avg_residential = m.avg_residential
 FROM (
   SELECT
     country_region,
