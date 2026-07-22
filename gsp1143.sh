@@ -16,7 +16,7 @@
 set -euo pipefail
 
 # ----------------------------------------------------------------- parameter
-REGION="${REGION:-us-central1}"
+REGION="${REGION:-us-east1}"
 LAKE_ID="sensors"
 LAKE_NAME="sensors"
 ZONE_ID="temperature-raw-data"
