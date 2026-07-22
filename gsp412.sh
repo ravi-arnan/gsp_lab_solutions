@@ -190,6 +190,10 @@ VALUES (.04),
        (.03)
 "
 
+q "Task 6: SELECT discount (harus 3 baris)" "
+SELECT discount FROM ecommerce.site_wide_promotion
+"
+
 q "Task 6: CROSS JOIN clearance (3 discounts) -> 246" "
 SELECT DISTINCT
   productSKU,
@@ -198,6 +202,22 @@ SELECT DISTINCT
 FROM \`data-to-insights.ecommerce.all_sessions_raw\` AS website
 CROSS JOIN ecommerce.site_wide_promotion
 WHERE v2ProductCategory LIKE '%Clearance%'
+"
+
+q "Task 6: CROSS JOIN 1 produk (GGOEGOLC013299) -> 3 baris" "
+SELECT DISTINCT
+  productSKU,
+  v2ProductCategory,
+  discount
+FROM \`data-to-insights.ecommerce.all_sessions_raw\` AS website
+CROSS JOIN ecommerce.site_wide_promotion
+WHERE v2ProductCategory LIKE '%Clearance%'
+AND productSKU = 'GGOEGOLC013299'
+"
+
+q "Task 6: confirm SKU GGOEGATJ060517 tidak ada di inventory" "
+SELECT * FROM \`data-to-insights.ecommerce.products\`
+WHERE SKU = 'GGOEGATJ060517'
 "
 
 echo
