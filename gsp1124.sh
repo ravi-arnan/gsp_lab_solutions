@@ -30,44 +30,45 @@ step() { echo; echo "===========================================================
 # ================================================================== Task 2: Enable SHA Module
 step "Task 2: Enable Security Health Analytics module"
 
-# Get the SHA source name
-SHA_SOURCE=$(curl -s -H "Authorization: Bearer $(gcloud auth print-access-token)" \
-  "https://securitycenter.googleapis.com/v1/projects/${PROJECT}/sources" | \
-  python3 -c "import sys,json; [print(s['name']) for s in json.load(sys.stdin).get('sources',[]) if 'SecurityHealthAnalytics' in s.get('displayName','')]" 2>/dev/null | head -1)
+# SHA module enablement - MANUAL di Console
+step "Task 2: SHA Module - MANUAL di Console"
 
-if [[ -z "$SHA_SOURCE" ]]; then
-  echo "SHA source not found via API, trying to find it..."
-  # The SHA source is typically named "sources/10507" or similar
-  SHA_SOURCE="projects/${PROJECT}/sources/10507"
-fi
+cat <<EOF
 
-echo "SHA Source: $SHA_SOURCE"
+SHA module TIDAK BISA di-enable via API di lab ini.
+Enable manual di Console:
 
-# Enable the VPC_FLOW_LOGS_SETTINGS_NOT_RECOMMENDED module
-step "Enable VPC_FLOW_LOGS_SETTINGS_NOT_RECOMMENDED module"
-curl -s -X PATCH \
-  -H "Authorization: Bearer $(gcloud auth print-access-token)" \
-  -H "Content-Type: application/json" \
-  "https://securitycenter.googleapis.com/v1/${SHA_SOURCE}/modules/VPC_FLOW_LOGS_SETTINGS_NOT_RECOMMENDED?updateMask=enablement" \
-  -d '{"enablement": "ENABLED"}' || echo "Module enablement may take a few minutes to reflect"
+1. Buka Navigation menu > Security > Settings
+2. Pastikan tab Services aktif
+3. Klik Manage settings di Security Health Analytics
+4. Klik tab Modules
+5. Di filter field, ketik: VPC_FLOW_LOGS_SETTINGS_NOT_RECOMMENDED
+6. Klik dropdown Status (Disabled) > pilih Enable
+7. Tunggu beberapa menit sampai enabled
 
-echo "Module VPC_FLOW_LOGS_SETTINGS_NOT_RECOMMENDED enabled."
+Setelah itu, klik Check my progress untuk Task 2.
+EOF
 
-# ================================================================== Task 3a: Create mute rule
-step "Task 3a: Create mute rule for FLOW_LOGS_DISABLED"
+# ================================================================== Task 3a: Mute rule - MANUAL di Console
+step "Task 3a: Mute rule - HARUS MANUAL di Console"
 
-curl -s -X POST \
-  -H "Authorization: Bearer $(gcloud auth print-access-token)" \
-  -H "Content-Type: application/json" \
-  "https://securitycenter.googleapis.com/v1/projects/${PROJECT}/muteRules" \
-  -d '{
-    "name": "mute-flowlogs-findings",
-    "description": "Mute rule for VPC Flow Logs",
-    "filter": "category=\"FLOW_LOGS_DISABLED\"",
-    "type": "DYNAMIC"
-  }' || echo "Mute rule may have been created"
+cat <<EOF
 
-echo "Mute rule 'mute-flowlogs-findings' created."
+Mute rule TIDAK BISA dibuat via API di lab ini.
+Buat manual di Console:
+
+1. Buka Navigation menu > Security > Overview
+2. Klik Findings di menu kiri
+3. Klik Mute options > Manage mute rules
+4. Klik Create mute rule
+5. Isi:
+   - Mute rule ID: mute-flowlogs-findings
+   - Description: Mute rule for VPC Flow Logs
+   - Findings query: category="FLOW_LOGS_DISABLED"
+6. Klik Save
+
+Setelah itu, klik Check my progress untuk "Create a mute rule"
+EOF
 
 # ================================================================== Task 3b: Create VPC network
 step "Task 3b: Create VPC network scc-lab-net"
@@ -130,10 +131,7 @@ echo "Firewall rules (default network):"
 gcloud compute firewall-rules list --project="$PROJECT" --filter="network=default"
 
 echo ""
-echo "Mute rules:"
-curl -s -H "Authorization: Bearer $(gcloud auth print-access-token)" \
-  "https://securitycenter.googleapis.com/v1/projects/${PROJECT}/muteRules" | \
-  python3 -c "import sys,json; [print(f'  - {r[\"name\"]}: {r.get(\"description\",\"\")}') for r in json.load(sys.stdin).get('muteRules',[])]" 2>/dev/null || echo "  (could not list mute rules)"
+echo "Mute rules: (check di Console > Findings > Mute options > Manage mute rules)"
 
 cat <<EOF
 
