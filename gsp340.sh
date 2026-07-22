@@ -23,7 +23,7 @@ TBL_POP="pop_data_2019"
 # Source datasets
 SRC_TRACKER="bigquery-public-data.covid19_govt_response.oxford_policy_tracker"
 SRC_MOBILITY="bigquery-public-data.covid19_google_mobility.mobility_report"
-SRC_ECDC="bigquery-public-data.covid19_ecdc.covid19_ecdc_table_14d"
+SRC_ECDC="bigquery-public-data.covid19_ecdc.covid_19_geographic_distribution_worldwide"
 
 PROJECT="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
 LOCATION="US"
