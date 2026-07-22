@@ -94,7 +94,8 @@ if gcloud dataplex zones describe "$RAW_ZONE_ID" --project="$PROJECT" --location
 else
   gcloud dataplex zones create "$RAW_ZONE_ID" \
     --project="$PROJECT" --location="$REGION" --lake="$LAKE_ID" \
-    --display-name="$RAW_ZONE_NAME" --type=RAW --resource-location-type=SINGLE_REGION
+      --display-name="$RAW_ZONE_NAME" --type=RAW --resource-location-type=SINGLE_REGION \
+      --discovery-enabled
 fi
 
 step "Task 1c: zone '$CUR_ZONE_NAME' (CURATED, regional)"
@@ -103,7 +104,8 @@ if gcloud dataplex zones describe "$CUR_ZONE_ID" --project="$PROJECT" --location
 else
   gcloud dataplex zones create "$CUR_ZONE_ID" \
     --project="$PROJECT" --location="$REGION" --lake="$LAKE_ID" \
-    --display-name="$CUR_ZONE_NAME" --type=CURATED --resource-location-type=SINGLE_REGION
+      --display-name="$CUR_ZONE_NAME" --type=CURATED --resource-location-type=SINGLE_REGION \
+      --discovery-enabled
 fi
 
 step "Task 1d: asset '$GCS_ASSET_NAME' (bucket $ONLINE_BUCKET) di raw zone"
