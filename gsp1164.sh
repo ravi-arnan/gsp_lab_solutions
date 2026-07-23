@@ -128,11 +128,17 @@ for i in {0..2}; do
     echo "SA $SA_NAME sudah ada, dilewat."
   else
     gcloud iam service-accounts create "$SA_NAME" --project="$PROJECT"
+    sleep 5
   fi
   # Create key
   if [[ ! -f "/tmp/sa-key-$i.json" ]]; then
     gcloud iam service-accounts keys create "/tmp/sa-key-$i.json" \
-      --iam-account="$SA_EMAIL"
+      --iam-account="$SA_EMAIL" || {
+      echo "Retry in 10s..."
+      sleep 10
+      gcloud iam service-accounts keys create "/tmp/sa-key-$i.json" \
+        --iam-account="$SA_EMAIL"
+    }
   fi
 done
 
