@@ -10,8 +10,8 @@
 
 set -euo pipefail
 
-REGION="${REGION:-us-east4}"
-ZONE="${REGION}-a"
+REGION="${REGION:-us-west1}"
+ZONE="${REGION}-c"
 PROJECT="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
 [[ -n "$PROJECT" ]] || { echo "Project belum di-set."; exit 1; }
 
