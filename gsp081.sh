@@ -42,8 +42,8 @@ EOF
 echo "index.js + package.json siap di $WORKDIR"
 
 # ----------------------------------------------------------------- Deploy
-step "Deploy Cloud Run function '$FUNC_NAME' (gen2, ~2 menit)"
-gcloud run functions deploy "$FUNC_NAME" \
+step "Deploy Cloud Run function '$FUNC_NAME' (~2 menit)"
+gcloud functions deploy "$FUNC_NAME" \
   --region="$REGION" \
   --gen2 \
   --source="$WORKDIR" \
@@ -54,9 +54,9 @@ gcloud run functions deploy "$FUNC_NAME" \
 
 # ----------------------------------------------------------------- Verify
 step "Verifikasi"
-gcloud run functions describe "$FUNC_NAME" \
+gcloud functions describe "$FUNC_NAME" \
   --region="$REGION" --project="$PROJECT" \
-  --format="table(metadata.name, status.url, spec.template.spec.serviceAccount)"
+  --format="table(name, httpsTrigger.url, serviceAccountEmail)"
 
 cat <<EOF
 
