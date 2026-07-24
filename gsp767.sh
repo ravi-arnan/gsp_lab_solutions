@@ -10,12 +10,12 @@
 #
 # Checkpoint:
 #   Task 2a - Scale Up Hello App
-#   Task 2b - Create node pool
-#   Task 3a - Check Pod Creation
-#   Task 3b - Simulate Traffic
+#   Task 2c - Create node pool
+#   Task 3b - Check Pod Creation
+#   Task 3h - Simulate Traffic (flow logs + sink + query)
 #
-# Script berhenti sebentar sebelum Task 3b supaya kamu sempat klik
-# "Check Pod Creation" selagi pod masih beda node.
+# Script berhenti sekali dan menunggu ENTER (setelah Task 3e) supaya kamu
+# sempat klik "Check Pod Creation" selagi pod-1 dan pod-2 masih beda node.
 
 set -euo pipefail
 
@@ -137,16 +137,42 @@ kubectl wait --for=condition=ready --timeout=300s pod/pod-1 pod/pod-2 \
   || echo "PERINGATAN: pod belum ready."
 kubectl get pod pod-1 pod-2 --output wide
 
-# Ukur latensi selagi masih beda node, untuk dibandingkan nanti.
 step "Task 3c: Enable VPC flow logs di subnet $REGION"
-# Ini di-score (checkpoint "Simulate Traffic"), bukan sekadar langkah UI.
-gcloud compute networks subnets update default --region="$REGION" --enable-flow-logs
+# Di-score (checkpoint "Simulate Traffic"), bukan sekadar langkah UI.
+# --logging-metadata=include-all WAJIB: tanpa itu log cuma berisi bytes_sent
+# dkk, tanpa src_instance/dest_instance, dan query Task 3g gagal. UI defaultnya
+# include-all, gcloud tidak.
+gcloud compute networks subnets update default --region="$REGION" \
+  --enable-flow-logs \
+  --logging-metadata=include-all \
+  --logging-flow-sampling=1.0 \
+  --logging-aggregation-interval=interval-5-sec
 gcloud compute networks subnets describe default --region="$REGION" \
   --format='value(enableFlowLogs)'
 
+step "Task 3d: Sink FlowLogsSample ke BigQuery dataset us_flow_logs"
+# Juga di-score. Dibuat sebelum ping supaya trafiknya ikut terekspor.
+bq mk --location=US --dataset "${PROJECT}:us_flow_logs" 2>/dev/null || echo "Dataset sudah ada"
+if gcloud logging sinks describe FlowLogsSample >/dev/null 2>&1; then
+  echo "Sink sudah ada, dilewat."
+else
+  gcloud logging sinks create FlowLogsSample \
+    "bigquery.googleapis.com/projects/${PROJECT}/datasets/us_flow_logs" \
+    --log-filter="logName=\"projects/${PROJECT}/logs/compute.googleapis.com%2Fvpc_flows\""
+fi
+
+# Akun student tidak punya setIamPolicy di level project, jadi izin writer
+# diberikan di level dataset (memang scope yang benar).
+SA="$(gcloud logging sinks describe FlowLogsSample --format='value(writerIdentity)')"
+bq show --format=prettyjson "${PROJECT}:us_flow_logs" > /tmp/ds.json
+jq --arg sa "${SA#serviceAccount:}" \
+  'if any(.access[]; .userByEmail == $sa) then . else .access += [{"role":"WRITER","userByEmail":$sa}] end' \
+  /tmp/ds.json > /tmp/ds2.json
+bq update --source /tmp/ds2.json "${PROJECT}:us_flow_logs"
+
 POD2_IP="$(kubectl get pod pod-2 -o jsonpath='{.status.podIP}')"
-step "Task 3d: Ping lintas-zona (pod beda node)"
-kubectl exec pod-1 -- ping -c 20 "$POD2_IP" || echo "PERINGATAN: ping gagal."
+step "Task 3e: Ping lintas-zona (pod beda node)"
+kubectl exec pod-1 -- ping -c 30 "$POD2_IP" || echo "PERINGATAN: ping gagal."
 
 cat <<EOF
 
@@ -161,7 +187,7 @@ Tekan ENTER kalau sudah hijau, script lanjut memindahkan pod-2.
 EOF
 read -r _
 
-step "Task 3e: Ubah podAntiAffinity jadi podAffinity, recreate pod-2"
+step "Task 3f: Ubah podAntiAffinity jadi podAffinity, recreate pod-2"
 sed -i 's/podAntiAffinity/podAffinity/g' pod-2.yaml
 kubectl delete pod pod-2
 kubectl create -f pod-2.yaml
@@ -172,25 +198,37 @@ kubectl wait --for=condition=ready --timeout=300s pod/pod-2 \
 kubectl get pod pod-1 pod-2 --output wide
 
 POD2_IP="$(kubectl get pod pod-2 -o jsonpath='{.status.podIP}')"
-step "Task 3f: Ping satu node (bandingkan dengan Task 3d)"
-kubectl exec pod-1 -- ping -c 5 "$POD2_IP" || echo "PERINGATAN: ping gagal."
+step "Task 3g: Ping satu node (bandingkan dengan Task 3e)"
+kubectl exec pod-1 -- ping -c 10 "$POD2_IP" || echo "PERINGATAN: ping gagal."
+
+step "Task 3h: Query flow logs, cari trafik lintas-zona"
+# Sink baru menambah kolom ke schema BigQuery setelah log-nya benar-benar
+# masuk, jadi tunggu src_instance muncul dulu.
+echo "--- tunggu kolom src_instance muncul di BigQuery (bisa ~5 menit):"
+TABLE=""
+for _ in $(seq 40); do
+  TABLE="$(bq ls --format=json "${PROJECT}:us_flow_logs" 2>/dev/null \
+    | jq -r '.[0].tableReference.tableId // empty')"
+  if [[ -n "$TABLE" ]] && bq show --schema "${PROJECT}:us_flow_logs.${TABLE}" 2>/dev/null \
+      | jq -e '.[] | select(.name=="jsonPayload") | .fields[] | select(.name=="src_instance")' >/dev/null; then
+    break
+  fi
+  sleep 15
+done
+
+if [[ -z "$TABLE" ]]; then
+  echo "PERINGATAN: tabel flow logs belum terbentuk. Ulangi query ini nanti manual."
+else
+  bq query --use_legacy_sql=false \
+"SELECT jsonPayload.src_instance.zone AS src_zone, jsonPayload.src_instance.vm_name AS src_vm, jsonPayload.dest_instance.zone AS dest_zone, jsonPayload.dest_instance.vm_name FROM \`${PROJECT}.us_flow_logs.${TABLE}\` WHERE jsonPayload.src_instance.zone != jsonPayload.dest_instance.zone LIMIT 50"
+fi
 
 cat <<EOF
 
 ==============================================================
 SELESAI. Klik Check my progress: "Simulate Traffic"
 
-Bandingkan angka rtt avg di Task 3d (beda node, lintas zona,
-egress \$0.01/GB) dengan Task 3f (satu node, gratis).
-
-Sisa yang murni UI (tidak di-score) - flow logs sudah aktif dari Task 3c:
-
-  Logs Explorer > log name vpc_flows > Actions > Create Sink
-  Sink: BigQuery dataset baru "us_flow_logs"
-  Query tabelnya, tambahkan di antara SELECT dan FROM:
-    jsonPayload.src_instance.zone AS src_zone,
-    jsonPayload.src_instance.vm_name AS src_vm,
-    jsonPayload.dest_instance.zone AS dest_zone,
-    jsonPayload.dest_instance.vm_name
+Bandingkan angka rtt avg di Task 3e (beda node, lintas zona,
+egress \$0.01/GB) dengan Task 3g (satu node, gratis).
 ==============================================================
 EOF
