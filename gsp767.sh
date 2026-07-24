@@ -138,9 +138,15 @@ kubectl wait --for=condition=ready --timeout=300s pod/pod-1 pod/pod-2 \
 kubectl get pod pod-1 pod-2 --output wide
 
 # Ukur latensi selagi masih beda node, untuk dibandingkan nanti.
+step "Task 3c: Enable VPC flow logs di subnet $REGION"
+# Ini di-score (checkpoint "Simulate Traffic"), bukan sekadar langkah UI.
+gcloud compute networks subnets update default --region="$REGION" --enable-flow-logs
+gcloud compute networks subnets describe default --region="$REGION" \
+  --format='value(enableFlowLogs)'
+
 POD2_IP="$(kubectl get pod pod-2 -o jsonpath='{.status.podIP}')"
-step "Task 3c: Ping lintas-zona (pod beda node)"
-kubectl exec pod-1 -- ping -c 5 "$POD2_IP" || echo "PERINGATAN: ping gagal."
+step "Task 3d: Ping lintas-zona (pod beda node)"
+kubectl exec pod-1 -- ping -c 20 "$POD2_IP" || echo "PERINGATAN: ping gagal."
 
 cat <<EOF
 
@@ -155,7 +161,7 @@ Tekan ENTER kalau sudah hijau, script lanjut memindahkan pod-2.
 EOF
 read -r _
 
-step "Task 3d: Ubah podAntiAffinity jadi podAffinity, recreate pod-2"
+step "Task 3e: Ubah podAntiAffinity jadi podAffinity, recreate pod-2"
 sed -i 's/podAntiAffinity/podAffinity/g' pod-2.yaml
 kubectl delete pod pod-2
 kubectl create -f pod-2.yaml
@@ -166,7 +172,7 @@ kubectl wait --for=condition=ready --timeout=300s pod/pod-2 \
 kubectl get pod pod-1 pod-2 --output wide
 
 POD2_IP="$(kubectl get pod pod-2 -o jsonpath='{.status.podIP}')"
-step "Task 3e: Ping satu node (bandingkan dengan Task 3c)"
+step "Task 3f: Ping satu node (bandingkan dengan Task 3d)"
 kubectl exec pod-1 -- ping -c 5 "$POD2_IP" || echo "PERINGATAN: ping gagal."
 
 cat <<EOF
@@ -174,11 +180,11 @@ cat <<EOF
 ==============================================================
 SELESAI. Klik Check my progress: "Simulate Traffic"
 
-Bandingkan angka rtt avg di Task 3c (beda node, lintas zona,
-egress \$0.01/GB) dengan Task 3e (satu node, gratis).
+Bandingkan angka rtt avg di Task 3d (beda node, lintas zona,
+egress \$0.01/GB) dengan Task 3f (satu node, gratis).
 
-Bagian VPC Flow Logs -> BigQuery tidak di-score, murni UI:
-  VPC Network > VPC Flow Logs > enable di subnet $REGION
+Sisa yang murni UI (tidak di-score) - flow logs sudah aktif dari Task 3c:
+
   Logs Explorer > log name vpc_flows > Actions > Create Sink
   Sink: BigQuery dataset baru "us_flow_logs"
   Query tabelnya, tambahkan di antara SELECT dan FROM:
