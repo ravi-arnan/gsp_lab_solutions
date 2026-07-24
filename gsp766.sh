@@ -75,18 +75,23 @@ gcloud projects add-iam-policy-binding "$PROJECT" \
   --role=roles/container.clusterViewer 2>/dev/null \
   || echo "IAM binding sudah ada"
 
-step "Task 3b: Create developer role in team-a namespace"
+step "Task 3b: Create pod-reader role in team-a namespace"
+kubectl delete role pod-reader --namespace=team-a --ignore-not-found 2>/dev/null || true
+kubectl create role pod-reader --namespace=team-a \
+  --resource=pods --verb=watch --verb=get --verb=list
+
+step "Task 3c: Create developer role in team-a namespace"
 # Hapus role lama jika ada (idempoten)
 kubectl delete role developer --namespace=team-a --ignore-not-found 2>/dev/null || true
 kubectl create -f "$WORKDIR/developer-role.yaml"
 
-step "Task 3c: Create rolebinding team-a-developers"
+step "Task 3d: Create rolebinding team-a-developers"
 kubectl delete rolebinding team-a-developers --namespace=team-a --ignore-not-found 2>/dev/null || true
 kubectl create rolebinding team-a-developers \
   --role=developer \
   --user="team-a-dev@${PROJECT}.iam.gserviceaccount.com"
 
-step "Task 3d: Download service account key (untuk testing)"
+step "Task 3e: Download service account key (untuk testing)"
 gcloud iam service-accounts keys create /tmp/key.json \
   --iam-account="team-a-dev@${PROJECT}.iam.gserviceaccount.com" 2>/dev/null \
   || echo "Key mungkin sudah ada"
@@ -108,8 +113,15 @@ kubectl run app-server-2 --image=quay.io/centos/centos:9 --namespace=team-a -- s
 
 step "Task 4c: Update test-quota to 6 pods via patch"
 # Daripada pakai editor interaktif (nano), kita pakai kubectl patch
-kubectl patch quota test-quota --namespace=team-a --type='json' \
-  -p='[{"op": "replace", "path": "/spec/hard/count~1pods", "value": "6"}]'
+kubectl patch quota test-quota --namespace=team-a --type=merge \
+  -p '{"spec":{"hard":{"count/pods":"6","count/services.loadbalancers":"1"}}}'
+
+# Grader membaca status.hard, yang baru terisi setelah quota controller resync.
+echo "--- tunggu status.hard ikut jadi 6:"
+for _ in $(seq 30); do
+  [[ "$(kubectl get quota test-quota -n team-a -o jsonpath="{.status.hard['count/pods']}")" == "6" ]] && break
+  sleep 2
+done
 
 echo "--- verifikasi quota:"
 kubectl describe quota test-quota --namespace=team-a
