@@ -169,12 +169,8 @@ gcloud container clusters update "$CLUSTER" \
   --project="$PROJECT"
 
 step "Task 5b: Set environment variables for cost breakdown"
-# Nama tabel billing export punya suffix acak per project, jadi dideteksi otomatis.
-BILLING_TABLE="$(bq ls --format=json "${PROJECT}:billing_dataset" \
-  | grep -o '"tableId": *"gcp_billing_export[^"]*"' | head -1 | sed 's/.*: *"//; s/"//')"
-BILLING_TABLE="${BILLING_TABLE:-gcp_billing_export_v1_xxxx}"
-echo "Billing table: $BILLING_TABLE"
-GCP_BILLING_EXPORT_TABLE_FULL_PATH="${PROJECT}.billing_dataset.${BILLING_TABLE}"
+# Nama tabelnya memang literal `_xxxx` di lab ini (diverifikasi 2026-07-24).
+GCP_BILLING_EXPORT_TABLE_FULL_PATH="${PROJECT}.billing_dataset.gcp_billing_export_v1_xxxx"
 USAGE_METERING_DATASET_ID="cluster_dataset"
 COST_BREAKDOWN_TABLE_ID="usage_metering_cost_breakdown"
 
