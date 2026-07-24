@@ -63,6 +63,10 @@ kubectl run app-server --image=quay.io/centos/centos:9 --namespace=team-b -- sle
 echo "--- semua pods:"
 kubectl get pods -A
 
+# Lab menyetel context ke team-a di sini. Tanpa ini, perintah kubectl tanpa
+# --namespace mendarat di `default` dan checkpoint gagal.
+kubectl config set-context --current --namespace=team-a
+
 echo ""
 echo "Klik Check my progress: Task 2 - Create namespaces"
 
@@ -87,7 +91,7 @@ kubectl create -f "$WORKDIR/developer-role.yaml"
 
 step "Task 3d: Create rolebinding team-a-developers"
 kubectl delete rolebinding team-a-developers --namespace=team-a --ignore-not-found 2>/dev/null || true
-kubectl create rolebinding team-a-developers \
+kubectl create rolebinding team-a-developers --namespace=team-a \
   --role=developer \
   --user="team-a-dev@${PROJECT}.iam.gserviceaccount.com"
 
