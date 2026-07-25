@@ -68,9 +68,9 @@ done
 # ══════════════════════════════════════════════════════════════
 step "Task 1: Buat inspection template + discovery config"
 
-ALL_INFO_TYPES=$(curl -s "${API}/infoTypes?locationId=global" -H "$AUTH" 2>/dev/null | jq '[.infoTypes[]? | select(.type == "BUILT_IN" or .type == null) | {name: .name}]' 2>/dev/null || echo "[]")
+ALL_INFO_TYPES=$(curl -s "${API}/infoTypes?locationId=global" -H "$AUTH" 2>/dev/null | jq '[.infoTypes[]? | select(.type == "BUILT_IN" or .type == null) | {name: .name}] | .[:100]' 2>/dev/null || echo "[]")
 INFO_TYPES_COUNT=$(echo "$ALL_INFO_TYPES" | jq 'length' 2>/dev/null || echo "0")
-if [ "$INFO_TYPES_COUNT" -lt 10 ]; then
+if [ "$INFO_TYPES_COUNT" -lt 5 ]; then
   echo "  Warning: only $INFO_TYPES_COUNT infoTypes fetched, using defaults"
   ALL_INFO_TYPES='[{"name":"US_SOCIAL_SECURITY_NUMBER"},{"name":"EMAIL_ADDRESS"},{"name":"PHONE_NUMBER"},{"name":"CREDIT_CARD_NUMBER"},{"name":"PERSON_NAME"}]'
   INFO_TYPES_COUNT=5
