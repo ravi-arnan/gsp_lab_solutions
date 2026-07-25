@@ -38,14 +38,14 @@ step() { echo; echo "===========================================================
 step "Enable APIs"
 gcloud services enable dlp.googleapis.com bigquery.googleapis.com --project="$PROJECT_ID" -q 2>/dev/null || true
 
-# Cleanup previous job runs (idempotent)
+# Cleanup previous job runs (idempotent, suppress errors)
 for job_id in i-us_ssn_inspection i-us_ssn_deidentify; do
-  curl -s -X DELETE "${API}/${PARENT}/dlpJobs/${job_id}" -H "$AUTH" 2>/dev/null || true
+  curl -s -X DELETE "${API}/${PARENT}/dlpJobs/${job_id}" -H "$AUTH" > /dev/null 2>&1 || true
 done
 # List & delete existing discovery config
-EXISTING_DC=$(curl -s "${API}/${PARENT}/discoveryConfigs" -H "$AUTH" | jq -r '.discoveryConfigs[0].name // empty')
+EXISTING_DC=$(curl -s "${API}/${PARENT}/discoveryConfigs" -H "$AUTH" | jq -r '.discoveryConfigs[0].name // empty' 2>/dev/null)
 if [ -n "$EXISTING_DC" ]; then
-  curl -s -X DELETE "${API}/${EXISTING_DC}" -H "$AUTH" 2>/dev/null || true
+  curl -s -X DELETE "${API}/${EXISTING_DC}" -H "$AUTH" > /dev/null 2>&1 || true
 fi
 
 step "BigQuery datasets"
