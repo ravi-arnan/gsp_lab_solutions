@@ -74,11 +74,7 @@ INSPECT_RESULT=$(post "$API/$PARENT/inspectTemplates" "$(cat <<EOJSON
       "infoTypes": [
         {"name":"US_SOCIAL_SECURITY_NUMBER"},{"name":"EMAIL_ADDRESS"},
         {"name":"PHONE_NUMBER"},{"name":"CREDIT_CARD_NUMBER"},
-        {"name":"PERSON_NAME"},{"name":"STREET_ADDRESS"},
-        {"name":"DATE_OF_BIRTH"},{"name":"IP_ADDRESS"},
-        {"name":"MAC_ADDRESS"},{"name":"URL"},
-        {"name":"PASSWORD"},{"name":"USERNAME"},
-        {"name":"VEHICLE_IDENTIFICATION_NUMBER"}
+        {"name":"PERSON_NAME"}
       ],
       "minLikelihood": "POSSIBLE"
     }
