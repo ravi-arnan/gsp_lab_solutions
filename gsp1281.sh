@@ -48,19 +48,21 @@ step "Task 1: Buat inspection template + discovery config"
 
 INSPECT_RESULT=$(post "$API/$PARENT/inspectTemplates" "$(cat <<EOJSON
 {
-  "displayName": "Default Inspection Template",
-  "inspectConfig": {
-    "infoTypes": [
-      {"name":"US_SOCIAL_SECURITY_NUMBER"},{"name":"EMAIL_ADDRESS"},
-      {"name":"PHONE_NUMBER"},{"name":"DATE_OF_BIRTH"},
-      {"name":"CREDIT_CARD_NUMBER"},{"name":"US_PASSPORT"},
-      {"name":"US_DRIVERS_LICENSE_NUMBER"},{"name":"PERSON_NAME"},
-      {"name":"IP_ADDRESS"},{"name":"URL"},{"name":"US_DEA_NUMBER"},
-      {"name":"CREDIT_SCORE"},{"name":"US_HEALTH_INSURANCE_CCPA"},
-      {"name":"MEDICAL_TERM"},{"name":"US_BANK_ROUTING_MICR"}
-    ],
-    "minLikelihood": "POSSIBLE",
-    "limits": {"maxFindingsPerRequest": 0}
+  "inspectTemplate": {
+    "displayName": "Default Inspection Template",
+    "inspectConfig": {
+      "infoTypes": [
+        {"name":"US_SOCIAL_SECURITY_NUMBER"},{"name":"EMAIL_ADDRESS"},
+        {"name":"PHONE_NUMBER"},{"name":"DATE_OF_BIRTH"},
+        {"name":"CREDIT_CARD_NUMBER"},{"name":"US_PASSPORT"},
+        {"name":"US_DRIVERS_LICENSE_NUMBER"},{"name":"PERSON_NAME"},
+        {"name":"IP_ADDRESS"},{"name":"URL"},{"name":"US_DEA_NUMBER"},
+        {"name":"CREDIT_SCORE"},{"name":"US_HEALTH_INSURANCE_CCPA"},
+        {"name":"MEDICAL_TERM"},{"name":"US_BANK_ROUTING_MICR"}
+      ],
+      "minLikelihood": "POSSIBLE",
+      "limits": {"maxFindingsPerRequest": 0}
+    }
   }
 }
 EOJSON
@@ -130,33 +132,35 @@ step "Task 2b: Buat de-identify template (ID: us_ssn_deidentify)"
 
 DEID_RESULT=$(post "$API/$PARENT/deidentifyTemplates" "$(cat <<EOJSON
 {
-  "templateId": "us_ssn_deidentify",
-  "displayName": "De-identification Template for US SSN",
-  "deidentifyConfig": {
-    "recordTransformations": {
-      "fieldTransformations": [
-        {
-          "fields": [{"name": "ssn"}, {"name": "email"}],
-          "primitiveTransformation": {
-            "replaceConfig": {
-              "newValue": {"stringValue": "[redacted]"}
+  "deidentifyTemplate": {
+    "displayName": "De-identification Template for US SSN",
+    "deidentifyConfig": {
+      "recordTransformations": {
+        "fieldTransformations": [
+          {
+            "fields": [{"name": "ssn"}, {"name": "email"}],
+            "primitiveTransformation": {
+              "replaceConfig": {
+                "newValue": {"stringValue": "[redacted]"}
+              }
+            }
+          },
+          {
+            "fields": [{"name": "message"}],
+            "infoTypeTransformations": {
+              "transformations": [{
+                "infoTypes": [],
+                "primitiveTransformation": {
+                  "replaceWithInfoTypeConfig": {}
+                }
+              }]
             }
           }
-        },
-        {
-          "fields": [{"name": "message"}],
-          "infoTypeTransformations": {
-            "transformations": [{
-              "infoTypes": [],
-              "primitiveTransformation": {
-                "replaceWithInfoTypeConfig": {}
-              }
-            }]
-          }
-        }
-      ]
+        ]
+      }
     }
-  }
+  },
+  "templateId": "us_ssn_deidentify"
 }
 EOJSON
 )")
