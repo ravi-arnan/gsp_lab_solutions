@@ -48,6 +48,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP343 | Optimize Costs for GKE: Challenge Lab | [gsp343.sh](gsp343.sh) | - | Diuji, jalan tanpa error | 2026-07-24 |
 | GSP767 | Exploring Cost-optimization for GKE Virtual Machines | [gsp767.sh](gsp767.sh) | - | Terverifikasi, skor 100/100 | 2026-07-24 |
 | GSP414 | Creating Date-Partitioned Tables in BigQuery | [gsp414.sh](gsp414.sh) | - | Belum diuji | - |
+| GSP1281 | Enabling Sensitive Data Protection Discovery for Cloud Storage | [gsp1281.sh](gsp1281.sh) | [docs/gsp1281.md](docs/gsp1281.md) | Belum diuji | - |
 | GSP412 | Troubleshooting and Solving Data Join Pitfalls | [gsp412.sh](gsp412.sh) | - | Belum diuji | - |
 | GSP081 | Cloud Run Functions: Qwik Start - Console | [gsp081.sh](gsp081.sh) | - | Belum diuji | - |
 
