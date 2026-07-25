@@ -71,28 +71,30 @@ echo "Inspection template: $INSPECT_TPL_ID"
 
 DISC_RESULT=$(post "$API/$PARENT/discoveryConfigs" "$(cat <<EOJSON
 {
-  "displayName": "Cloud Storage Discovery",
-  "status": "RUNNING",
-  "targets": [{
-    "cloudStorageDiscovery": {
-      "filter": { "others": {} }
-    }
-  }],
-  "inspectTemplates": [
-    "${PARENT}/inspectTemplates/${INSPECT_TPL_ID}"
-  ],
-  "actions": [
-    {
-      "exportData": {
-        "profileTable": {
-          "projectId": "${PROJECT_ID}",
-          "datasetId": "cloudstorage_discovery",
-          "tableId": "data_profiles"
-        }
+  "discoveryConfig": {
+    "displayName": "Cloud Storage Discovery",
+    "status": "RUNNING",
+    "targets": [{
+      "cloudStorageTarget": {
+        "filter": { "others": {} }
       }
-    },
-    { "publishToScc": {} }
-  ]
+    }],
+    "inspectTemplates": [
+      "${PARENT}/inspectTemplates/${INSPECT_TPL_ID}"
+    ],
+    "actions": [
+      {
+        "exportData": {
+          "profileTable": {
+            "projectId": "${PROJECT_ID}",
+            "datasetId": "cloudstorage_discovery",
+            "tableId": "data_profiles"
+          }
+        }
+      },
+      { "publishToScc": {} }
+    ]
+  }
 }
 EOJSON
 )")
@@ -170,29 +172,27 @@ step "Task 4: Inspection job (US SSN, TEXT+CSV)"
 INSPECT_JOB=$(post "$API/$PARENT/dlpJobs" "$(cat <<EOJ
 {
   "inspectJob": {
-    "inspectConfig": {
-      "infoTypes": [{"name": "US_SOCIAL_SECURITY_NUMBER"}],
-      "minLikelihood": "UNLIKELY",
-      "includeQuote": true,
-      "limits": {"maxFindingsPerRequest": 0}
-    },
+    "inspectTemplateName": "${PARENT}/inspectTemplates/${INSPECT_TPL_ID}",
     "storageConfig": {
-      "cloudStorage": {
+      "cloudStorageOptions": {
         "fileSet": {"url": "gs://${INPUT_BUCKET}/"},
-        "filesLimit": {"maxFiles": 0, "fileTypes": ["TEXT_FILE", "CSV"]}
+        "fileTypes": ["TEXT_FILE", "CSV"]
       }
     },
-    "actions": [{
-      "saveFindings": {
-        "outputConfig": {
-          "table": {
-            "projectId": "${PROJECT_ID}",
-            "datasetId": "cloudstorage_inspection",
-            "tableId": "us_ssn"
+    "actions": [
+      {
+        "saveFindings": {
+          "outputConfig": {
+            "table": {
+              "projectId": "${PROJECT_ID}",
+              "datasetId": "cloudstorage_inspection",
+              "tableId": "us_ssn"
+            }
           }
         }
-      }
-    }]
+      },
+      { "publishSummaryToCscc": {} }
+    ]
   }
 }
 EOJ
@@ -232,15 +232,23 @@ DEID_JOB=$(post "$API/$PARENT/dlpJobs" "$(cat <<EOJ
       "limits": {"maxFindingsPerRequest": 0}
     },
     "storageConfig": {
-      "cloudStorage": {
-        "fileSet": {"url": "gs://${INPUT_BUCKET}/"},
-        "filesLimit": {"maxFiles": 0, "fileTypes": ["TEXT_FILE", "CSV"]}
+      "cloudStorageOptions": {
+        "fileSet": {
+          "regexFileSet": {
+            "bucketName": "${INPUT_BUCKET}",
+            "excludeRegex": ["ignore"]
+          }
+        },
+        "fileTypes": ["TEXT_FILE", "CSV"]
       }
     },
     "actions": [{
       "deidentify": {
         "cloudStorageOutput": "gs://${OUTPUT_BUCKET}",
         "fileTypesToTransform": ["TEXT_FILE", "CSV"],
+        "transformationConfig": {
+          "structuredDeidentifyTemplate": "${PARENT}/deidentifyTemplates/us_ssn_deidentify"
+        },
         "transformationDetailsStorageConfig": {
           "table": {
             "projectId": "${PROJECT_ID}",
