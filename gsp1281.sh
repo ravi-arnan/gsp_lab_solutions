@@ -71,6 +71,20 @@ INSPECT_RESULT=$(post "$API/$PARENT/inspectTemplates" "$(cat <<EOJSON
   "inspectTemplate": {
     "displayName": "Default Inspection Template",
     "inspectConfig": {
+      "infoTypes": [
+        {"name":"US_SOCIAL_SECURITY_NUMBER"},{"name":"EMAIL_ADDRESS"},
+        {"name":"PHONE_NUMBER"},{"name":"CREDIT_CARD_NUMBER"},
+        {"name":"PERSON_NAME"},{"name":"STREET_ADDRESS"},
+        {"name":"DATE_OF_BIRTH"},{"name":"US_BANK_ROUTING_MICR"},
+        {"name":"US_BANK_ACCOUNT_NUMBER"},{"name":"US_INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER"},
+        {"name":"US_PASSPORT"},{"name":"US_DRIVERS_LICENSE"},
+        {"name":"IP_ADDRESS"},{"name":"MAC_ADDRESS"},
+        {"name":"URL"},{"name":"PASSWORD"},
+        {"name":"API_KEY"},{"name":"AUTH_TOKEN"},
+        {"name":"GCP_CREDENTIALS"},{"name":"GENERIC_CREDENTIALS"},
+        {"name":"MEDICAL_RECORD_NUMBER"},{"name":"VEHICLE_IDENTIFICATION_NUMBER"},
+        {"name":"USERNAME"},{"name":"INTERNATIONAL_BANK_ACCOUNT_NUMBER"}
+      ],
       "minLikelihood": "POSSIBLE"
     }
   }
