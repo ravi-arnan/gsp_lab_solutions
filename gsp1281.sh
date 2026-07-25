@@ -22,9 +22,11 @@ AUTH="Authorization: Bearer $(gcloud auth print-access-token)"
 CT="Content-Type: application/json"
 PARENT="projects/${PROJECT_ID}/locations/global"
 
-post()  { curl -s -X POST "$1" -H "$AUTH" -H "$CT" -d "$2"; }
-get()   { curl -s "$1" -H "$AUTH"; }
-patch() { curl -s -X PATCH "$1" -H "$AUTH" -H "$CT" -d "$2"; }
+dbg() { echo "[DEBUG] $1" >&2; echo "$2" | jq -c 'if .error then {ERROR: .error.message} else {OK: true} end' 2>/dev/null || echo "$2" >&2; }
+
+post()  { local r; r=$(curl -s -X POST "$1" -H "$AUTH" -H "$CT" -d "$2"); dbg "POST $1" "$r"; echo "$r"; }
+get()   { local r; r=$(curl -s "$1" -H "$AUTH"); dbg "GET $1" "$r"; echo "$r"; }
+patch() { local r; r=$(curl -s -X PATCH "$1" -H "$AUTH" -H "$CT" -d "$2"); dbg "PATCH $1" "$r"; echo "$r"; }
 
 echo "Project : $PROJECT_ID"
 echo "Input   : gs://$INPUT_BUCKET/"
@@ -35,6 +37,16 @@ step() { echo; echo "===========================================================
 # ── Enable APIs & BigQuery datasets ──
 step "Enable APIs"
 gcloud services enable dlp.googleapis.com bigquery.googleapis.com --project="$PROJECT_ID" -q 2>/dev/null || true
+
+# Cleanup previous job runs (idempotent)
+for job_id in i-us_ssn_inspection i-us_ssn_deidentify; do
+  curl -s -X DELETE "${API}/${PARENT}/dlpJobs/${job_id}" -H "$AUTH" 2>/dev/null || true
+done
+# List & delete existing discovery config
+EXISTING_DC=$(curl -s "${API}/${PARENT}/discoveryConfigs" -H "$AUTH" | jq -r '.discoveryConfigs[0].name // empty')
+if [ -n "$EXISTING_DC" ]; then
+  curl -s -X DELETE "${API}/${EXISTING_DC}" -H "$AUTH" 2>/dev/null || true
+fi
 
 step "BigQuery datasets"
 for ds in cloudstorage_discovery cloudstorage_inspection cloudstorage_transformations; do
@@ -65,7 +77,6 @@ EOJSON
 INSPECT_TPL_NAME=$(echo "$INSPECT_RESULT" | jq -r '.name // empty')
 INSPECT_TPL_ID=$(echo "$INSPECT_TPL_NAME" | awk -F'/' '{print $NF}')
 echo "Inspection template: $INSPECT_TPL_ID"
-echo "DEBUG RESP: $(echo "$INSPECT_RESULT" | jq -c 'if .error then {err: .error.message} else {name} end' 2>/dev/null || echo "parse fail")"
 
 DISC_RESULT=$(post "$API/$PARENT/discoveryConfigs" "$(cat <<EOJSON
 {
@@ -75,7 +86,7 @@ DISC_RESULT=$(post "$API/$PARENT/discoveryConfigs" "$(cat <<EOJSON
     "targets": [{
       "cloudStorageTarget": {
         "filter": { "others": {} },
-        "cadence": {
+        "generationCadence": {
           "refreshFrequency": "UPDATE_FREQUENCY_DAILY"
         }
       }
@@ -102,10 +113,9 @@ EOJSON
 
 DISC_NAME=$(echo "$DISC_RESULT" | jq -r '.name // empty')
 if [ -n "$DISC_NAME" ]; then
-  echo "Discovery config: $DISC_NAME"
+  echo ">> DISCOVERY CONFIG CREATED: $DISC_NAME"
 else
-  echo "WARNING:"
-  echo "$DISC_RESULT" | jq . 2>/dev/null || echo "$DISC_RESULT"
+  echo ">> DISCOVERY CONFIG FAILED (see [DEBUG] above)"
 fi
 
 # ══════════════════════════════════════════════════════════════
