@@ -53,15 +53,10 @@ INSPECT_RESULT=$(post "$API/$PARENT/inspectTemplates" "$(cat <<EOJSON
     "inspectConfig": {
       "infoTypes": [
         {"name":"US_SOCIAL_SECURITY_NUMBER"},{"name":"EMAIL_ADDRESS"},
-        {"name":"PHONE_NUMBER"},{"name":"DATE_OF_BIRTH"},
-        {"name":"CREDIT_CARD_NUMBER"},{"name":"US_PASSPORT"},
-        {"name":"US_DRIVERS_LICENSE_NUMBER"},{"name":"PERSON_NAME"},
-        {"name":"IP_ADDRESS"},{"name":"URL"},{"name":"US_DEA_NUMBER"},
-        {"name":"US_HEALTH_INSURANCE_CCPA"},
-        {"name":"MEDICAL_TERM"},{"name":"US_BANK_ROUTING_MICR"}
+        {"name":"PHONE_NUMBER"},{"name":"CREDIT_CARD_NUMBER"},
+        {"name":"PERSON_NAME"}
       ],
-      "minLikelihood": "POSSIBLE",
-      "limits": {"maxFindingsPerRequest": 0}
+      "minLikelihood": "POSSIBLE"
     }
   }
 }
@@ -70,6 +65,7 @@ EOJSON
 INSPECT_TPL_NAME=$(echo "$INSPECT_RESULT" | jq -r '.name // empty')
 INSPECT_TPL_ID=$(echo "$INSPECT_TPL_NAME" | awk -F'/' '{print $NF}')
 echo "Inspection template: $INSPECT_TPL_ID"
+echo "DEBUG RESP: $(echo "$INSPECT_RESULT" | jq -c 'if .error then {err: .error.message} else {name} end' 2>/dev/null || echo "parse fail")"
 
 DISC_RESULT=$(post "$API/$PARENT/discoveryConfigs" "$(cat <<EOJSON
 {
