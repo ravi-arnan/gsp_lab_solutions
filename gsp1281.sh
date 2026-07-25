@@ -25,7 +25,7 @@ PARENT="projects/${PROJECT_ID}/locations/global"
 dbg() { echo "[DEBUG] $1" >&2; echo "$2" | jq -c 'if .error then {ERROR: .error.message} else {OK: true} end' 2>/dev/null || echo "$2" >&2; }
 
 post()  { local r; r=$(curl -s -X POST "$1" -H "$AUTH" -H "$CT" -d "$2"); dbg "POST $1" "$r"; echo "$r"; }
-get()   { local r; r=$(curl -s "$1" -H "$AUTH"); dbg "GET $1" "$r"; echo "$r"; }
+get()   { local r; r=$(curl -s "${API}/$1" -H "$AUTH"); dbg "GET ${API}/$1" "$r"; echo "$r"; }
 patch() { local r; r=$(curl -s -X PATCH "$1" -H "$AUTH" -H "$CT" -d "$2"); dbg "PATCH $1" "$r"; echo "$r"; }
 
 echo "Project : $PROJECT_ID"
