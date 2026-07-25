@@ -21,7 +21,7 @@ API="https://dlp.googleapis.com/v2"
 AUTH="Authorization: Bearer $(gcloud auth print-access-token)"
 CT="Content-Type: application/json"
 PARENT="projects/${PROJECT_ID}/locations/global"
-DC_LOC="us-central1"
+DC_LOC="us"
 PARENT_DC="projects/${PROJECT_ID}/locations/${DC_LOC}"
 
 dbg() {
@@ -69,11 +69,6 @@ INSPECT_RESULT=$(post "$API/$PARENT/inspectTemplates" "$(cat <<EOJSON
   "inspectTemplate": {
     "displayName": "Default Inspection Template",
     "inspectConfig": {
-      "infoTypes": [
-        {"name":"US_SOCIAL_SECURITY_NUMBER"},{"name":"EMAIL_ADDRESS"},
-        {"name":"PHONE_NUMBER"},{"name":"CREDIT_CARD_NUMBER"},
-        {"name":"PERSON_NAME"}
-      ],
       "minLikelihood": "POSSIBLE"
     }
   }
