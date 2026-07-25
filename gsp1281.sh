@@ -46,12 +46,11 @@ done
 # ══════════════════════════════════════════════════════════════
 step "Task 1: Buat inspection template + discovery config"
 
-# Buat inspection template default — dependency discovery config
 INSPECT_RESULT=$(post "$API/$PARENT/inspectTemplates" "$(cat <<EOJSON
 {
-  "display_name": "Default Inspection Template",
-  "inspect_config": {
-    "info_types": [
+  "displayName": "Default Inspection Template",
+  "inspectConfig": {
+    "infoTypes": [
       {"name":"US_SOCIAL_SECURITY_NUMBER"},{"name":"EMAIL_ADDRESS"},
       {"name":"PHONE_NUMBER"},{"name":"DATE_OF_BIRTH"},
       {"name":"CREDIT_CARD_NUMBER"},{"name":"US_PASSPORT"},
@@ -60,8 +59,8 @@ INSPECT_RESULT=$(post "$API/$PARENT/inspectTemplates" "$(cat <<EOJSON
       {"name":"CREDIT_SCORE"},{"name":"US_HEALTH_INSURANCE_CCPA"},
       {"name":"MEDICAL_TERM"},{"name":"US_BANK_ROUTING_MICR"}
     ],
-    "min_likelihood": "POSSIBLE",
-    "limits": {"max_findings_per_request": 0}
+    "minLikelihood": "POSSIBLE",
+    "limits": {"maxFindingsPerRequest": 0}
   }
 }
 EOJSON
@@ -70,30 +69,29 @@ INSPECT_TPL_NAME=$(echo "$INSPECT_RESULT" | jq -r '.name // empty')
 INSPECT_TPL_ID=$(echo "$INSPECT_TPL_NAME" | awk -F'/' '{print $NF}')
 echo "Inspection template: $INSPECT_TPL_ID"
 
-# Buat discovery config — ini yang di-score Task 1
 DISC_RESULT=$(post "$API/$PARENT/discoveryConfigs" "$(cat <<EOJSON
 {
-  "display_name": "Cloud Storage Discovery",
+  "displayName": "Cloud Storage Discovery",
   "status": "RUNNING",
   "targets": [{
-    "cloud_storage_discovery": {
+    "cloudStorageDiscovery": {
       "filter": { "others": {} }
     }
   }],
-  "inspect_templates": [
-    "${PARENT}/inspect_templates/${INSPECT_TPL_ID}"
+  "inspectTemplates": [
+    "${PARENT}/inspectTemplates/${INSPECT_TPL_ID}"
   ],
   "actions": [
     {
-      "export_data": {
-        "profile_table": {
-          "project_id": "${PROJECT_ID}",
-          "dataset_id": "cloudstorage_discovery",
-          "table_id": "data_profiles"
+      "exportData": {
+        "profileTable": {
+          "projectId": "${PROJECT_ID}",
+          "datasetId": "cloudstorage_discovery",
+          "tableId": "data_profiles"
         }
       }
     },
-    { "publish_to_scc": {} }
+    { "publishToScc": {} }
   ]
 }
 EOJSON
@@ -112,44 +110,44 @@ fi
 # ══════════════════════════════════════════════════════════════
 step "Task 2a: Modifikasi inspection template → US SSN only"
 
-patch "$API/${INSPECT_TPL_NAME}?updateMask=display_name,description,inspect_config" "$(cat <<EOJSON
+patch "$API/${INSPECT_TPL_NAME}?updateMask=displayName,description,inspectConfig" "$(cat <<EOJSON
 {
-  "display_name": "Inspection Template for US SSN",
+  "displayName": "Inspection Template for US SSN",
   "description": "This template was created as part of a Sensitive Data Protection profiler configuration and was modified for deeper inspection for US Social Security numbers.",
-  "inspect_config": {
-    "info_types": [{"name": "US_SOCIAL_SECURITY_NUMBER"}],
-    "min_likelihood": "UNLIKELY",
-    "include_quote": true,
-    "limits": {"max_findings_per_request": 0}
+  "inspectConfig": {
+    "infoTypes": [{"name": "US_SOCIAL_SECURITY_NUMBER"}],
+    "minLikelihood": "UNLIKELY",
+    "includeQuote": true,
+    "limits": {"maxFindingsPerRequest": 0}
   }
 }
 EOJSON
-)" | jq -r '.display_name' 2>/dev/null && echo "Template diupdate."
+)" | jq -r '.displayName' 2>/dev/null && echo "Template diupdate."
 
 step "Task 2b: Buat de-identify template (ID: us_ssn_deidentify)"
 
 DEID_RESULT=$(post "$API/$PARENT/deidentifyTemplates" "$(cat <<EOJSON
 {
-  "template_id": "us_ssn_deidentify",
-  "display_name": "De-identification Template for US SSN",
-  "deidentify_config": {
-    "record_transformations": {
-      "field_transformations": [
+  "templateId": "us_ssn_deidentify",
+  "displayName": "De-identification Template for US SSN",
+  "deidentifyConfig": {
+    "recordTransformations": {
+      "fieldTransformations": [
         {
           "fields": [{"name": "ssn"}, {"name": "email"}],
-          "primitive_transformation": {
-            "replace_config": {
-              "new_value": {"string_value": "[redacted]"}
+          "primitiveTransformation": {
+            "replaceConfig": {
+              "newValue": {"stringValue": "[redacted]"}
             }
           }
         },
         {
           "fields": [{"name": "message"}],
-          "info_type_transformations": {
+          "infoTypeTransformations": {
             "transformations": [{
-              "info_types": [],
-              "primitive_transformation": {
-                "replace_with_info_type_config": {}
+              "infoTypes": [],
+              "primitiveTransformation": {
+                "replaceWithInfoTypeConfig": {}
               }
             }]
           }
@@ -171,26 +169,26 @@ step "Task 4: Inspection job (US SSN, TEXT+CSV)"
 
 INSPECT_JOB=$(post "$API/$PARENT/dlpJobs" "$(cat <<EOJ
 {
-  "inspect_job": {
-    "inspect_config": {
-      "info_types": [{"name": "US_SOCIAL_SECURITY_NUMBER"}],
-      "min_likelihood": "UNLIKELY",
-      "include_quote": true,
-      "limits": {"max_findings_per_request": 0}
+  "inspectJob": {
+    "inspectConfig": {
+      "infoTypes": [{"name": "US_SOCIAL_SECURITY_NUMBER"}],
+      "minLikelihood": "UNLIKELY",
+      "includeQuote": true,
+      "limits": {"maxFindingsPerRequest": 0}
     },
-    "storage_config": {
-      "google_cloud_storage": {
-        "file_set": {"url": "gs://${INPUT_BUCKET}/"},
-        "files_limit": {"max_files": 0, "file_types": ["TEXT_FILE", "CSV"]}
+    "storageConfig": {
+      "cloudStorage": {
+        "fileSet": {"url": "gs://${INPUT_BUCKET}/"},
+        "filesLimit": {"maxFiles": 0, "fileTypes": ["TEXT_FILE", "CSV"]}
       }
     },
     "actions": [{
-      "save_findings": {
-        "output_config": {
+      "saveFindings": {
+        "outputConfig": {
           "table": {
-            "project_id": "${PROJECT_ID}",
-            "dataset_id": "cloudstorage_inspection",
-            "table_id": "us_ssn"
+            "projectId": "${PROJECT_ID}",
+            "datasetId": "cloudstorage_inspection",
+            "tableId": "us_ssn"
           }
         }
       }
@@ -223,31 +221,31 @@ step "Task 5: De-identify job (template: us_ssn_deidentify, exclude ignore/)"
 
 DEID_JOB=$(post "$API/$PARENT/dlpJobs" "$(cat <<EOJ
 {
-  "inspect_job": {
-    "inspect_config": {
-      "info_types": [
+  "inspectJob": {
+    "inspectConfig": {
+      "infoTypes": [
         {"name":"US_SOCIAL_SECURITY_NUMBER"},{"name":"EMAIL_ADDRESS"},
         {"name":"PHONE_NUMBER"},{"name":"DATE_OF_BIRTH"},
         {"name":"PERSON_NAME"}
       ],
-      "min_likelihood": "POSSIBLE",
-      "limits": {"max_findings_per_request": 0}
+      "minLikelihood": "POSSIBLE",
+      "limits": {"maxFindingsPerRequest": 0}
     },
-    "storage_config": {
-      "google_cloud_storage": {
-        "file_set": {"url": "gs://${INPUT_BUCKET}/"},
-        "files_limit": {"max_files": 0, "file_types": ["TEXT_FILE", "CSV"]}
+    "storageConfig": {
+      "cloudStorage": {
+        "fileSet": {"url": "gs://${INPUT_BUCKET}/"},
+        "filesLimit": {"maxFiles": 0, "fileTypes": ["TEXT_FILE", "CSV"]}
       }
     },
     "actions": [{
       "deidentify": {
-        "cloud_storage_output": "gs://${OUTPUT_BUCKET}",
-        "file_types_to_transform": ["TEXT_FILE", "CSV"],
-        "transformation_details_storage_config": {
+        "cloudStorageOutput": "gs://${OUTPUT_BUCKET}",
+        "fileTypesToTransform": ["TEXT_FILE", "CSV"],
+        "transformationDetailsStorageConfig": {
           "table": {
-            "project_id": "${PROJECT_ID}",
-            "dataset_id": "cloudstorage_transformations",
-            "table_id": "deidentify_ssn_csv"
+            "projectId": "${PROJECT_ID}",
+            "datasetId": "cloudstorage_transformations",
+            "tableId": "deidentify_ssn_csv"
           }
         }
       }
