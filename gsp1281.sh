@@ -66,7 +66,7 @@ done
 # ══════════════════════════════════════════════════════════════
 step "Task 1: Buat inspection template + discovery config"
 
-INSPECT_RESULT=$(post "$API/$PARENT/inspectTemplates" "$(cat <<EOJSON
+INSPECT_RESULT=$(post "$API/$PARENT_DC/inspectTemplates" "$(cat <<EOJSON
 {
   "inspectTemplate": {
     "displayName": "Default Inspection Template",
@@ -74,7 +74,13 @@ INSPECT_RESULT=$(post "$API/$PARENT/inspectTemplates" "$(cat <<EOJSON
       "infoTypes": [
         {"name":"US_SOCIAL_SECURITY_NUMBER"},{"name":"EMAIL_ADDRESS"},
         {"name":"PHONE_NUMBER"},{"name":"CREDIT_CARD_NUMBER"},
-        {"name":"PERSON_NAME"}
+        {"name":"PERSON_NAME"},{"name":"STREET_ADDRESS"},
+        {"name":"DATE_OF_BIRTH"},{"name":"US_BANK_ROUTING_MICR"},
+        {"name":"US_BANK_ACCOUNT_NUMBER"},{"name":"US_INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER"},
+        {"name":"US_PASSPORT"},{"name":"US_DRIVERS_LICENSE"},
+        {"name":"IP_ADDRESS"},{"name":"MAC_ADDRESS"},{"name":"URL"},
+        {"name":"PASSWORD"},{"name":"USERNAME"},
+        {"name":"VEHICLE_IDENTIFICATION_NUMBER"}
       ],
       "minLikelihood": "POSSIBLE"
     }
@@ -100,7 +106,7 @@ DISC_RESULT=$(post "$API/$PARENT_DC/discoveryConfigs" "$(cat <<EOJSON
       }
     }],
     "inspectTemplates": [
-      "${PARENT}/inspectTemplates/${INSPECT_TPL_ID}"
+      "${PARENT_DC}/inspectTemplates/${INSPECT_TPL_ID}"
     ],
     "actions": [
       {
@@ -199,7 +205,7 @@ step "Task 4: Inspection job (US SSN, TEXT+CSV)"
 INSPECT_JOB=$(post "$API/$PARENT/dlpJobs" "$(cat <<EOJ
 {
   "inspectJob": {
-    "inspectTemplateName": "${PARENT}/inspectTemplates/${INSPECT_TPL_ID}",
+    "inspectTemplateName": "${PARENT_DC}/inspectTemplates/${INSPECT_TPL_ID}",
     "storageConfig": {
       "cloudStorageOptions": {
         "fileSet": {"url": "gs://${INPUT_BUCKET}/"},
