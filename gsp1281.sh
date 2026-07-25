@@ -197,7 +197,8 @@ INSPECT_JOB=$(post "$API/$PARENT/dlpJobs" "$(cat <<EOJ
       },
       { "publishSummaryToCscc": {} }
     ]
-  }
+  },
+  "jobId": "us_ssn_inspection"
 }
 EOJ
 )")
@@ -262,7 +263,8 @@ DEID_JOB=$(post "$API/$PARENT/dlpJobs" "$(cat <<EOJ
         }
       }
     }]
-  }
+  },
+  "jobId": "us_ssn_deidentify"
 }
 EOJ
 )")
