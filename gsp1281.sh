@@ -70,6 +70,7 @@ EOJSON
 INSPECT_TPL_NAME=$(echo "$INSPECT_RESULT" | jq -r '.name // empty')
 INSPECT_TPL_ID=$(echo "$INSPECT_TPL_NAME" | awk -F'/' '{print $NF}')
 echo "Inspection template: $INSPECT_TPL_ID"
+echo "$INSPECT_RESULT" | jq '. | if .error then .error.message else {name} end' 2>/dev/null || true
 
 DISC_RESULT=$(post "$API/$PARENT/discoveryConfigs" "$(cat <<EOJSON
 {
