@@ -22,7 +22,7 @@ AUTH="Authorization: Bearer $(gcloud auth print-access-token)"
 CT="Content-Type: application/json"
 PARENT="projects/${PROJECT_ID}/locations/global"
 
-dbg() { echo "[DEBUG] $1" >&2; echo "$2" | jq -c 'if .error then {ERROR: .error.message} else {OK: true} end' 2>/dev/null || echo "$2" >&2; }
+dbg() { echo "[DEBUG] $1" >&2; echo "$2" | jq -c 'if .error then {ERROR: .error.message} else {OK: true} end' 2>/dev/null >&2 || echo "$2" >&2; }
 
 post()  { local r; r=$(curl -s -X POST "$1" -H "$AUTH" -H "$CT" -d "$2"); dbg "POST $1" "$r"; echo "$r"; }
 get()   { local r; r=$(curl -s "${API}/$1" -H "$AUTH"); dbg "GET ${API}/$1" "$r"; echo "$r"; }
@@ -125,13 +125,15 @@ step "Task 2a: Modifikasi inspection template → US SSN only"
 
 patch "$API/${INSPECT_TPL_NAME}?updateMask=displayName,description,inspectConfig" "$(cat <<EOJSON
 {
-  "displayName": "Inspection Template for US SSN",
-  "description": "This template was created as part of a Sensitive Data Protection profiler configuration and was modified for deeper inspection for US Social Security numbers.",
-  "inspectConfig": {
-    "infoTypes": [{"name": "US_SOCIAL_SECURITY_NUMBER"}],
-    "minLikelihood": "UNLIKELY",
-    "includeQuote": true,
-    "limits": {"maxFindingsPerRequest": 0}
+  "inspectTemplate": {
+    "displayName": "Inspection Template for US SSN",
+    "description": "This template was created as part of a Sensitive Data Protection profiler configuration and was modified for deeper inspection for US Social Security numbers.",
+    "inspectConfig": {
+      "infoTypes": [{"name": "US_SOCIAL_SECURITY_NUMBER"}],
+      "minLikelihood": "UNLIKELY",
+      "includeQuote": true,
+      "limits": {"maxFindingsPerRequest": 0}
+    }
   }
 }
 EOJSON
