@@ -46,7 +46,9 @@ gcloud services enable dlp.googleapis.com bigquery.googleapis.com --project="$PR
 
 # Cleanup previous job runs (idempotent, suppress errors)
 for job_id in i-us_ssn_inspection i-us_ssn_deidentify; do
-  curl -s -X DELETE "${API}/${PARENT}/dlpJobs/${job_id}" -H "$AUTH" > /dev/null 2>&1 || true
+  for loc in global us-central1 us; do
+    curl -s -X DELETE "${API}/projects/${PROJECT_ID}/locations/${loc}/dlpJobs/${job_id}" -H "$AUTH" > /dev/null 2>&1 || true
+  done
 done
 # List & delete existing discovery configs from any location
 for loc in global us-central1 us; do
@@ -66,7 +68,7 @@ done
 # ══════════════════════════════════════════════════════════════
 step "Task 1: Buat inspection template + discovery config"
 
-INSPECT_RESULT=$(post "$API/$PARENT_DC/inspectTemplates" "$(cat <<EOJSON
+INSPECT_RESULT=$(post "$API/$PARENT/inspectTemplates" "$(cat <<EOJSON
 {
   "inspectTemplate": {
     "displayName": "Default Inspection Template",
@@ -106,7 +108,7 @@ DISC_RESULT=$(post "$API/$PARENT_DC/discoveryConfigs" "$(cat <<EOJSON
       }
     }],
     "inspectTemplates": [
-      "${PARENT_DC}/inspectTemplates/${INSPECT_TPL_ID}"
+"${PARENT}/inspectTemplates/${INSPECT_TPL_ID}"
     ],
     "actions": [
       {
@@ -202,10 +204,10 @@ echo "De-identify template: $DEID_TPL_NAME"
 # ══════════════════════════════════════════════════════════════
 step "Task 4: Inspection job (US SSN, TEXT+CSV)"
 
-INSPECT_JOB=$(post "$API/$PARENT/dlpJobs" "$(cat <<EOJ
+INSPECT_JOB=$(post "$API/$PARENT_DC/dlpJobs" "$(cat <<EOJ
 {
   "inspectJob": {
-    "inspectTemplateName": "${PARENT_DC}/inspectTemplates/${INSPECT_TPL_ID}",
+    "inspectTemplateName": "${PARENT}/inspectTemplates/${INSPECT_TPL_ID}",
     "storageConfig": {
       "cloudStorageOptions": {
         "fileSet": {"url": "gs://${INPUT_BUCKET}/"},
@@ -224,7 +226,7 @@ INSPECT_JOB=$(post "$API/$PARENT/dlpJobs" "$(cat <<EOJ
           }
         }
       },
-      { "publishSummaryToCscc": {} }
+      { "publishToScc": {} }
     ]
   },
   "jobId": "us_ssn_inspection"
@@ -253,7 +255,7 @@ fi
 # ══════════════════════════════════════════════════════════════
 step "Task 5: De-identify job (template: us_ssn_deidentify, exclude ignore/)"
 
-DEID_JOB=$(post "$API/$PARENT/dlpJobs" "$(cat <<EOJ
+DEID_JOB=$(post "$API/$PARENT_DC/dlpJobs" "$(cat <<EOJ
 {
   "inspectJob": {
     "inspectConfig": {
