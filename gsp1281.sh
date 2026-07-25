@@ -21,6 +21,8 @@ API="https://dlp.googleapis.com/v2"
 AUTH="Authorization: Bearer $(gcloud auth print-access-token)"
 CT="Content-Type: application/json"
 PARENT="projects/${PROJECT_ID}/locations/global"
+DC_LOC="us-central1"
+PARENT_DC="projects/${PROJECT_ID}/locations/${DC_LOC}"
 
 dbg() {
   echo "  >>> $1" >&2
@@ -82,7 +84,7 @@ INSPECT_TPL_NAME=$(echo "$INSPECT_RESULT" | jq -r '.name // empty')
 INSPECT_TPL_ID=$(echo "$INSPECT_TPL_NAME" | awk -F'/' '{print $NF}')
 echo "Inspection template: $INSPECT_TPL_ID"
 
-DISC_RESULT=$(post "$API/$PARENT/discoveryConfigs" "$(cat <<EOJSON
+DISC_RESULT=$(post "$API/$PARENT_DC/discoveryConfigs" "$(cat <<EOJSON
 {
   "discoveryConfig": {
     "displayName": "Cloud Storage Discovery",
