@@ -68,16 +68,21 @@ done
 # ══════════════════════════════════════════════════════════════
 step "Task 1: Buat inspection template + discovery config"
 
+ALL_INFO_TYPES=$(curl -s "${API}/infoTypes?locationId=global" -H "$AUTH" 2>/dev/null | jq '[.infoTypes[]? | select(.type == "BUILT_IN" or .type == null) | {name: .name}]' 2>/dev/null || echo "[]")
+INFO_TYPES_COUNT=$(echo "$ALL_INFO_TYPES" | jq 'length' 2>/dev/null || echo "0")
+if [ "$INFO_TYPES_COUNT" -lt 10 ]; then
+  echo "  Warning: only $INFO_TYPES_COUNT infoTypes fetched, using defaults"
+  ALL_INFO_TYPES='[{"name":"US_SOCIAL_SECURITY_NUMBER"},{"name":"EMAIL_ADDRESS"},{"name":"PHONE_NUMBER"},{"name":"CREDIT_CARD_NUMBER"},{"name":"PERSON_NAME"}]'
+  INFO_TYPES_COUNT=5
+fi
+echo "  Using $INFO_TYPES_COUNT infoTypes"
+
 INSPECT_RESULT=$(post "$API/$PARENT/inspectTemplates" "$(cat <<EOJSON
 {
   "inspectTemplate": {
     "displayName": "Default Inspection Template",
     "inspectConfig": {
-      "infoTypes": [
-        {"name":"US_SOCIAL_SECURITY_NUMBER"},{"name":"EMAIL_ADDRESS"},
-        {"name":"PHONE_NUMBER"},{"name":"CREDIT_CARD_NUMBER"},
-        {"name":"PERSON_NAME"}
-      ],
+      "infoTypes": $ALL_INFO_TYPES,
       "minLikelihood": "POSSIBLE"
     }
   }
