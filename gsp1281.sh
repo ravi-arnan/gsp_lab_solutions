@@ -68,7 +68,7 @@ done
 # ══════════════════════════════════════════════════════════════
 step "Task 1: Buat inspection template + discovery config"
 
-ALL_INFO_TYPES=$(curl -s "${API}/infoTypes?locationId=global" -H "$AUTH" 2>/dev/null | jq '[.infoTypes[]? | select(.type == "BUILT_IN" or .type == null) | {name: .name}] | .[:100]' 2>/dev/null || echo "[]")
+ALL_INFO_TYPES=$(curl -s "${API}/infoTypes?locationId=global" -H "$AUTH" 2>/dev/null | jq '[.infoTypes[]? | select(.type == "BUILT_IN" or .type == null) | select(.name | startswith("DOCUMENT_TYPE/") | not) | {name: .name}] | .[:80]' 2>/dev/null || echo "[]")
 INFO_TYPES_COUNT=$(echo "$ALL_INFO_TYPES" | jq 'length' 2>/dev/null || echo "0")
 if [ "$INFO_TYPES_COUNT" -lt 5 ]; then
   echo "  Warning: only $INFO_TYPES_COUNT infoTypes fetched, using defaults"
@@ -83,7 +83,8 @@ INSPECT_RESULT=$(post "$API/$PARENT/inspectTemplates" "$(cat <<EOJSON
     "displayName": "Default Inspection Template",
     "inspectConfig": {
       "infoTypes": $ALL_INFO_TYPES,
-      "minLikelihood": "POSSIBLE"
+      "minLikelihood": "POSSIBLE",
+      "limits": {"maxFindingsPerRequest": 0}
     }
   }
 }
