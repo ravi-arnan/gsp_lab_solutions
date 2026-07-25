@@ -48,11 +48,13 @@ gcloud services enable dlp.googleapis.com bigquery.googleapis.com --project="$PR
 for job_id in i-us_ssn_inspection i-us_ssn_deidentify; do
   curl -s -X DELETE "${API}/${PARENT}/dlpJobs/${job_id}" -H "$AUTH" > /dev/null 2>&1 || true
 done
-# List & delete existing discovery config
-EXISTING_DC=$(curl -s "${API}/${PARENT}/discoveryConfigs" -H "$AUTH" | jq -r '.discoveryConfigs[0].name // empty' 2>/dev/null)
-if [ -n "$EXISTING_DC" ]; then
-  curl -s -X DELETE "${API}/${EXISTING_DC}" -H "$AUTH" > /dev/null 2>&1 || true
-fi
+# List & delete existing discovery configs from any location
+for loc in global us-central1 us; do
+  EXISTING_DC=$(curl -s "${API}/projects/${PROJECT_ID}/locations/${loc}/discoveryConfigs" -H "$AUTH" | jq -r '.discoveryConfigs[0].name // empty' 2>/dev/null)
+  if [ -n "$EXISTING_DC" ]; then
+    curl -s -X DELETE "${API}/${EXISTING_DC}" -H "$AUTH" > /dev/null 2>&1 || true
+  fi
+done
 
 step "BigQuery datasets"
 for ds in cloudstorage_discovery cloudstorage_inspection cloudstorage_transformations; do
