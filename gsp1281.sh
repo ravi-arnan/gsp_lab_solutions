@@ -74,7 +74,10 @@ DISC_RESULT=$(post "$API/$PARENT/discoveryConfigs" "$(cat <<EOJSON
     "status": "RUNNING",
     "targets": [{
       "cloudStorageTarget": {
-        "filter": { "others": {} }
+        "filter": { "others": {} },
+        "cadence": {
+          "refreshFrequency": "UPDATE_FREQUENCY_DAILY"
+        }
       }
     }],
     "inspectTemplates": [
