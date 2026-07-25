@@ -22,7 +22,11 @@ AUTH="Authorization: Bearer $(gcloud auth print-access-token)"
 CT="Content-Type: application/json"
 PARENT="projects/${PROJECT_ID}/locations/global"
 
-dbg() { echo "[DEBUG] $1" >&2; echo "$2" | jq -c 'if .error then {ERROR: .error.message} else {OK: true} end' 2>/dev/null >&2 || echo "$2" >&2; }
+dbg() {
+  echo "  >>> $1" >&2
+  local summary; summary=$(echo "$2" | jq -r 'if .error then "ERROR: "+.error.message else "OK" end' 2>/dev/null || echo "RAW: $(echo "$2" | head -c 200)")
+  echo "  <<< $summary" >&2
+}
 
 post()  { local r; r=$(curl -s -X POST "$1" -H "$AUTH" -H "$CT" -d "$2"); dbg "POST $1" "$r"; echo "$r"; }
 get()   { local r; r=$(curl -s "${API}/$1" -H "$AUTH"); dbg "GET ${API}/$1" "$r"; echo "$r"; }
