@@ -41,7 +41,12 @@ cd terraform-google-network/examples/simple_project
 
 step "Task 1b: Set project_id dan network_name di variables.tf"
 
-sed -i 's/\(default\s*=\s*\)".*"/\1"'"$PROJECT_ID"'"/' variables.tf
+sed -i '/^variable "project_id" {/,/^}/c\
+variable "project_id" {\
+  description = "The project ID to host the network in"\
+  default     = "'"$PROJECT_ID"'"\
+}' variables.tf
+
 cat >> variables.tf << 'EOF'
 
 variable "network_name" {
@@ -276,7 +281,7 @@ EOF
 cat > outputs.tf << 'EOF'
 output "bucket-name" {
   description = "Bucket names."
-  value       = "module.gcs-static-website-bucket.bucket"
+  value       = module.gcs-static-website-bucket.bucket
 }
 EOF
 
