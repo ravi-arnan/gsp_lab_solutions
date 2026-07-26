@@ -55,12 +55,19 @@ resource "google_storage_bucket" "test-bucket-for-state" {
   name        = "$PROJECT_ID"
   location    = "US"
   uniform_bucket_level_access = true
+  force_destroy = true
 }
 EOF
 
 step "Task 1b: terraform init + apply (local backend)"
 
 terraform init -input=false
+
+# Jika bucket sudah ada dari run sebelumnya, import dulu
+if gsutil ls "gs://$PROJECT_ID" 2>/dev/null; then
+  terraform import google_storage_bucket.test-bucket-for-state "$PROJECT_ID" 2>/dev/null || true
+fi
+
 terraform apply -auto-approve
 
 echo ">>> State file lokal:"
