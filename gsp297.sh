@@ -43,7 +43,7 @@ echo "Klik Check my progress: Task 2 - Set up Retention Policy"
 
 # ----------------------------------------------------------------- Task 3
 step "Task 3: Lock Retention Policy"
-echo y | gsutil retention lock "gs://$BUCKET/"
+yes | gsutil retention lock "gs://$BUCKET/" 2>&1
 echo ""
 echo "Klik Check my progress: Task 3 - Lock the Retention Policy"
 
