@@ -162,56 +162,30 @@ read -r
 step "Task 2: Import existing instances"
 
 # Discover existing instance details
-echo ">>> Mendapatkan detail instance tf-instance-1..."
-INST1_JSON=$(gcloud compute instances describe tf-instance-1 --zone="$ZONE" --format=json 2>/dev/null || \
-             gcloud compute instances describe tf-instance-1 --zone=europe-west1-c --format=json)
+get_instance_attr() {
+  local name=$1 attr=$2
+  gcloud compute instances describe "$name" --zone="$ZONE" --format="value($attr)" 2>/dev/null || \
+    gcloud compute instances describe "$name" --zone=europe-west1-c --format="value($attr)"
+}
 
-INST1_MACHINE=$(echo "$INST1_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin)['machineType'].split('/')[-1])")
-INST1_IMAGE=$(echo "$INST1_JSON" | python3 -c "
-import sys,json
-i=json.load(sys.stdin)
-for d in i['disks']:
-    if d['boot']:
-        print(d['initializeParams']['sourceImage'])
-        break
-")
-INST1_NETWORK=$(echo "$INST1_JSON" | python3 -c "
-import sys,json
-i=json.load(sys.stdin)
-print(i['networkInterfaces'][0]['network'].split('/')[-1])
-")
-INST1_SUBNET=$(echo "$INST1_JSON" | python3 -c "
-import sys,json
-i=json.load(sys.stdin)
-print(i['networkInterfaces'][0].get('subnetwork','').split('/')[-1] if i['networkInterfaces'][0].get('subnetwork') else '')
-")
+echo ">>> Mendapatkan detail instance tf-instance-1..."
+INST1_MACHINE=$(get_instance_attr tf-instance-1 "machineType.basename()")
+INST1_BOOT_DISK=$(get_instance_attr tf-instance-1 "disks[].source.basename()" | cut -d';' -f1)
+INST1_IMAGE=$(gcloud compute disks describe "$INST1_BOOT_DISK" --zone="$ZONE" --format="value(sourceImage)" 2>/dev/null || \
+              gcloud compute disks describe "$INST1_BOOT_DISK" --zone=europe-west1-c --format="value(sourceImage)")
+INST1_NETWORK=$(get_instance_attr tf-instance-1 "networkInterfaces[].network.basename()" | cut -d';' -f1)
+INST1_SUBNET=$(get_instance_attr tf-instance-1 "networkInterfaces[].subnetwork.basename()" | cut -d';' -f1)
 
 echo ">>> Mendapatkan detail instance tf-instance-2..."
-INST2_JSON=$(gcloud compute instances describe tf-instance-2 --zone="$ZONE" --format=json 2>/dev/null || \
-             gcloud compute instances describe tf-instance-2 --zone=europe-west1-c --format=json)
+INST2_MACHINE=$(get_instance_attr tf-instance-2 "machineType.basename()")
+INST2_BOOT_DISK=$(get_instance_attr tf-instance-2 "disks[].source.basename()" | cut -d';' -f1)
+INST2_IMAGE=$(gcloud compute disks describe "$INST2_BOOT_DISK" --zone="$ZONE" --format="value(sourceImage)" 2>/dev/null || \
+              gcloud compute disks describe "$INST2_BOOT_DISK" --zone=europe-west1-c --format="value(sourceImage)")
+INST2_NETWORK=$(get_instance_attr tf-instance-2 "networkInterfaces[].network.basename()" | cut -d';' -f1)
+INST2_SUBNET=$(get_instance_attr tf-instance-2 "networkInterfaces[].subnetwork.basename()" | cut -d';' -f1)
 
-INST2_MACHINE=$(echo "$INST2_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin)['machineType'].split('/')[-1])")
-INST2_IMAGE=$(echo "$INST2_JSON" | python3 -c "
-import sys,json
-i=json.load(sys.stdin)
-for d in i['disks']:
-    if d['boot']:
-        print(d['initializeParams']['sourceImage'])
-        break
-")
-INST2_NETWORK=$(echo "$INST2_JSON" | python3 -c "
-import sys,json
-i=json.load(sys.stdin)
-print(i['networkInterfaces'][0]['network'].split('/')[-1])
-")
-INST2_SUBNET=$(echo "$INST2_JSON" | python3 -c "
-import sys,json
-i=json.load(sys.stdin)
-print(i['networkInterfaces'][0].get('subnetwork','').split('/')[-1] if i['networkInterfaces'][0].get('subnetwork') else '')
-")
-
-echo "  tf-instance-1: machine=$INST1_MACHINE, network=$INST1_NETWORK, subnet=$INST1_SUBNET"
-echo "  tf-instance-2: machine=$INST2_MACHINE, network=$INST2_NETWORK, subnet=$INST2_SUBNET"
+echo "  tf-instance-1: machine=$INST1_MACHINE, boot_disk=$INST1_BOOT_DISK, image=$INST1_IMAGE, network=$INST1_NETWORK, subnet=$INST1_SUBNET"
+echo "  tf-instance-2: machine=$INST2_MACHINE, boot_disk=$INST2_BOOT_DISK, image=$INST2_IMAGE, network=$INST2_NETWORK, subnet=$INST2_SUBNET"
 
 cat > main.tf << EOF
 terraform {
