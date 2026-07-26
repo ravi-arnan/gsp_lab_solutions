@@ -34,15 +34,18 @@ write_main_tf() {
 
 # ================================================================= Install Terraform
 step "Install Terraform"
-if command -v terraform &>/dev/null; then
-  echo "Terraform sudah terinstal: $(terraform --version)"
+# Cloud Shell kadang punya stub terraform yang bukan binary asli.
+# Deteksi: coba jalankan --version dan cari kata "Terraform v".
+if terraform --version 2>/dev/null | grep -q "Terraform v"; then
+  echo "Terraform sudah terinstal: $(terraform --version | head -1)"
 else
   wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
   sudo apt update && sudo apt install -y terraform
-  echo "Terraform terinstal: $(terraform --version)"
+  echo "Terraform terinstal: $(terraform --version | head -1)"
 fi
 
+mkdir -p "$TF_DIR"
 cd "$TF_DIR"
 
 # ================================================================= Task 1: Build infrastructure
