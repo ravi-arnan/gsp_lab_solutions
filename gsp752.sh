@@ -90,7 +90,7 @@ EOF
 
 step "Task 1d: terraform init -migrate-state (local → gcs)"
 
-yes | terraform init -migrate-state
+echo "yes" | terraform init -migrate-state
 
 echo ">>> State sudah di-migrate ke GCS. Cek di console:"
 echo "    Cloud Storage > Buckets > $PROJECT_ID > terraform/state/"
@@ -131,7 +131,7 @@ resource "google_storage_bucket" "test-bucket-for-state" {
 }
 EOF
 
-yes | terraform init -migrate-state
+echo "yes" | terraform init -migrate-state
 
 terraform apply -auto-approve
 
