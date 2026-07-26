@@ -14,7 +14,13 @@ PROJECT_ID="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null
 [[ -n "$PROJECT_ID" ]] || { echo "Project belum di-set."; exit 1; }
 
 REGION="${REGION:-europe-west1}"
-ZONE="${ZONE:-europe-west1-c}"
+
+# Auto-detect zone dari instance yang sudah ada
+ZONE="${ZONE:-}"
+if [[ -z "$ZONE" ]]; then
+  ZONE=$(gcloud compute instances list --filter="name=tf-instance-1" --format="value(zone)" --limit=1 2>/dev/null)
+  ZONE="${ZONE:-europe-west1-c}"
+fi
 
 # === Sesuaikan suffix berikut dengan angka di halaman lab-mu ===
 BUCKET_SUFFIX="${BUCKET_SUFFIX:-811627}"
