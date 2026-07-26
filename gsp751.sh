@@ -312,6 +312,12 @@ gsutil cp ./*.html "gs://$PROJECT_ID"
 
 echo ">>> Files uploaded. Buka: https://storage.cloud.google.com/$PROJECT_ID/index.html"
 
+step "Task 2h: Klik Check my progress dulu, lalu Enter untuk destroy"
+
+echo "Klik 'Check my progress' untuk Task 2 (Upload files to the bucket),"
+echo "setelah hijau tekan Enter untuk melanjutkan ke terraform destroy..."
+read -r
+
 step "Task 2h: Clean up — terraform destroy"
 
 terraform destroy -auto-approve
