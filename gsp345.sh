@@ -13,19 +13,19 @@ set -euo pipefail
 PROJECT_ID="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
 [[ -n "$PROJECT_ID" ]] || { echo "Project belum di-set."; exit 1; }
 
-REGION="${REGION:-europe-west1}"
+REGION="${REGION:-us-west1}"
 
 # Auto-detect zone dari instance yang sudah ada
 ZONE="${ZONE:-}"
 if [[ -z "$ZONE" ]]; then
   ZONE=$(gcloud compute instances list --filter="name=tf-instance-1" --format="value(zone)" --limit=1 2>/dev/null)
-  ZONE="${ZONE:-europe-west1-c}"
+  ZONE="${ZONE:-us-west1-b}"
 fi
 
 # === Sesuaikan suffix berikut dengan angka di halaman lab-mu ===
-BUCKET_SUFFIX="${BUCKET_SUFFIX:-811627}"
-VPC_SUFFIX="${VPC_SUFFIX:-198219}"
-INSTANCE3_SUFFIX="${INSTANCE3_SUFFIX:-428358}"
+BUCKET_SUFFIX="${BUCKET_SUFFIX:-616380}"
+VPC_SUFFIX="${VPC_SUFFIX:-951548}"
+INSTANCE3_SUFFIX="${INSTANCE3_SUFFIX:-961673}"
 
 BUCKET_NAME="tf-bucket-${BUCKET_SUFFIX}"
 VPC_NAME="tf-vpc-${VPC_SUFFIX}"
@@ -161,8 +161,6 @@ step ">>> Task 1: terraform init"
 terraform init -input=false
 
 echo ">>> Task 1 selesai. Klik Check my progress jika perlu."
-echo ">>> Tekan Enter untuk lanjut ke Task 2..."
-read -r
 
 # ================================================================= Task 2: Import infrastructure
 step "Task 2: Import existing instances"
@@ -292,8 +290,6 @@ terraform import module.instances.google_compute_instance.tf-instance-2 \
 terraform apply -auto-approve
 
 echo ">>> Task 2 selesai. Klik Check my progress."
-echo ">>> Tekan Enter untuk lanjut ke Task 3..."
-read -r
 
 # ================================================================= Task 3: Configure a remote backend
 step "Task 3: Configure a remote backend"
@@ -370,8 +366,6 @@ EOF
 echo "yes" | terraform init -migrate-state
 
 echo ">>> Task 3 selesai. Klik Check my progress."
-echo ">>> Tekan Enter untuk lanjut ke Task 4..."
-read -r
 
 # ================================================================= Task 4: Modify and update infrastructure
 step "Task 4: Modify and update infrastructure"
@@ -454,8 +448,6 @@ terraform init -input=false
 terraform apply -auto-approve
 
 echo ">>> Task 4 selesai. Klik Check my progress."
-echo ">>> Tekan Enter untuk lanjut ke Task 5..."
-read -r
 
 # ================================================================= Task 5: Destroy resources
 step "Task 5: Destroy tf-instance-3"
@@ -479,8 +471,6 @@ terraform init -input=false
 terraform apply -auto-approve
 
 echo ">>> Task 5 selesai. Klik Check my progress."
-echo ">>> Tekan Enter untuk lanjut ke Task 6..."
-read -r
 
 # ================================================================= Task 6: Use a module from the Registry
 step "Task 6: Use module from Registry (VPC)"
@@ -602,8 +592,6 @@ terraform init -input=false
 terraform apply -auto-approve
 
 echo ">>> Task 6 selesai. Klik Check my progress."
-echo ">>> Tekan Enter untuk lanjut ke Task 7..."
-read -r
 
 # ================================================================= Task 7: Configure a firewall
 step "Task 7: Configure firewall"
