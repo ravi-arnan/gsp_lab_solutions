@@ -445,6 +445,11 @@ resource "google_compute_instance" "tf-instance-3" {
 EOF
 
 terraform init -input=false
+
+# Import instance3 jika sudah ada dari run sebelumnya
+terraform import module.instances.google_compute_instance.tf-instance-3 \
+  "projects/$PROJECT_ID/zones/$ZONE/instances/$INSTANCE3_NAME" 2>/dev/null || true
+
 terraform apply -auto-approve
 
 echo ">>> Task 4 selesai. Klik Check my progress."
