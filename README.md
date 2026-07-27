@@ -45,6 +45,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP514 | Build a Data Mesh with Knowledge Catalog: Challenge Lab | [gsp514.sh](gsp514.sh) | [docs/gsp514.md](docs/gsp514.md) | Terverifikasi, Task 2b manual (UI) | 2026-07-17 |
 | GSP750 | Infrastructure as Code with Terraform | [gsp750.sh](gsp750.sh) | [docs/gsp750.md](docs/gsp750.md) | Belum diuji | - |
 | GSP751 | Interact with Terraform Modules | [gsp751.sh](gsp751.sh) | - | Belum diuji | - |
+| GSP345 | Build Infrastructure with Terraform: Challenge Lab | [gsp345.sh](gsp345.sh) | - | Terverifikasi, semua checkpoint hijau | 2026-07-26 |
 | GSP1183 | Gating Deployments with Binary Authorization | [gsp1183.sh](gsp1183.sh) | [docs/gsp1183.md](docs/gsp1183.md) | Terverifikasi di us-east1, 7/7 checkpoint hijau sekali jalan | 2026-07-17 |
 | GSP766 | Managing a GKE Multi-tenant Cluster with Namespaces | [gsp766.sh](gsp766.sh) | - | Terverifikasi, skor 100/100, Looker Studio manual (tidak di-score) | 2026-07-24 |
 | GSP343 | Optimize Costs for GKE: Challenge Lab | [gsp343.sh](gsp343.sh) | - | Diuji, jalan tanpa error | 2026-07-24 |
