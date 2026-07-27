@@ -323,9 +323,8 @@ EOF
 
 terraform init -input=false
 
-# Import bucket jika sudah ada dari run sebelumnya
-terraform import module.storage.google_storage_bucket.state-bucket \
-  "projects/$PROJECT_ID/buckets/$BUCKET_NAME" 2>/dev/null || true
+# Hapus bucket lama dari run sebelumnya agar terraform bisa create
+gsutil -m rm -r "gs://$BUCKET_NAME" 2>/dev/null || true
 
 terraform apply -auto-approve
 
