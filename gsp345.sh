@@ -448,18 +448,53 @@ echo ">>> Task 4 selesai. Klik Check my progress."
 # ================================================================= Task 5: Destroy resources
 step "Task 5: Destroy tf-instance-3"
 
-# Remove tf-instance-3 from instances.tf
-head -n -18 modules/instances/instances.tf > /tmp/instances.tf.tmp
-mv /tmp/instances.tf.tmp modules/instances/instances.tf
+cat > modules/instances/instances.tf << EOF
+resource "google_compute_instance" "tf-instance-1" {
+  name         = "tf-instance-1"
+  machine_type = "e2-standard-2"
+  zone         = var.zone
+  project      = var.project_id
 
-# Also remove the output for instance3
-cat > modules/instances/outputs.tf << 'EOF'
-output "instance1_self_link" {
-  value = google_compute_instance.tf-instance-1.self_link
+  allow_stopping_for_update = true
+
+  boot_disk {
+    initialize_params {
+      image = "$INST1_IMAGE"
+    }
+  }
+
+  network_interface {
+    network = "$INST1_NETWORK"
+    access_config {}
+  }
+
+  metadata_startup_script = <<-EOT
+    #!/bin/bash
+  EOT
 }
 
-output "instance2_self_link" {
-  value = google_compute_instance.tf-instance-2.self_link
+resource "google_compute_instance" "tf-instance-2" {
+  name         = "tf-instance-2"
+  machine_type = "e2-standard-2"
+  zone         = var.zone
+  project      = var.project_id
+
+  allow_stopping_for_update = true
+
+  boot_disk {
+    initialize_params {
+      image = "$INST2_IMAGE"
+    }
+  }
+
+  network_interface {
+    network = "$INST2_NETWORK"
+    access_config {}
+  }
+
+  metadata_startup_script = <<-EOT
+    #!/bin/bash
+  EOT
 }
 EOF
 
