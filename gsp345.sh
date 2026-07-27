@@ -117,10 +117,6 @@ output "instance1_self_link" {
 output "instance2_self_link" {
   value = google_compute_instance.tf-instance-2.self_link
 }
-
-output "instance3_self_link" {
-  value = try(google_compute_instance.tf-instance-3.self_link, null)
-}
 EOF
 
 cat > modules/storage/variables.tf << EOF
