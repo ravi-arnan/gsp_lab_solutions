@@ -521,7 +521,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = ">= 4.0"
+      version = ">= 4.0, < 7.0"
     }
   }
   backend "gcs" {
@@ -572,7 +572,8 @@ module "vpc" {
 }
 EOF
 
-terraform init -input=false
+rm -f .terraform.lock.hcl
+terraform init -input=false -upgrade
 terraform apply -auto-approve
 
 # Update instances to connect to VPC subnets
@@ -628,7 +629,8 @@ resource "google_compute_instance" "tf-instance-2" {
 }
 EOF
 
-terraform init -input=false
+rm -f .terraform.lock.hcl
+terraform init -input=false -upgrade
 terraform apply -auto-approve
 
 echo ">>> Task 6 selesai. Klik Check my progress."
@@ -642,7 +644,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = ">= 4.0"
+      version = ">= 4.0, < 7.0"
     }
   }
   backend "gcs" {
@@ -705,7 +707,8 @@ resource "google_compute_firewall" "tf-firewall" {
 }
 EOF
 
-terraform init -input=false
+rm -f .terraform.lock.hcl
+terraform init -input=false -upgrade
 terraform apply -auto-approve
 
 echo
