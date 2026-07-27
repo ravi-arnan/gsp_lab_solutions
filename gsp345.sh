@@ -328,6 +328,17 @@ terraform import module.storage.google_storage_bucket.state-bucket \
   "projects/$PROJECT_ID/buckets/$BUCKET_NAME" 2>/dev/null || true
 
 terraform apply -auto-approve
+
+cat > main.tf << EOF
+terraform {
+  required_version = ">= 1.0"
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = ">= 4.0"
+    }
+  }
+  backend "gcs" {
     bucket  = "$BUCKET_NAME"
     prefix  = "terraform/state"
   }
