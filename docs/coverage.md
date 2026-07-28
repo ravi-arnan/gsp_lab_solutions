@@ -21,11 +21,11 @@ Tanda ✅ berarti scriptnya sudah ada di repo ini.
 
 | Badge | Lab |
 |-------|-----|
-| 636 Build Infrastructure with Terraform | GSP156, ✅GSP750, ✅GSP751, ✅GSP752, ✅GSP345 |
+| 636 Build Infrastructure with Terraform | ✅GSP156, ✅GSP750, ✅GSP751, ✅GSP752, ✅GSP345 — **lengkap** |
 | 655 Optimize Costs for GKE | ✅GSP766, ✅GSP767, GSP768, GSP769, ✅GSP343 |
-| 624 Build a Data Warehouse with BigQuery | GSP413, ✅GSP414, ✅GSP412, ✅GSP416, ✅GSP340 |
+| 624 Build a Data Warehouse with BigQuery | ✅GSP413, ✅GSP414, ✅GSP412, ✅GSP416, ✅GSP340 — **lengkap** |
 | 623 Derive Insights from BigQuery Data | GSP281, GSP072/GSP071, GSP407, GSP408, GSP409, GSP787 |
-| 681 Build a Data Mesh with Dataplex | ✅GSP1143, ✅GSP1145, ✅GSP1157, GSP1158, ✅GSP514 |
+| 681 Build a Data Mesh with Dataplex | ✅GSP1143, ✅GSP1145, ✅GSP1157, ✅GSP1158, ✅GSP514 — **lengkap** |
 | 726 Get Started with Dataplex | ✅GSP1143, GSP1144, ✅GSP1145, ARC117 |
 | 1164 Secure Software Delivery | ✅GSP1183, GSP1184, GSP1185, GSP521 |
 | 783 Manage Kubernetes in Google Cloud | GSP053, GSP736, GSP1026, GSP510 |
@@ -47,10 +47,22 @@ jumlah kode yang tertulis.
 
 48 badge sisanya belum dipetakan.
 
-## Badge yang paling dekat selesai
+## Badge yang sudah tertutup penuh
 
-- **624 Build a Data Warehouse with BigQuery** — tinggal GSP413.
-- **681 Build a Data Mesh with Dataplex** — tinggal GSP1158.
+- **636 Build Infrastructure with Terraform** — GSP156 + 750 + 751 + 752 + 345.
+- **624 Build a Data Warehouse with BigQuery** — GSP413 + 414 + 412 + 416 + 340.
+- **681 Build a Data Mesh with Dataplex** — GSP1143 + 1145 + 1157 + 1158 + 514.
+
+Ketiganya "lengkap" berarti scriptnya ada untuk tiap lab, bukan berarti sudah
+terbukti 100 poin. GSP156, GSP413, dan GSP1158 masih berstatus belum diuji, dan
+GSP1158 memang hanya bisa mencapai 60/100 lewat script.
+
+## Badge berikutnya yang paling dekat
+
+- **726 Get Started with Dataplex** — punya GSP1143 + 1145, kurang GSP1144 dan ARC117.
+- **725 Get Started with Cloud Storage** — punya GSP297, kurang GSP421, GSP074, ARC111.
+- **655 Optimize Costs for GKE** — punya GSP766 + 767 + 343, kurang GSP768 dan GSP769.
+- **1164 Secure Software Delivery** — punya GSP1183, kurang GSP1184, GSP1185, GSP521.
 
 ## Kenapa sisanya tidak ditulis borongan
 

@@ -76,7 +76,9 @@ for s in "${SCRIPTS[@]}"; do
   if [[ "$syn" == ok ]]; then
     # stdin diisi baris kosong tanpa habis: `read -r` yang dipakai sebagai jeda
     # "tekan ENTER" akan balik sukses, bukan EOF (EOF = exit 1 di `set -e`).
-    ( cd "$run" && eval "export ${ENVS[$s]:-DRYRUN=1}" \
+    # HOME ikut diarahkan ke sandbox: sebagian script menulis ke $HOME (Cloud Shell
+    # memang begitu), dan dry-run tidak boleh mengotori home asli.
+    ( cd "$run" && export HOME="$run" && eval "export ${ENVS[$s]:-DRYRUN=1}" \
       && timeout 120 bash "$src" ${ARGS[$s]:-} < <(yes '') ) >"$WORK/$s.out" 2>&1
     rc=$?
   else

@@ -31,6 +31,8 @@ gcloud)
     # lanjut kalau belum ada. Sebut semuanya supaya guard-nya teruji, bukan dilewati.
     p="${DEVSHELL_PROJECT_ID:-dryrun-project}"
     printf '%s\n' "$p-bucket" "$p-customer-online-sessions" "$p-dq-config"
+  elif has 'google-compute-default-zone'   ; then echo "us-central1-a"
+  elif has 'google-compute-default-region' ; then echo "us-central1"
   elif has 'binauthz policy export'        ; then
     printf 'defaultAdmissionRule:\n  evaluationMode: ALWAYS_ALLOW\n  enforcementMode: ENFORCED_BLOCK_AND_AUDIT_LOG\n'
   elif has 'dataplex entries lookup'       ; then
