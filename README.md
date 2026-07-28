@@ -65,6 +65,28 @@ Keterangan status:
 
 Lab dites ulang saat Google memperbarui materinya. Kolom "Terakhir diuji" menunjukkan kapan verifikasi terakhir dilakukan, jadi kalau tanggalnya sudah lama sementara lab-nya baru saja diupdate, anggap statusnya perlu dikonfirmasi ulang.
 
+## Validasi tanpa lab instance
+
+```bash
+bash test/run.sh            # semua script
+bash test/run.sh gsp416.sh  # satu script
+```
+
+Tiga lapis: `bash -n`, `shellcheck -S error`, lalu **dry-run** — script benar-benar dijalankan,
+tapi `gcloud`, `bq`, `gsutil`, `kubectl`, `terraform`, `curl`, dan `git` diganti stub di
+`test/stubs.sh` yang mencatat tiap panggilan dan menjawab dengan data berbentuk masuk akal.
+
+Yang ditangkap: syntax, variabel kosong yang kena `set -u`, urutan langkah salah, loop tak
+berbatas, dan cabang yang tidak pernah tercapai. Yang **tidak** ditangkap: apakah flagnya benar
+menurut API sungguhan, dan apakah checkpoint jadi hijau. Dua hal itu cuma bisa dibuktikan di lab
+instance sungguhan, jadi status "Terverifikasi" di tabel atas tetap datang dari sana, bukan dari
+harness ini.
+
+Status `NEED-NET` berarti script mati karena stub tidak benar-benar mengunduh apa pun, jadi
+`cd` ke direktori hasil `git clone`/`gsutil cp` gagal. Itu batas harness, bukan bug script.
+
+Cakupan repo ini terhadap katalog Arcade ada di [docs/coverage.md](docs/coverage.md).
+
 ### Lab yang tidak cocok diotomasi
 
 **Challenge lab** memilih task secara acak per instance, ditandai teks `Dynamically selected task will show up here...` di halaman labnya. Nama dataset, tabel, dan kolom berbeda tiap peserta, jadi script statis bisa salah parameter.

@@ -34,6 +34,25 @@ post()  { local r; r=$(curl -s -X POST "$1" -H "$AUTH" -H "$CT" -d "$2"); dbg "P
 get()   { local r; r=$(curl -s "${API}/$1" -H "$AUTH"); dbg "GET ${API}/$1" "$r"; echo "$r"; }
 patch() { local r; r=$(curl -s -X PATCH "$1" -H "$AUTH" -H "$CT" -d "$2"); dbg "PATCH $1" "$r"; echo "$r"; }
 
+# wait_job <job-name> — poll sampai DONE, dengan batas.
+# Batasnya wajib: kalau API balas error transien, .state jadi null dan loop
+# tanpa batas menggantung Cloud Shell sampai sesinya mati sendiri.
+JOB_MAX_POLL="${JOB_MAX_POLL:-40}"   # 40 x 15s = 10 menit
+wait_job() {
+  local name=$1 st i
+  for (( i = 1; i <= JOB_MAX_POLL; i++ )); do
+    st=$(get "$name" | jq -r '.state // "UNKNOWN"')
+    echo "  -> $st ($i/$JOB_MAX_POLL)"
+    case "$st" in
+      DONE)                     return 0 ;;
+      FAILED|CANCELED)          echo "ABORTED: $st"; return 1 ;;
+    esac
+    sleep 15
+  done
+  echo "TIMEOUT: job belum DONE setelah $JOB_MAX_POLL polling. Cek manual di Console."
+  return 1
+}
+
 echo "Project : $PROJECT_ID"
 echo "Input   : gs://$INPUT_BUCKET/"
 echo "Output  : gs://$OUTPUT_BUCKET/"
@@ -239,13 +258,7 @@ echo "Job: $INSPECT_JOB_NAME"
 
 if [ -n "$INSPECT_JOB_NAME" ]; then
   echo "Menunggu selesai..."
-  while true; do
-    ST=$(get "$INSPECT_JOB_NAME" | jq -r '.state')
-    echo "  -> $ST"
-    [[ "$ST" == "DONE" ]] && break
-    [[ "$ST" == "FAILED" || "$ST" == "CANCELED" ]] && { echo "ABORTED: $ST"; break; }
-    sleep 15
-  done
+  wait_job "$INSPECT_JOB_NAME" || true
 else
   echo "ERROR:"; echo "$INSPECT_JOB" | jq . 2>/dev/null || echo "$INSPECT_JOB"
 fi
@@ -305,13 +318,7 @@ echo "Job: $DEID_JOB_NAME"
 
 if [ -n "$DEID_JOB_NAME" ]; then
   echo "Menunggu selesai..."
-  while true; do
-    ST=$(get "$DEID_JOB_NAME" | jq -r '.state')
-    echo "  -> $ST"
-    [[ "$ST" == "DONE" ]] && break
-    [[ "$ST" == "FAILED" || "$ST" == "CANCELED" ]] && { echo "ABORTED: $ST"; break; }
-    sleep 15
-  done
+  wait_job "$DEID_JOB_NAME" || true
 else
   echo "ERROR:"; echo "$DEID_JOB" | jq . 2>/dev/null || echo "$DEID_JOB"
 fi
