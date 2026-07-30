@@ -48,6 +48,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP345 | Build Infrastructure with Terraform: Challenge Lab | [gsp345.sh](gsp345.sh) | - | Terverifikasi, semua checkpoint hijau (google provider dipin `< 7.0` di semua blok) | 2026-07-30 |
 | GSP1183 | Gating Deployments with Binary Authorization | [gsp1183.sh](gsp1183.sh) | [docs/gsp1183.md](docs/gsp1183.md) | Terverifikasi di us-east1, 7/7 checkpoint hijau sekali jalan | 2026-07-17 |
 | GSP1184 | Secure Builds with Cloud Build | [gsp1184.sh](gsp1184.sh) | - | Belum diuji | - |
+| GSP1185 | Securing Container Builds | [gsp1185.sh](gsp1185.sh) | - | Belum diuji | - |
 | GSP766 | Managing a GKE Multi-tenant Cluster with Namespaces | [gsp766.sh](gsp766.sh) | - | Terverifikasi, skor 100/100, Looker Studio manual (tidak di-score) | 2026-07-24 |
 | GSP343 | Optimize Costs for GKE: Challenge Lab | [gsp343.sh](gsp343.sh) | - | Diuji, jalan tanpa error | 2026-07-24 |
 | GSP767 | Exploring Cost-optimization for GKE Virtual Machines | [gsp767.sh](gsp767.sh) | - | Terverifikasi, skor 100/100 | 2026-07-24 |
