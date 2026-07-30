@@ -459,6 +459,12 @@ echo ">>> Task 4 selesai. Klik Check my progress."
 # ================================================================= Task 5: Destroy resources
 step "Task 5: Destroy tf-instance-3"
 
+# Task 5 menghapus instance yang baru dibuat Task 4, jadi checkpoint Task 4
+# harus hijau dulu. Jeda hanya kalau interaktif (bukan curl | bash).
+if [[ -t 0 ]]; then
+  read -r -p "Pastikan checkpoint Task 4 sudah hijau, lalu tekan Enter..." _
+fi
+
 cat > modules/instances/instances.tf << EOF
 resource "google_compute_instance" "tf-instance-1" {
   name         = "tf-instance-1"
