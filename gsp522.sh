@@ -125,9 +125,6 @@ DISC_RESULT=$(post "$API/$PARENT_US/discoveryConfigs" "$(cat <<EOJSON
   "discoveryConfig": {
     "displayName": "Cloud Storage Daily Discovery",
     "status": "RUNNING",
-    "orgConfig": {
-      "location": {"projectId": "${PROJECT_ID}"}
-    },
     "targets": [{
       "cloudStorageTarget": {
         "filter": {"others": {}},
