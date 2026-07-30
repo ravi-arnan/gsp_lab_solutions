@@ -54,6 +54,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP294 | Introduction to APIs in Google Cloud | [gsp294.sh](gsp294.sh) | - | Belum diuji | - |
 | GSP421 | APIs Explorer: Cloud Storage | [gsp421.sh](gsp421.sh) | - | Belum diuji | - |
 | GSP074 | Cloud Storage: Qwik Start - CLI/SDK | [gsp074.sh](gsp074.sh) | - | Belum diuji | - |
+| GSP522 | Discover and Protect Sensitive Data: Challenge Lab | [gsp522.sh](gsp522.sh) | - | Belum diuji, Task 3 manual (notebook) | - |
 | GSP766 | Managing a GKE Multi-tenant Cluster with Namespaces | [gsp766.sh](gsp766.sh) | - | Terverifikasi, skor 100/100, Looker Studio manual (tidak di-score) | 2026-07-24 |
 | GSP343 | Optimize Costs for GKE: Challenge Lab | [gsp343.sh](gsp343.sh) | - | Diuji, jalan tanpa error | 2026-07-24 |
 | GSP767 | Exploring Cost-optimization for GKE Virtual Machines | [gsp767.sh](gsp767.sh) | - | Terverifikasi, skor 100/100 | 2026-07-24 |

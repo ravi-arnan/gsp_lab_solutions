@@ -28,6 +28,7 @@ declare -A ARGS=( [gsp1143.sh]="create" [gsp1157.sh]="reader" )
 declare -A ENVS=(
   [gsp1157.sh]="USER2=user2@example.com"
   [gsp514.sh]="USER2=user2@example.com"
+  [gsp522.sh]="USER2=user2@example.com"
 )
 
 # Script yang sudah tercatat tidak layak diotomasi (lihat README).
