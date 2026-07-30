@@ -13,14 +13,16 @@ set -euo pipefail
 PROJECT_ID="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
 [[ -n "$PROJECT_ID" ]] || { echo "Project belum di-set."; exit 1; }
 
-REGION="${REGION:-us-west1}"
-
 # Auto-detect zone dari instance yang sudah ada
 ZONE="${ZONE:-}"
 if [[ -z "$ZONE" ]]; then
   ZONE=$(gcloud compute instances list --filter="name=tf-instance-1" --format="value(zone)" --limit=1 2>/dev/null)
-  ZONE="${ZONE:-us-west1-b}"
+  ZONE="${ZONE:-europe-west1-d}"
 fi
+
+# Region ikut zone: subnet VPC di Task 6 harus se-region dengan instance,
+# kalau tidak apply-nya gagal.
+REGION="${REGION:-${ZONE%-*}}"
 
 # === Sesuaikan suffix berikut dengan angka di halaman lab-mu ===
 BUCKET_SUFFIX="${BUCKET_SUFFIX:-616380}"
