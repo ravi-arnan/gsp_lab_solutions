@@ -202,7 +202,7 @@ DEID_JOB=$(post "$API/$PARENT_US/dlpJobs" "$(cat <<EOJSON
     },
     "storageConfig": {
       "cloudStorageOptions": {
-        "fileSet": {"url": "gs://${INPUT_BUCKET}/"},
+        "fileSet": {"url": "gs://${INPUT_BUCKET}/**"},
         "fileTypes": ["TEXT_FILE", "CSV"],
         "filesLimitPercent": 100,
         "sampleMethod": "SAMPLE_METHOD_UNSPECIFIED"
@@ -285,9 +285,17 @@ gcloud projects remove-iam-policy-binding "$PROJECT_ID" \
   --member="user:$USER2" --role="roles/bigquery.dataViewer" --condition=None --quiet >/dev/null 2>&1 \
   && echo "dataViewer tanpa kondisi dicabut." || echo "dataViewer tanpa kondisi tidak ada."
 
+# Kondisi wajib lewat file: gcloud memisah --condition dengan koma, sedangkan
+# resource.matchTag('...', 'No') mengandung koma dan langsung ditolak.
+cat > /tmp/gsp522-condition.yaml <<EOF
+title: No SPII Access Only
+description: Access only to datasets tagged SPII=No
+expression: resource.matchTag('$PROJECT_ID/$TAG_KEY', 'No')
+EOF
+
 gcloud projects add-iam-policy-binding "$PROJECT_ID" \
   --member="user:$USER2" --role="roles/bigquery.dataViewer" \
-  --condition="title=No SPII Access Only,description=Access only to datasets tagged SPII=No,expression=resource.matchTag('$PROJECT_ID/$TAG_KEY', 'No')" \
+  --condition-from-file=/tmp/gsp522-condition.yaml \
   --quiet >/dev/null
 echo "dataViewer bersyarat diberikan."
 
