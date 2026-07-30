@@ -159,7 +159,7 @@ EOF
 
 if [[ -t 0 ]]; then
   read -r -p "Sudah hijau semua? Tekan Enter untuk lanjut Task 5 (Ctrl-C untuk berhenti)..." _
-  exec "$0" cleanup
+  exec bash "$0" cleanup
 else
   echo "Lanjutkan dengan: bash $0 cleanup"
 fi
