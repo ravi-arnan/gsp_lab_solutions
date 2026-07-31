@@ -21,6 +21,17 @@ BUCKET="$PROJECT"
 
 step() { echo; echo "=============================================================="; echo ">> $1"; echo "=============================================================="; }
 
+# Retention 10 detik belum tentu lewat saat rm dipanggil, jadi ulang beberapa kali.
+rm_when_expired() {
+  for i in 1 2 3 4 5; do
+    gsutil rm "$1" && return 0
+    echo "Retention belum lewat, tunggu 10 detik (percobaan $i)..."
+    sleep 10
+  done
+  echo "Gagal menghapus $1 setelah 5 percobaan."
+  return 1
+}
+
 # ----------------------------------------------------------------- Task 1
 step "Task 1: Create bucket gs://$BUCKET"
 if gsutil ls "gs://$BUCKET" >/dev/null 2>&1; then
@@ -56,8 +67,7 @@ gsutil rm "gs://$BUCKET/dummy_transactions" 2>&1 || true
 
 step "Task 4c: Release Temporary Hold & Delete"
 gsutil retention temp release "gs://$BUCKET/dummy_transactions"
-sleep 15
-gsutil rm "gs://$BUCKET/dummy_transactions"
+rm_when_expired "gs://$BUCKET/dummy_transactions"
 echo ""
 echo "Klik Check my progress: Task 4 - Set up Temporary Hold"
 
@@ -72,17 +82,21 @@ gsutil retention event release "gs://$BUCKET/dummy_loan"
 gsutil ls -L "gs://$BUCKET/dummy_loan"
 
 step "Task 5c: Hapus object"
-gsutil rm "gs://$BUCKET/dummy_loan"
+# Release event-based hold me-reset retention expiration ke "sekarang + 10s",
+# jadi rm pertama pasti 403.
+rm_when_expired "gs://$BUCKET/dummy_loan"
 echo ""
 echo "Klik Check my progress: Task 5 - Create Event-based holds"
-
-# ----------------------------------------------------------------- Cleanup
-step "Cleanup: Hapus bucket kosong"
-gsutil rb "gs://$BUCKET/"
 
 cat <<EOF
 
 ==============================================================
 SELESAI. Semua checkpoint sudah dikerjakan.
+
+Task 6 (hapus bucket) TIDAK dijalankan otomatis: menghapus bucket
+membuat checkpoint Task 1, 2, 3, dan 5 jadi merah kalau belum diklik.
+Setelah semua checkpoint hijau, jalankan sendiri:
+
+  gsutil rb "gs://$BUCKET/"
 ==============================================================
 EOF
