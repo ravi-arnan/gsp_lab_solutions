@@ -29,6 +29,7 @@ declare -A ENVS=(
   [gsp1157.sh]="USER2=user2@example.com"
   [gsp514.sh]="USER2=user2@example.com"
   [gsp522.sh]="USER2=user2@example.com"
+  [gsp1282.sh]="USER2=user2@example.com"
 )
 
 # Script yang sudah tercatat tidak layak diotomasi (lihat README).
