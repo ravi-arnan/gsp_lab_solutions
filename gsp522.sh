@@ -21,7 +21,7 @@ PROJECT_ID="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null
 [[ -n "$PROJECT_ID" ]] || { echo "Project belum di-set. Jalankan: gcloud config set project <ID>"; exit 1; }
 
 USER2="${USER2:-}"
-if [[ -z "$USER2" ]]; then
+if [[ -z "$USER2" && "${1:-}" != "diag" ]]; then
   echo "USER2 belum di-set. Ambil email Username 2 dari panel lab, lalu:"
   echo "  USER2=student-03-xxxx@qwiklabs.net bash $0"
   exit 1
@@ -48,10 +48,80 @@ echo "User 2  : $USER2"
 
 step() { echo; echo "=============================================================="; echo ">> $1"; echo "=============================================================="; }
 
+# ----------------------------------------------------------------- mode diag
+# `bash gsp522.sh diag` — dump state semua checkpoint tanpa mengubah apa pun.
+# Dipakai waktu checkpoint merah tapi tidak jelas bagian mana yang kurang.
+if [[ "${1:-}" == "diag" ]]; then
+  step "diag 1: Inspect + de-identify template"
+  for LOC in global us; do
+    curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/inspectTemplates" -H "$AUTH" \
+      | jq -r --arg l "$LOC" '.inspectTemplates[]? |
+          "[\($l)] INSPECT \(.name)
+    displayName: \(.displayName)
+    infoTypes  : \([.inspectConfig.infoTypes[]?.name] | join(", "))
+    likelihood : \(.inspectConfig.minLikelihood // "-")"' 2>/dev/null
+    curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/deidentifyTemplates" -H "$AUTH" \
+      | jq -r --arg l "$LOC" '.deidentifyTemplates[]? |
+          "[\($l)] DEID    \(.name)
+    displayName: \(.displayName)
+    transform  : \(.deidentifyConfig | keys[0])
+    fields     : \([.deidentifyConfig.recordTransformations.fieldTransformations[]?.fields[]?.name] | join(", "))"' 2>/dev/null
+  done
+
+  step "diag 2: Discovery config (semua lokasi)"
+  for LOC in us global "$REGION"; do
+    curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/discoveryConfigs" -H "$AUTH" \
+      | jq -r --arg l "$LOC" '.discoveryConfigs[]? |
+          "[\($l)] \(.displayName)  status=\(.status)  lastRun=\(.lastRunTime // "belum")
+    target  : \(.targets[0] | keys[0])
+    cadence : \(.targets[0].cloudStorageTarget.generationCadence.refreshFrequency // "-")
+    actions : \([.actions[] | keys[0]] | join(", "))
+    inspect : \(.inspectTemplates // [] | join(", "))"' 2>/dev/null
+  done
+
+  step "diag 3: DLP job + state"
+  for LOC in us global "$REGION"; do
+    curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/dlpJobs" -H "$AUTH" \
+      | jq -r --arg l "$LOC" '.jobs[]? |
+          "[\($l)] \(.name | split("/") | last)  state=\(.state)  type=\(.type)  err=\([.errors[]?.details.message] | join("; "))"' 2>/dev/null
+  done
+
+  step "diag 4: Isi bucket input dan output"
+  echo "-- gs://$INPUT_BUCKET/"
+  gcloud storage ls -r "gs://$INPUT_BUCKET/**" 2>&1 | head -10
+  echo "-- gs://$OUTPUT_BUCKET/  (kosong = de-identify job belum menulis apa-apa)"
+  gcloud storage ls -r "gs://$OUTPUT_BUCKET/**" 2>&1 | head -10
+
+  step "diag 5: Tag key, value, dan binding dataset orders"
+  gcloud resource-manager tags values list --parent="$PROJECT_ID/$TAG_KEY" \
+    --format='table(namespacedName, description)' 2>&1 || echo "Tag key tidak ada."
+  DS_LOC=$(bq --format=json show "${PROJECT_ID}:orders" 2>/dev/null | jq -r '.location // "?"' | tr '[:upper:]' '[:lower:]')
+  echo "lokasi dataset orders: $DS_LOC"
+  gcloud resource-manager tags bindings list \
+    --parent="//bigquery.googleapis.com/projects/$PROJECT_ID/datasets/orders" \
+    --location="$DS_LOC" --format='value(tagValueNamespacedName)' 2>&1
+
+  step "diag 6: Role USER2 + kondisi"
+  gcloud projects get-iam-policy "$PROJECT_ID" --format=json \
+    | jq --arg u "user:${USER2:-<tidak-di-set>}" '[.bindings[] | select(.members[]? == $u)]'
+
+  step "diag 7: Dataset dan tabel hasil"
+  bq ls --format=pretty --project_id="$PROJECT_ID" 2>&1 | head -20
+  bq ls --format=pretty "${PROJECT_ID}:cs_transformations" 2>&1 | head -10
+
+  echo; echo "Selesai. Tidak ada yang diubah."
+  exit 0
+fi
+
+# Error dicetak utuh; pesan ringkas sering menyembunyikan field mana yang ditolak.
 dbg() {
   echo "  >>> $1" >&2
-  local summary; summary=$(echo "$2" | jq -r 'if .error then "ERROR: "+.error.message else "OK" end' 2>/dev/null || echo "RAW: $(echo "$2" | head -c 200)")
-  echo "  <<< $summary" >&2
+  if echo "$2" | jq -e '.error' >/dev/null 2>&1; then
+    echo "  <<< ERROR:" >&2
+    echo "$2" | jq '.error | {code, status, message, details}' >&2
+  else
+    echo "  <<< OK $(echo "$2" | jq -r '.name // "-"' 2>/dev/null)" >&2
+  fi
 }
 post() { local r; r=$(curl -s -X POST "$1" -H "$AUTH" -H "$CT" -d "$2"); dbg "POST $1" "$r"; echo "$r"; }
 get()  { local r; r=$(curl -s "${API}/$1" -H "$AUTH"); dbg "GET $1" "$r"; echo "$r"; }
