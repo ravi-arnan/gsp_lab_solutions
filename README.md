@@ -18,6 +18,12 @@ less gsp416.sh
 bash gsp416.sh
 ```
 
+Kalau script baru saja diperbaiki dan kamu mengambilnya ulang di tengah lab, `raw.githubusercontent.com` masih menyajikan versi lama sekitar lima menit. Paksa ambil versi baru:
+
+```bash
+curl -sL "https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp416.sh?v=$(date +%s)" -o gsp416.sh
+```
+
 ### Script yang butuh fase atau parameter
 
 Sebagian lab tidak bisa dijalankan sebagai one-liner. Download dulu, jangan di-pipe ke `bash`, karena `curl ... | bash -s <arg>` membuat script dan stdin berebut, dan biasanya filenya masih dibutuhkan untuk fase berikutnya.
