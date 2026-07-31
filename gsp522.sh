@@ -379,25 +379,51 @@ Task 1 dan 2 selesai. Klik Check my progress untuk keduanya.
 
 TASK 3 MANUAL — harus di notebook Workbench, tidak bisa dari Cloud Shell.
 
+  Notebook memakai SDK google-genai (client = genai.Client(enterprise=True, ...),
+  model = "gemini-3.5-flash"). Tidak ada 'GenerationConfig' di SDK ini —
+  temperature masuk lewat argumen config.
+
   1. Vertex AI > Workbench > instance 'vertex-ai-jupyterlab' > Open JupyterLab
-  2. Buka 'deidentify-model-response-challenge-lab.ipynb'
-  3. Di fungsi yang memblokir respons model, tambahkan US VIN ke daftar
-     infoType yang diblokir:
+  2. Buka 'deidentify-model-response-challenge-lab.ipynb', jalankan sel setup
+     sampai sel 'Import Gemini 3.5 Flash model'
+  3. Di fungsi 'deidentify_with_replace_infotype', ganti blok setelah komentar
+     '# Add conditional return ...' jadi (VIN ditambahkan, blocking source code
+     bawaan dipertahankan):
 
-        blocked_info_types = [
-            {"name": "US_VEHICLE_IDENTIFICATION_NUMBER"},
-        ]
-        inspect_config = {
-            "info_types": blocked_info_types,
-            "min_likelihood": google.cloud.dlp_v2.Likelihood.LIKELIHOOD_UNSPECIFIED,
-        }
+        info_types = ["DOCUMENT_TYPE/R&D/SOURCE_CODE", "US_VEHICLE_IDENTIFICATION_NUMBER"]
+        inspect_config = {"info_types": [{"name": t} for t in info_types]}
 
-  4. Jalankan generate dengan temperature 0 dan prompt persis ini:
+        response = dlp.inspect_content(request={
+            "parent": parent, "inspect_config": inspect_config,
+            "item": {"value": item},
+        })
 
-        generation_config = GenerationConfig(temperature=0)
+        if response.result.findings:
+            for finding in response.result.findings:
+                if finding.info_type.name == "DOCUMENT_TYPE/R&D/SOURCE_CODE":
+                    return_payload = '[Blocked due to category: Source Code]'
+                elif finding.info_type.name == "US_VEHICLE_IDENTIFICATION_NUMBER":
+                    return_payload = '[Blocked due to category: US Vehicle Identification Number]'
+
+  4. Sel berikutnya, generate respons dengan temperature 0:
+
         prompt = "Is 4Y1SL65848Z411439 an example of a US Vehicle Identification Number (VIN)?"
+        response_vin = client.models.generate_content(
+            model=model, contents=prompt, config={"temperature": 0})
+        print(response_vin.text)
 
-  5. Jalankan semua sel sampai respons diblokir, baru klik Check my progress.
+  5. Sel terakhir, panggil fungsinya. Sertakan prompt-nya: model sering
+     memecah VIN jadi potongan ('4Y1', 'SL658', '411439') dan tidak pernah
+     mengulang VIN utuh, sehingga DLP tidak menemukan apa pun kalau yang
+     diperiksa cuma respons:
+
+        deidentify_with_replace_infotype(
+            PROJECT_ID, prompt + "\\n" + response_vin.text,
+            ["US_VEHICLE_IDENTIFICATION_NUMBER"])
+
+     Output harus '[Blocked due to category: US Vehicle Identification Number]'.
+     Jalankan ulang sel definisi fungsi setelah diedit, kalau tidak yang
+     dipakai masih versi lama.
 
   Project ID: $PROJECT_ID   Location: global
 ==============================================================
