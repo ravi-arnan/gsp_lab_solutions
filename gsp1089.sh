@@ -58,12 +58,17 @@ gcloud services enable \
 # ----------------------------------------------------------------- IAM
 step "IAM: service agent GCS, Eventarc receiver, Audit Logs Compute Engine"
 
-# gsutil kms serviceaccount sekaligus mem-provision service agent GCS kalau
-# belum ada; gcloud storage service-agent cuma mencetak emailnya.
-GCS_SA=$(gsutil kms serviceaccount -p "$PROJECT_NUMBER" 2>/dev/null || gcloud storage service-agent --project="$PROJECT")
+# Service agent GCS dibuat lazy. Endpoint .../projects/<id>/serviceAccount ini
+# yang mem-provision-nya; 'gcloud storage service-agent' cuma menyusun nama
+# emailnya, jadi binding-nya gagal "does not exist" kalau agent belum ada.
+GCS_SA=$(curl -s -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+  "https://storage.googleapis.com/storage/v1/projects/$PROJECT/serviceAccount" | jq -r '.email_address')
+[[ "$GCS_SA" == *@* ]] || { echo "Gagal mendapatkan service agent GCS: $GCS_SA"; exit 1; }
+echo "Service agent GCS: $GCS_SA"
+
 retry gcloud projects add-iam-policy-binding "$PROJECT" \
   --member "serviceAccount:$GCS_SA" \
-  --role roles/pubsub.publisher --condition=None >/dev/null
+  --role roles/pubsub.publisher --condition=None
 
 gcloud projects add-iam-policy-binding "$PROJECT" \
   --member "serviceAccount:$PROJECT_NUMBER-compute@developer.gserviceaccount.com" \
