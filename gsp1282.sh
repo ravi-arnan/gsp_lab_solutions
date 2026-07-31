@@ -44,6 +44,51 @@ echo "User 2  : $USER2"
 
 step() { echo; echo "=============================================================="; echo ">> $1"; echo "=============================================================="; }
 
+# ----------------------------------------------------------------- mode diag
+# `bash gsp1282.sh diag` — dump state semua checkpoint tanpa mengubah apa pun.
+# Dipakai waktu checkpoint merah tapi tidak jelas bagian mana yang kurang.
+if [[ "${1:-}" == "diag" ]]; then
+  step "diag 1: Discovery config (semua lokasi)"
+  for LOC in us global us-central1; do
+    curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/discoveryConfigs" -H "$AUTH" \
+      | jq -r --arg loc "$LOC" '.discoveryConfigs[]? |
+          "[\($loc)] \(.displayName)  status=\(.status)  lastRun=\(.lastRunTime // "belum")
+    target   : \(.targets[0] | keys[0])  filter=\(.targets[0].bigQueryTarget.filter // {} | keys[0] // "-")
+    actions  : \([.actions[] | keys[0]] | join(", "))
+    tagConds : \([.actions[]?.tagResources?.tagConditions[]? | "\(.sensitivityScore.score)->\(.tag.namespacedValue)"] | join("  "))
+    lowerRisk: \([.actions[]?.tagResources?.lowerDataRiskToLow] | join(""))
+    genToTag : \([.actions[]?.tagResources?.profileGenerationsToTag[]?] | join(","))"' 2>/dev/null
+  done
+
+  step "diag 2: Tag key + values"
+  gcloud resource-manager tags values list --parent="$PROJECT_ID/$TAG_KEY" \
+    --format='table(namespacedName, name, description)' 2>&1 || echo "Tag key tidak ada."
+
+  step "diag 3: Role service agent DLP"
+  gcloud projects get-iam-policy "$PROJECT_ID" --format=json \
+    | jq -r --arg sa "serviceAccount:$DLP_SA" '.bindings[] | select(.members[]? == $sa) | .role'
+
+  step "diag 4: Role USER2 + kondisi"
+  gcloud projects get-iam-policy "$PROJECT_ID" --format=json \
+    | jq --arg u "user:$USER2" '[.bindings[] | select(.members[]? == $u)]'
+
+  step "diag 5: Dataset, lokasi, dan tag binding-nya"
+  for DS in $(bq ls --format=json --project_id="$PROJECT_ID" 2>/dev/null | jq -r '.[].datasetReference.datasetId'); do
+    DS_LOC=$(bq --format=json show "${PROJECT_ID}:${DS}" 2>/dev/null | jq -r '.location // "?"' | tr '[:upper:]' '[:lower:]')
+    BINDINGS=$(gcloud resource-manager tags bindings list \
+      --parent="//bigquery.googleapis.com/projects/$PROJECT_ID/datasets/$DS" \
+      --location="$DS_LOC" --format='value(tagValueNamespacedName)' 2>/dev/null | tr '\n' ' ')
+    printf '  %-28s loc=%-12s tag=%s\n' "$DS" "$DS_LOC" "${BINDINGS:-<kosong>}"
+  done
+
+  step "diag 6: Profil hasil scan (kosong = scan belum menghasilkan apa-apa)"
+  bq query --nouse_legacy_sql --format=prettyjson \
+    "SELECT COUNT(*) AS profil FROM \`${PROJECT_ID}.bq_discovery.data_profiles\`" 2>&1 | tail -5
+
+  echo; echo "Selesai. Tidak ada yang diubah."
+  exit 0
+fi
+
 dbg() {
   echo "  >>> $1" >&2
   local summary; summary=$(echo "$2" | jq -r 'if .error then "ERROR: "+.error.message else "OK" end' 2>/dev/null || echo "RAW: $(echo "$2" | head -c 200)")
