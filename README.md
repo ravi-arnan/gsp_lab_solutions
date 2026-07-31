@@ -62,7 +62,8 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP1281 | Enabling Sensitive Data Protection Discovery for Cloud Storage | [gsp1281.sh](gsp1281.sh) | [docs/gsp1281.md](docs/gsp1281.md) | Belum diuji | - |
 | GSP412 | Troubleshooting and Solving Data Join Pitfalls | [gsp412.sh](gsp412.sh) | - | Belum diuji | - |
 | GSP081 | Cloud Run Functions: Qwik Start - Console | [gsp081.sh](gsp081.sh) | - | Belum diuji | - |
-| GSP080 | Cloud Run Functions: Qwik Start - Command Line | [gsp080.sh](gsp080.sh) | - | Belum diuji | - |
+| GSP080 | Cloud Run Functions: Qwik Start - Command Line | [gsp080.sh](gsp080.sh) | - | Terverifikasi, skor 100/100 | 2026-07-31 |
+| GSP1089 | Cloud Run Functions: Qwik Start | [gsp1089.sh](gsp1089.sh) | - | Belum diuji | - |
 | GSP156 | Terraform Fundamentals | [gsp156.sh](gsp156.sh) | [docs/gsp156.md](docs/gsp156.md) | Belum diuji | - |
 | GSP413 | Creating a Data Warehouse Through Joins and Unions | [gsp413.sh](gsp413.sh) | [docs/gsp413.md](docs/gsp413.md) | Belum diuji | - |
 | GSP1158 | Assessing Data Quality with Knowledge Catalog | [gsp1158.sh](gsp1158.sh) | [docs/gsp1158.md](docs/gsp1158.md) | Belum diuji, maks 60/100 (Task 2 & 5 wajib manual) | - |
