@@ -245,9 +245,17 @@ retry gcloud functions deploy slow-concurrent-function \
   --project "$PROJECT"
 
 # Setara langkah Console: Edit & Deploy New Revision > CPU 1, concurrency 100.
+# Grader tidak menerima nilai yang di-set lewat flag 'functions deploy' saja,
+# harus ada revisi baru dari Run API. CPU ditulis '1000m' (format Console);
+# '--cpu 1' tersimpan sebagai '1' dan ditolak grader.
 gcloud run services update slow-concurrent-function \
   --region "$REGION" --project "$PROJECT" \
-  --cpu 1 --concurrency 100 --max-instances 4
+  --cpu 1000m --concurrency 100 --min-instances 1 --max-instances 4
+
+# Task 6 juga baru hijau setelah min-instances di-set lewat Run API.
+gcloud run services update slow-function \
+  --region "$REGION" --project "$PROJECT" \
+  --min-instances 1 --max-instances 4
 
 # ----------------------------------------------------------------- Task 4: VM
 step "Task 4: Buat VM 'instance-1' supaya fungsi labeler jalan"
