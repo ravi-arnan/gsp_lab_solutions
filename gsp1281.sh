@@ -20,6 +20,8 @@ OUTPUT_BUCKET="${PROJECT_ID}-output"
 API="https://dlp.googleapis.com/v2"
 AUTH="Authorization: Bearer $(gcloud auth print-access-token)"
 CT="Content-Type: application/json"
+# DLP API menolak ADC tanpa quota project; header ini yang menggantikannya.
+QP="x-goog-user-project: $PROJECT_ID"
 PARENT="projects/${PROJECT_ID}/locations/global"
 DC_LOC="us"
 PARENT_DC="projects/${PROJECT_ID}/locations/${DC_LOC}"
@@ -30,9 +32,9 @@ dbg() {
   echo "  <<< $summary" >&2
 }
 
-post()  { local r; r=$(curl -s -X POST "$1" -H "$AUTH" -H "$CT" -d "$2"); dbg "POST $1" "$r"; echo "$r"; }
-get()   { local r; r=$(curl -s "${API}/$1" -H "$AUTH"); dbg "GET ${API}/$1" "$r"; echo "$r"; }
-patch() { local r; r=$(curl -s -X PATCH "$1" -H "$AUTH" -H "$CT" -d "$2"); dbg "PATCH $1" "$r"; echo "$r"; }
+post()  { local r; r=$(curl -s -X POST "$1" -H "$AUTH" -H "$QP" -H "$CT" -d "$2"); dbg "POST $1" "$r"; echo "$r"; }
+get()   { local r; r=$(curl -s "${API}/$1" -H "$AUTH" -H "$QP"); dbg "GET ${API}/$1" "$r"; echo "$r"; }
+patch() { local r; r=$(curl -s -X PATCH "$1" -H "$AUTH" -H "$QP" -H "$CT" -d "$2"); dbg "PATCH $1" "$r"; echo "$r"; }
 
 # wait_job <job-name> — poll sampai DONE, dengan batas.
 # Batasnya wajib: kalau API balas error transien, .state jadi null dan loop
@@ -66,14 +68,14 @@ gcloud services enable dlp.googleapis.com bigquery.googleapis.com --project="$PR
 # Cleanup previous job runs (idempotent, suppress errors)
 for job_id in i-us_ssn_inspection i-us_ssn_deidentify; do
   for loc in global us-central1 us; do
-    curl -s -X DELETE "${API}/projects/${PROJECT_ID}/locations/${loc}/dlpJobs/${job_id}" -H "$AUTH" > /dev/null 2>&1 || true
+    curl -s -X DELETE "${API}/projects/${PROJECT_ID}/locations/${loc}/dlpJobs/${job_id}" -H "$AUTH" -H "$QP" > /dev/null 2>&1 || true
   done
 done
 # List & delete existing discovery configs from any location
 for loc in global us-central1 us; do
-  EXISTING_DC=$(curl -s "${API}/projects/${PROJECT_ID}/locations/${loc}/discoveryConfigs" -H "$AUTH" | jq -r '.discoveryConfigs[0].name // empty' 2>/dev/null)
+  EXISTING_DC=$(curl -s "${API}/projects/${PROJECT_ID}/locations/${loc}/discoveryConfigs" -H "$AUTH" -H "$QP" | jq -r '.discoveryConfigs[0].name // empty' 2>/dev/null)
   if [ -n "$EXISTING_DC" ]; then
-    curl -s -X DELETE "${API}/${EXISTING_DC}" -H "$AUTH" > /dev/null 2>&1 || true
+    curl -s -X DELETE "${API}/${EXISTING_DC}" -H "$AUTH" -H "$QP" > /dev/null 2>&1 || true
   fi
 done
 
@@ -87,7 +89,7 @@ done
 # ══════════════════════════════════════════════════════════════
 step "Task 1: Buat inspection template + discovery config"
 
-ALL_INFO_TYPES=$(curl -s "${API}/infoTypes?locationId=global" -H "$AUTH" 2>/dev/null | jq '[.infoTypes[]? | select(.type == "BUILT_IN" or .type == null) | select(.name | startswith("DOCUMENT_TYPE/") | not) | {name: .name}] | .[:80]' 2>/dev/null || echo "[]")
+ALL_INFO_TYPES=$(curl -s "${API}/infoTypes?locationId=global" -H "$AUTH" -H "$QP" 2>/dev/null | jq '[.infoTypes[]? | select(.type == "BUILT_IN" or .type == null) | select(.name | startswith("DOCUMENT_TYPE/") | not) | {name: .name}] | .[:80]' 2>/dev/null || echo "[]")
 INFO_TYPES_COUNT=$(echo "$ALL_INFO_TYPES" | jq 'length' 2>/dev/null || echo "0")
 if [ "$INFO_TYPES_COUNT" -lt 5 ]; then
   echo "  Warning: only $INFO_TYPES_COUNT infoTypes fetched, using defaults"

@@ -35,6 +35,8 @@ DISPLAY_NAME="BigQuery Discovery"
 API="https://dlp.googleapis.com/v2"
 AUTH="Authorization: Bearer $(gcloud auth print-access-token)"
 CT="Content-Type: application/json"
+# DLP API menolak ADC tanpa quota project; header ini yang menggantikannya.
+QP="x-goog-user-project: $PROJECT_ID"
 PARENT="projects/${PROJECT_ID}/locations/global"   # inspect template: global
 PARENT_US="projects/${PROJECT_ID}/locations/us"    # discovery config: multi-region us
 
@@ -50,7 +52,7 @@ step() { echo; echo "===========================================================
 if [[ "${1:-}" == "diag" ]]; then
   step "diag 1: Discovery config (semua lokasi)"
   for LOC in us global us-central1; do
-    curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/discoveryConfigs" -H "$AUTH" \
+    curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/discoveryConfigs" -H "$AUTH" -H "$QP" \
       | jq -r --arg loc "$LOC" '.discoveryConfigs[]? |
           "[\($loc)] \(.displayName)  status=\(.status)  lastRun=\(.lastRunTime // "belum")
     target   : \(.targets[0] | keys[0])  filter=\(.targets[0].bigQueryTarget.filter // {} | keys[0] // "-")
@@ -94,8 +96,8 @@ dbg() {
   local summary; summary=$(echo "$2" | jq -r 'if .error then "ERROR: "+.error.message else "OK" end' 2>/dev/null || echo "RAW: $(echo "$2" | head -c 200)")
   echo "  <<< $summary" >&2
 }
-post()  { local r; r=$(curl -s -X POST  "$1" -H "$AUTH" -H "$CT" -d "$2"); dbg "POST $1"  "$r"; echo "$r"; }
-patch() { local r; r=$(curl -s -X PATCH "$1" -H "$AUTH" -H "$CT" -d "$2"); dbg "PATCH $1" "$r"; echo "$r"; }
+post()  { local r; r=$(curl -s -X POST  "$1" -H "$AUTH" -H "$QP" -H "$CT" -d "$2"); dbg "POST $1"  "$r"; echo "$r"; }
+patch() { local r; r=$(curl -s -X PATCH "$1" -H "$AUTH" -H "$QP" -H "$CT" -d "$2"); dbg "PATCH $1" "$r"; echo "$r"; }
 
 # ----------------------------------------------------------------- persiapan
 step "Enable API + dataset tujuan ekspor profil"
@@ -109,7 +111,7 @@ bq --location=US mk -d "${PROJECT_ID}:bq_discovery" 2>/dev/null \
 # ================================================================= Task 1
 step "Task 1a: Inspection template default (semua infoType, minLikelihood POSSIBLE)"
 
-ALL_INFO_TYPES=$(curl -s "${API}/infoTypes?locationId=global" -H "$AUTH" 2>/dev/null \
+ALL_INFO_TYPES=$(curl -s "${API}/infoTypes?locationId=global" -H "$AUTH" -H "$QP" 2>/dev/null \
   | jq '[.infoTypes[]? | select(.name | startswith("DOCUMENT_TYPE/") | not) | {name: .name}] | .[:80]' 2>/dev/null || echo "[]")
 if [[ "$(echo "$ALL_INFO_TYPES" | jq 'length' 2>/dev/null || echo 0)" -lt 5 ]]; then
   echo "  Gagal ambil daftar infoType, pakai default."
@@ -137,9 +139,9 @@ step "Task 1b: Discovery config '$DISPLAY_NAME' status PAUSED"
 
 # Jalan ulang tidak boleh menumpuk config.
 for LOC in us global us-central1; do
-  for DC in $(curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/discoveryConfigs" -H "$AUTH" \
+  for DC in $(curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/discoveryConfigs" -H "$AUTH" -H "$QP" \
       | jq -r '.discoveryConfigs[]?.name // empty' 2>/dev/null); do
-    curl -s -X DELETE "${API}/${DC}" -H "$AUTH" >/dev/null 2>&1 || true
+    curl -s -X DELETE "${API}/${DC}" -H "$AUTH" -H "$QP" >/dev/null 2>&1 || true
   done
 done
 

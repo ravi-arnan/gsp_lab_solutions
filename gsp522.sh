@@ -33,6 +33,8 @@ OUTPUT_BUCKET="${PROJECT_ID}-car-owners-transformed"
 API="https://dlp.googleapis.com/v2"
 AUTH="Authorization: Bearer $(gcloud auth print-access-token)"
 CT="Content-Type: application/json"
+# DLP API menolak ADC tanpa quota project; header ini yang menggantikannya.
+QP="x-goog-user-project: $PROJECT_ID"
 PARENT="projects/${PROJECT_ID}/locations/global"   # template: global
 PARENT_US="projects/${PROJECT_ID}/locations/us"    # discovery + job: multi-region us
 
@@ -54,13 +56,13 @@ step() { echo; echo "===========================================================
 if [[ "${1:-}" == "diag" ]]; then
   step "diag 1: Inspect + de-identify template"
   for LOC in global us; do
-    curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/inspectTemplates" -H "$AUTH" \
+    curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/inspectTemplates" -H "$AUTH" -H "$QP" \
       | jq -r --arg l "$LOC" '.inspectTemplates[]? |
           "[\($l)] INSPECT \(.name)
     displayName: \(.displayName)
     infoTypes  : \([.inspectConfig.infoTypes[]?.name] | join(", "))
     likelihood : \(.inspectConfig.minLikelihood // "-")"' 2>/dev/null
-    curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/deidentifyTemplates" -H "$AUTH" \
+    curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/deidentifyTemplates" -H "$AUTH" -H "$QP" \
       | jq -r --arg l "$LOC" '.deidentifyTemplates[]? |
           "[\($l)] DEID    \(.name)
     displayName: \(.displayName)
@@ -70,7 +72,7 @@ if [[ "${1:-}" == "diag" ]]; then
 
   step "diag 2: Discovery config (semua lokasi)"
   for LOC in us global "$REGION"; do
-    curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/discoveryConfigs" -H "$AUTH" \
+    curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/discoveryConfigs" -H "$AUTH" -H "$QP" \
       | jq -r --arg l "$LOC" '.discoveryConfigs[]? |
           "[\($l)] \(.displayName)  status=\(.status)  lastRun=\(.lastRunTime // "belum")
     target  : \(.targets[0] | keys[0])
@@ -81,7 +83,7 @@ if [[ "${1:-}" == "diag" ]]; then
 
   step "diag 3: DLP job + state"
   for LOC in us global "$REGION"; do
-    curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/dlpJobs" -H "$AUTH" \
+    curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/dlpJobs" -H "$AUTH" -H "$QP" \
       | jq -r --arg l "$LOC" '.jobs[]? |
           "[\($l)] \(.name | split("/") | last)  state=\(.state)  type=\(.type)  err=\([.errors[]?.details.message] | join("; "))"' 2>/dev/null
   done
@@ -123,8 +125,8 @@ dbg() {
     echo "  <<< OK $(echo "$2" | jq -r '.name // "-"' 2>/dev/null)" >&2
   fi
 }
-post() { local r; r=$(curl -s -X POST "$1" -H "$AUTH" -H "$CT" -d "$2"); dbg "POST $1" "$r"; echo "$r"; }
-get()  { local r; r=$(curl -s "${API}/$1" -H "$AUTH"); dbg "GET $1" "$r"; echo "$r"; }
+post() { local r; r=$(curl -s -X POST "$1" -H "$AUTH" -H "$QP" -H "$CT" -d "$2"); dbg "POST $1" "$r"; echo "$r"; }
+get()  { local r; r=$(curl -s "${API}/$1" -H "$AUTH" -H "$QP"); dbg "GET $1" "$r"; echo "$r"; }
 
 # Batas polling wajib: kalau API balas error transien, .state jadi null dan
 # loop tanpa batas menggantung Cloud Shell.
@@ -183,10 +185,10 @@ step "Task 1b: Discovery config harian untuk Cloud Storage"
 
 # Hapus discovery config lama supaya jalan ulang tidak menumpuk config.
 for LOC in us global "$REGION"; do
-  EXISTING=$(curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/discoveryConfigs" -H "$AUTH" \
+  EXISTING=$(curl -s "${API}/projects/${PROJECT_ID}/locations/${LOC}/discoveryConfigs" -H "$AUTH" -H "$QP" \
     | jq -r '.discoveryConfigs[]?.name // empty' 2>/dev/null)
   for DC in $EXISTING; do
-    curl -s -X DELETE "${API}/${DC}" -H "$AUTH" >/dev/null 2>&1 || true
+    curl -s -X DELETE "${API}/${DC}" -H "$AUTH" -H "$QP" >/dev/null 2>&1 || true
   done
 done
 
@@ -224,7 +226,7 @@ echo "Discovery config: $(echo "$DISC_RESULT" | jq -r '.name // "GAGAL"')"
 
 step "Task 1c: De-identify template '$DEID_TPL_ID' (field message, replace with infoType name)"
 
-curl -s -X DELETE "$API/$PARENT/deidentifyTemplates/$DEID_TPL_ID" -H "$AUTH" >/dev/null 2>&1 || true
+curl -s -X DELETE "$API/$PARENT/deidentifyTemplates/$DEID_TPL_ID" -H "$AUTH" -H "$QP" >/dev/null 2>&1 || true
 
 DEID_TPL=$(post "$API/$PARENT/deidentifyTemplates" "$(cat <<EOJSON
 {
@@ -259,7 +261,7 @@ step "Task 1d: De-identify job '$DEID_JOB_ID' pada gs://$INPUT_BUCKET/"
 # Job ID hanya boleh dipakai sekali; hapus sisa run sebelumnya.
 for LOC in us global "$REGION"; do
   curl -s -X DELETE "${API}/projects/${PROJECT_ID}/locations/${LOC}/dlpJobs/i-${DEID_JOB_ID}" \
-    -H "$AUTH" >/dev/null 2>&1 || true
+    -H "$AUTH" -H "$QP" >/dev/null 2>&1 || true
 done
 
 DEID_JOB=$(post "$API/$PARENT_US/dlpJobs" "$(cat <<EOJSON
