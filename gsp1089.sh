@@ -58,8 +58,10 @@ gcloud services enable \
 # ----------------------------------------------------------------- IAM
 step "IAM: service agent GCS, Eventarc receiver, Audit Logs Compute Engine"
 
-GCS_SA=$(gcloud storage service-agent --project="$PROJECT" 2>/dev/null || gsutil kms serviceaccount -p "$PROJECT_NUMBER")
-gcloud projects add-iam-policy-binding "$PROJECT" \
+# gsutil kms serviceaccount sekaligus mem-provision service agent GCS kalau
+# belum ada; gcloud storage service-agent cuma mencetak emailnya.
+GCS_SA=$(gsutil kms serviceaccount -p "$PROJECT_NUMBER" 2>/dev/null || gcloud storage service-agent --project="$PROJECT")
+retry gcloud projects add-iam-policy-binding "$PROJECT" \
   --member "serviceAccount:$GCS_SA" \
   --role roles/pubsub.publisher --condition=None >/dev/null
 
