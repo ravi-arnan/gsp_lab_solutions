@@ -304,9 +304,9 @@ cmd_deploy() {
   else
     step "Task 5a: adk deploy agent_engine (5-10 menit)"
     cd "$LAB_DIR"
-    if ! adk deploy agent_engine --display_name "Paint Agent" . 2>&1 | tee "$log"; then
+    if ! adk deploy agent_engine --display_name "Paint Agent" paint_agent 2>&1 | tee "$log"; then
       echo "  Deploy gagal tanpa staging bucket, coba ulang dengan --staging_bucket."
-      adk deploy agent_engine --display_name "Paint Agent" --staging_bucket "gs://${BUCKET}" . 2>&1 | tee "$log"
+      adk deploy agent_engine --display_name "Paint Agent" --staging_bucket "gs://${BUCKET}" paint_agent 2>&1 | tee "$log"
     fi
   fi
 
