@@ -4,15 +4,18 @@
 #   bash genai129.sh setup    # Task 1 + Task 2  (data store, search app, env, install ADK)
 #   bash genai129.sh patch    # Task 3 + Task 4  (perbaiki agent.py, tools.py, coverage_calculator)
 #   bash genai129.sh chat     # Task 3           (smoke test lewat `adk run`, non-interaktif)
-#   bash genai129.sh deploy   # Task 5           (IAM + adk deploy agent_engine + patch chainlit)
+#   bash genai129.sh state    # Task 4           (percakapan penuh sampai hitungan coverage)
+#   bash genai129.sh deploy   # Task 5           (adk deploy agent_engine + IAM + patch chainlit)
 #   bash genai129.sh ui       # Task 6           (jalankan chainlit, percakapannya manual)
 #
 # Checkpoint:
-#   Task 1 - Create a data store and search app        (otomatis, REST Discovery Engine)
-#   Task 3 - Debug your agent                          (otomatis: patch + `adk run`)
-#   Task 4 - Set and utilize session state             (otomatis: patch tools.py + instruksi)
-#   Task 5 - Deploy to Agent Runtime                   (otomatis, 5-10 menit)
-#   Task 6 - Configure a frontend to query your agent  (semi: chainlit jalan, chat manual)
+#   Task 1 (15 pts) - Create a data store and search app        (otomatis, REST Discovery Engine)
+#   Task 3 (25 pts) - Debug your agent                          (otomatis: patch + `adk run`)
+#   Task 4 (25 pts) - Set and utilize session state             (otomatis: patch + percakapan)
+#   Task 5 (25 pts) - Deploy to Agent Runtime                   (otomatis, 5-10 menit)
+#   Task 6 (10 pts) - Configure a frontend to query your agent  (semi: chainlit jalan, chat manual)
+#
+# Terverifikasi 100/100 pada 2026-08-01.
 #
 # Fase dipisah karena indexing data store butuh beberapa menit sebelum agent
 # bisa menjawab pertanyaan produk. Jalankan `setup` dulu, kerjakan yang lain
@@ -289,6 +292,27 @@ cmd_chat() {
   echo "Kalau jawabannya kosong, dokumen belum selesai di-index — tunggu beberapa menit, ulangi."
 }
 
+# ────────────────────────────────────────────────────────────── Task 4 state ─
+# Checkpoint Task 4 lulus lewat percakapan penuh, bukan dari isi file: agent ini
+# punya callback yang mengirim tiap prompt/response ke Cloud Logging, dan itu
+# yang dibaca grader. Kalimat "plain text only" di giliran keempat mencegah model
+# mengarang tool 'print_image' waktu diminta menampilkan gambar produk.
+cmd_state() {
+  step "Task 4: Percakapan pengisi session state"
+  cd "$LAB_DIR"
+  printf '%s\n' \
+    'hello' \
+    'yes' \
+    "I'd like to use EcoGreens" \
+    'Just one room, my office. Respond with plain text only, do not call any tool other than transferring between agents.' \
+    'Deep Ocean' \
+    '3m by 4m. 3m high. 1 door, 2 windows.' \
+    'Two coats.' \
+    'exit' | adk run paint_agent 2>&1 | tail -40
+  echo
+  echo "Cari angka 74 sq meters di output, lalu klik Check my progress: 'Set and utilize session state'."
+}
+
 # ────────────────────────────────────────────────────────────── Task 5 ───────
 cmd_deploy() {
   local SA="service-${PROJECT_NUMBER}@gcp-sa-aiplatform-re.iam.gserviceaccount.com"
@@ -379,15 +403,17 @@ case "${1:-}" in
   setup)  cmd_setup ;;
   patch)  cmd_patch ;;
   chat)   cmd_chat ;;
+  state)  cmd_state ;;
   deploy) cmd_deploy ;;
   ui)     cmd_ui ;;
   *)
     echo
-    echo "Pakai: bash $0 <setup|patch|chat|deploy|ui>"
+    echo "Pakai: bash $0 <setup|patch|chat|state|deploy|ui>"
     echo "  setup  - Task 1 + 2: data store, search app, source code, .env"
     echo "  patch  - Task 3 + 4: perbaiki agent.py, tools.py, coverage_calculator"
     echo "  chat   - Task 3: smoke test lewat adk run"
-    echo "  deploy - Task 5: IAM + adk deploy agent_engine + patch chainlit"
+    echo "  state  - Task 4: percakapan penuh sampai hitungan coverage"
+    echo "  deploy - Task 5: adk deploy agent_engine + IAM + patch chainlit"
     echo "  ui     - Task 6: jalankan chainlit (chat manual)"
     exit 1 ;;
 esac
