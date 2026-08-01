@@ -76,6 +76,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP1158 | Assessing Data Quality with Knowledge Catalog | [gsp1158.sh](gsp1158.sh) | [docs/gsp1158.md](docs/gsp1158.md) | Belum diuji, maks 60/100 (Task 2 & 5 wajib manual) | - |
 | GSP1282 | Enabling Sensitive Data Protection Discovery for BigQuery | [gsp1282.sh](gsp1282.sh) | [docs/gsp1282.md](docs/gsp1282.md) | Manual 100/100; script 80/100 (Task 4 ditolak) — tag dataset kini lewat `bq update --add_tags`, belum diverifikasi | 2026-07-31 |
 | GSP297 | Cloud Storage: Bucket Lock | [gsp297.sh](gsp297.sh) | [docs/gsp297.md](docs/gsp297.md) | Terverifikasi, skor 100/100, Task 6 (hapus bucket) sengaja manual | 2026-07-31 |
+| GENAI129 | Deploy an Agent with ADK: Challenge Lab | [genai129.sh](genai129.sh) | [docs/genai129.md](docs/genai129.md) | Belum diuji, lima fase, Task 6 (chat di UI) manual | - |
 
 Tiap lab punya runbook di `docs/` berisi urutan perintah, nilai yang harus muncul sebagai sanity check, dan troubleshooting. **Baca runbook-nya dulu sebelum jalan**, terutama GSP340 (parameter acak) dan GSP1143 (dua fase).
 
