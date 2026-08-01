@@ -292,25 +292,42 @@ cmd_chat() {
 # ────────────────────────────────────────────────────────────── Task 5 ───────
 cmd_deploy() {
   local SA="service-${PROJECT_NUMBER}@gcp-sa-aiplatform-re.iam.gserviceaccount.com"
-
-  step "Task 5a: IAM untuk service agent Agent Runtime"
-  for ROLE in roles/aiplatform.user roles/discoveryengine.user; do
-    gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-      --member="serviceAccount:${SA}" --role="$ROLE" --condition=None -q >/dev/null
-    echo "  granted $ROLE -> $SA"
-  done
-
-  step "Task 5b: adk deploy agent_engine (5-10 menit)"
-  cd "$LAB_DIR"
   local log="$LAB_DIR/deploy.log"
-  if ! adk deploy agent_engine --display_name "Paint Agent" . 2>&1 | tee "$log"; then
-    echo "  Deploy gagal tanpa staging bucket, coba ulang dengan --staging_bucket."
-    adk deploy agent_engine --display_name "Paint Agent" --staging_bucket "gs://${BUCKET}" . 2>&1 | tee "$log"
+  local RES
+
+  # Service agent `-re` baru dibuat saat deploy pertama, jadi deploy dulu baru IAM.
+  RES=$(curl -s "${AIP}/projects/${PROJECT_ID}/locations/${REGION}/reasoningEngines" -H "$(auth)" \
+    | jq -r '[.reasoningEngines[]? | select(.displayName=="Paint Agent")] | last | .name // empty')
+
+  if [[ -n "$RES" ]]; then
+    step "Task 5a: 'Paint Agent' sudah ada, lewati deploy"
+  else
+    step "Task 5a: adk deploy agent_engine (5-10 menit)"
+    cd "$LAB_DIR"
+    if ! adk deploy agent_engine --display_name "Paint Agent" . 2>&1 | tee "$log"; then
+      echo "  Deploy gagal tanpa staging bucket, coba ulang dengan --staging_bucket."
+      adk deploy agent_engine --display_name "Paint Agent" --staging_bucket "gs://${BUCKET}" . 2>&1 | tee "$log"
+    fi
   fi
 
+  step "Task 5b: IAM untuk service agent Agent Runtime"
+  local i
+  for ROLE in roles/aiplatform.user roles/discoveryengine.user; do
+    for (( i = 1; i <= 10; i++ )); do
+      if gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+           --member="serviceAccount:${SA}" --role="$ROLE" --condition=None -q >/dev/null 2>&1; then
+        echo "  granted $ROLE -> $SA"
+        break
+      fi
+      echo "  service agent belum muncul, tunggu 30s ($i/10)"
+      sleep 30
+    done
+  done
+
   step "Task 5c: Ambil resource name"
-  local RES
-  RES=$(grep -oE 'projects/[0-9]+/locations/[a-z0-9-]+/reasoningEngines/[0-9]+' "$log" | tail -1 || true)
+  if [[ -z "$RES" && -f "$log" ]]; then
+    RES=$(grep -oE 'projects/[0-9]+/locations/[a-z0-9-]+/reasoningEngines/[0-9]+' "$log" | tail -1 || true)
+  fi
   if [[ -z "$RES" ]]; then
     RES=$(curl -s "${AIP}/projects/${PROJECT_ID}/locations/${REGION}/reasoningEngines" -H "$(auth)" \
       | jq -r '[.reasoningEngines[]? | select(.displayName=="Paint Agent")] | last | .name // empty')
