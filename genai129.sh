@@ -228,7 +228,8 @@ p = agent_dir / "tools.py"
 src = before = p.read_text()
 tree = ast.parse(src)
 fn = next((n for n in ast.walk(tree)
-           if isinstance(n, ast.FunctionDef) and n.name == "set_session_value"), None)
+           if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
+           and n.name == "set_session_value"), None)
 if fn is None:
     sys.exit("FATAL: set_session_value tidak ada di tools.py")
 
@@ -265,7 +266,9 @@ for p in cands:
             seg = ast.get_source_segment(src, node)
             if not seg:
                 continue
-            new = re.sub(r"(?<![{\w])([A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+)(?![\w}])", r"{\1?}", seg)
+            # Token state key di lab: COVERAGE_RATE dan PRICE — jadi jangan
+            # syaratkan underscore, cukup ALL CAPS minimal 3 huruf.
+            new = re.sub(r"(?<![{\w])([A-Z][A-Z0-9_]{2,})(?![\w}])", r"{\1?}", seg)
             if new != seg:
                 src = src.replace(seg, new, 1)
     show(p, before, src)
