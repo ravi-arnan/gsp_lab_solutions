@@ -80,6 +80,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP540 | Engineer AI Agents with ADK: Challenge Lab | [gsp540.sh](gsp540.sh) | [docs/gsp540.md](docs/gsp540.md) | Terverifikasi, skor 100/100 sekali jalan, Task 2 dan 5 (chat di Dev UI) manual | 2026-08-01 |
 | GSP529 | Develop AI-Powered Prototypes in Google AI Studio: Challenge Lab | - | [docs/gsp529.md](docs/gsp529.md) | Tidak bisa di-script (100% UI AI Studio); runbook prompt terverifikasi 100/100, semua prompt jadi sekali jalan | 2026-08-02 |
 | ARC120 | The Basics of Google Cloud Compute: Challenge Lab | [arc120.sh](arc120.sh) | - | Terverifikasi, skor 100/100 sekali jalan, tanpa SSH (NGINX lewat startup-script) | 2026-08-02 |
+| ARC111 | Implement Cloud Storage and Data Protection Solutions: Challenge Lab | [arc111.sh](arc111.sh) | - | Belum diuji; nama bucket diacak per instance, wajib diisi lewat `B1`/`B2`/`B3` | - |
 
 Tiap lab punya runbook di `docs/` berisi urutan perintah, nilai yang harus muncul sebagai sanity check, dan troubleshooting. **Baca runbook-nya dulu sebelum jalan**, terutama GSP340 (parameter acak) dan GSP1143 (dua fase).
 
