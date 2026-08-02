@@ -15,6 +15,14 @@
 # Shell. Script ini bikin API key di Cloud Shell, lalu mengirim satu script
 # remote lewat scp dan menjalankannya via SSH di lab-vm.
 #
+# PENTING: checkpoint Task 1 TIDAK hijau oleh key buatan gcloud (diuji
+# 2026-08-02, key ada dan tanpa restriction tapi tetap merah). Bikin satu key
+# lagi lewat console: APIs & Services -> Credentials -> + Create credentials
+# -> API key. Form barunya mewajibkan isi "Select API restrictions" — pilih
+# Text-to-Speech, Speech-to-Text, dan Translation (atau "Don't restrict key"),
+# Application restrictions biarkan None. Key buatan script tetap yang dipakai
+# Task 2-5.
+#
 # LAMA: ~2-3 menit, paling lama menunggu SSH siap.
 
 set -euo pipefail
@@ -213,7 +221,13 @@ cat <<EOF
 ==============================================================
 SELESAI!
 
-Klik Check my progress untuk kelima task. File hasil ada di home
+Klik Check my progress untuk Task 2-5. File hasil ada di home
 directory $VM, bukan di Cloud Shell.
+
+Task 1 masih perlu satu langkah manual: bikin API key lewat console
+(APIs & Services -> Credentials -> + Create credentials -> API key).
+Isi "Select API restrictions" dengan Text-to-Speech, Speech-to-Text,
+dan Translation; Application restrictions biarkan None. Key buatan
+script ini tidak menghijaukan checkpoint Task 1.
 ==============================================================
 EOF
