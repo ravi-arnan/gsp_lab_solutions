@@ -151,8 +151,8 @@ if __name__ == '__main__':
     decode_tts_output(args.input, args.output)
 EOF
 
-python tts_decode.py --input "synthesize-text.txt" --output "synthesize-text-audio.mp3" \
-  || python3 tts_decode.py --input "synthesize-text.txt" --output "synthesize-text-audio.mp3"
+# VM lab cuma punya python3, bukan 'python'.
+python3 tts_decode.py --input "synthesize-text.txt" --output "synthesize-text-audio.mp3"
 ls -l synthesize-text-audio.mp3
 
 echo "== Task 3: Speech-to-Text (Prancis) =="
