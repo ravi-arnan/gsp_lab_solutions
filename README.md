@@ -18,10 +18,11 @@ less gsp416.sh
 bash gsp416.sh
 ```
 
-Kalau script baru saja diperbaiki dan kamu mengambilnya ulang di tengah lab, `raw.githubusercontent.com` masih menyajikan versi lama sekitar lima menit. Paksa ambil versi baru:
+Kalau script baru saja diperbaiki dan kamu mengambilnya ulang di tengah lab, `raw.githubusercontent.com` masih menyajikan versi lama sekitar lima menit. **Query string `?v=$(date +%s)` tidak menolong** — cache-nya mengabaikan itu (terbukti 2026-08-03 di GSP381). Yang bekerja: ambil lewat commit SHA, karena URL-nya immutable.
 
 ```bash
-curl -sL "https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp416.sh?v=$(date +%s)" -o gsp416.sh
+git -C . log --oneline -1        # atau lihat SHA di GitHub
+curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/<SHA>/gsp416.sh
 ```
 
 ### Script yang butuh fase atau parameter
