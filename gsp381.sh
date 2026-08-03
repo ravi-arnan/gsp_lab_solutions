@@ -30,7 +30,16 @@ sql() { gcloud spanner databases execute-sql "$DATABASE" --instance="$INSTANCE" 
 
 # ----------------------------------------------------------------- Task 1
 step "Task 1: Instance $INSTANCE"
-gcloud services enable spanner.googleapis.com --project="$PROJECT"
+# Provisioning lab baru saja mengaktifkan banyak API; enable lagi sering kena
+# 429 "Mutate requests per minute" di serviceusage. Cek dulu, dan kalaupun
+# gagal jangan hentikan script — Spanner API praktis selalu sudah aktif.
+if gcloud services list --enabled --project="$PROJECT" \
+     --filter='config.name:spanner.googleapis.com' --format='value(config.name)' | grep -q spanner; then
+  echo "Spanner API sudah aktif."
+else
+  gcloud services enable spanner.googleapis.com --project="$PROJECT" ||
+    echo "  (enable gagal, lanjut — cek manual kalau task berikutnya error)"
+fi
 if gcloud spanner instances describe "$INSTANCE" --project="$PROJECT" &>/dev/null; then
   echo "Instance sudah ada, lewati."
 else
