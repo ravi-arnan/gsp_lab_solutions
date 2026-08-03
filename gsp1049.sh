@@ -148,7 +148,8 @@ else
       JOB_STATE_DONE) break ;;
       JOB_STATE_FAILED|JOB_STATE_CANCELLED)
         echo "--- log error job ---"
-        gcloud dataflow logs list "$JOB_ID" --region="$DF_REGION" --project="$PROJECT" \
+        # 'logs' cuma ada di release track beta, bukan gcloud dataflow biasa.
+        gcloud beta dataflow logs list "$JOB_ID" --region="$DF_REGION" --project="$PROJECT" \
           --importance=error 2>/dev/null | head -20
         echo "---------------------"
         echo "Kalau errornya soal worker tidak ter-provision, ulangi dengan region"
