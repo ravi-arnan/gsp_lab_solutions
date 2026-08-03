@@ -124,40 +124,84 @@ else
   gcloud services disable dataflow.googleapis.com --force -q
   gcloud services enable dataflow.googleapis.com
 
-  # Di lab manual, jeda ini terisi waktu mengisi wizard Console. Lewat script
-  # job bisa diluncurkan sebelum service agent Dataflow selesai dibuat, dan
-  # jobnya langsung FAILED dalam semenit.
-  echo "Menunggu service agent Dataflow siap (90 detik)..."
-  sleep 90
+  # Siklus di atas menghapus binding service agent, dan Google baru memulihkannya
+  # beberapa menit kemudian. Job yang diluncurkan sebelum itu langsung FAILED:
+  # "The Dataflow service agent cannot access the worker service account."
+  # Di lab manual jeda ini terisi waktu mengisi wizard Console; lewat script
+  # binding-nya dipasang sendiri.
+  PROJECT_NUMBER=$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')
+  DF_AGENT="service-$PROJECT_NUMBER@dataflow-service-producer-prod.iam.gserviceaccount.com"
+  WORKER_SA="$PROJECT_NUMBER-compute@developer.gserviceaccount.com"
 
-  JOB_ID=$(gcloud dataflow jobs run spanner-load \
-    --gcs-location gs://dataflow-templates/latest/GCS_Text_to_Cloud_Spanner \
-    --region="$DF_REGION" \
-    --staging-location "$BUCKET/tmp" \
-    --worker-machine-type=e2-medium \
-    --parameters "instanceId=$INSTANCE,databaseId=$DATABASE,importManifest=gs://spls/gsp1049/manifest.json" \
-    --project="$PROJECT" --format='value(id)')
-  echo "Job Dataflow: $JOB_ID"
-
-  echo "Menunggu job selesai (12-16 menit)..."
-  while true; do
-    STATE=$(gcloud dataflow jobs describe "$JOB_ID" --region="$DF_REGION" \
-      --project="$PROJECT" --format='value(currentState)')
-    echo "  $(date +%H:%M:%S) $STATE"
-    case "$STATE" in
-      JOB_STATE_DONE) break ;;
-      JOB_STATE_FAILED|JOB_STATE_CANCELLED)
-        echo "--- log error job ---"
-        # 'logs' cuma ada di release track beta, bukan gcloud dataflow biasa.
-        gcloud beta dataflow logs list "$JOB_ID" --region="$DF_REGION" --project="$PROJECT" \
-          --importance=error 2>/dev/null | head -20
-        echo "---------------------"
-        echo "Kalau errornya soal worker tidak ter-provision, ulangi dengan region"
-        echo "lain, misal: DF_REGION=us-east1 bash gsp1049.sh"
-        exit 1 ;;
-    esac
-    sleep 60
+  step "Task 5a: Pastikan IAM Dataflow siap"
+  # Service agent dibuat lazy setelah API aktif — binding bisa gagal beberapa
+  # percobaan pertama dengan "does not exist".
+  for i in 1 2 3 4 5 6; do
+    if gcloud projects add-iam-policy-binding "$PROJECT" \
+         --member="serviceAccount:$DF_AGENT" --role=roles/dataflow.serviceAgent \
+         --condition=None >/dev/null 2>&1; then
+      echo "Service agent Dataflow siap."
+      break
+    fi
+    echo "  service agent belum ada, tunggu 30 detik (percobaan $i)..."
+    sleep 30
   done
+
+  for ROLE in roles/dataflow.worker roles/storage.objectAdmin roles/spanner.databaseUser; do
+    gcloud projects add-iam-policy-binding "$PROJECT" \
+      --member="serviceAccount:$WORKER_SA" --role="$ROLE" --condition=None >/dev/null
+  done
+
+  # Service agent harus bisa memakai worker SA — ini persis yang dikeluhkan
+  # error di atas.
+  gcloud iam service-accounts add-iam-policy-binding "$WORKER_SA" \
+    --member="serviceAccount:$DF_AGENT" --role=roles/iam.serviceAccountTokenCreator \
+    --project="$PROJECT" >/dev/null || true
+
+  echo "Menunggu propagasi IAM (60 detik)..."
+  sleep 60
+
+  run_job() {
+    local job_id state
+    job_id=$(gcloud dataflow jobs run spanner-load \
+      --gcs-location gs://dataflow-templates/latest/GCS_Text_to_Cloud_Spanner \
+      --region="$DF_REGION" \
+      --staging-location "$BUCKET/tmp" \
+      --worker-machine-type=e2-medium \
+      --parameters "instanceId=$INSTANCE,databaseId=$DATABASE,importManifest=gs://spls/gsp1049/manifest.json" \
+      --project="$PROJECT" --format='value(id)')
+    echo "Job Dataflow: $job_id"
+    echo "Menunggu job selesai (12-16 menit)..."
+    while true; do
+      state=$(gcloud dataflow jobs describe "$job_id" --region="$DF_REGION" \
+        --project="$PROJECT" --format='value(currentState)')
+      echo "  $(date +%H:%M:%S) $state"
+      case "$state" in
+        JOB_STATE_DONE) return 0 ;;
+        JOB_STATE_FAILED|JOB_STATE_CANCELLED)
+          echo "--- log error job ---"
+          # 'logs' cuma ada di release track beta, bukan gcloud dataflow biasa.
+          gcloud beta dataflow logs list "$job_id" --region="$DF_REGION" --project="$PROJECT" \
+            --importance=error 2>/dev/null | head -20
+          echo "---------------------"
+          return 1 ;;
+      esac
+      sleep 60
+    done
+  }
+
+  # Kegagalan izin biasanya sembuh sendiri setelah binding sempat menyebar.
+  OK=0
+  for ATTEMPT in 1 2 3; do
+    if run_job; then OK=1; break; fi
+    (( $(row_count) > 1000 )) && { echo "Sebagian data sudah masuk, hentikan retry."; OK=1; break; }
+    (( ATTEMPT < 3 )) && { echo "Percobaan $ATTEMPT gagal, ulangi dalam 2 menit..."; sleep 120; }
+  done
+  if (( OK == 0 )); then
+    echo "Job gagal 3 kali. Kalau errornya soal worker tidak ter-provision (kuota),"
+    echo "ulangi dengan region lain: DF_REGION=us-east1 bash gsp1049.sh"
+    exit 1
+  fi
   echo "Jumlah baris setelah Dataflow: $(row_count)"
 fi
 
