@@ -121,8 +121,15 @@ else
 
   # Persis langkah lab: siklus disable/enable memaksa service agent Dataflow
   # dibuat ulang dengan izin yang benar.
-  gcloud services disable dataflow.googleapis.com --force -q
-  gcloud services enable dataflow.googleapis.com
+  # Cukup sekali. Kalau script diulang, siklus ini justru menghapus lagi binding
+  # service agent yang baru dipasang di bawah.
+  if gcloud services list --enabled --project="$PROJECT" \
+       --filter='config.name:dataflow.googleapis.com' --format='value(config.name)' | grep -q dataflow; then
+    echo "Dataflow API sudah aktif, lewati siklus disable/enable."
+  else
+    gcloud services disable dataflow.googleapis.com --force -q 2>/dev/null || true
+    gcloud services enable dataflow.googleapis.com
+  fi
 
   # Siklus di atas menghapus binding service agent, dan Google baru memulihkannya
   # beberapa menit kemudian. Job yang diluncurkan sebelum itu langsung FAILED:
