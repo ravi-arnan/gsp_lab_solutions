@@ -124,6 +124,12 @@ else
   gcloud services disable dataflow.googleapis.com --force -q
   gcloud services enable dataflow.googleapis.com
 
+  # Di lab manual, jeda ini terisi waktu mengisi wizard Console. Lewat script
+  # job bisa diluncurkan sebelum service agent Dataflow selesai dibuat, dan
+  # jobnya langsung FAILED dalam semenit.
+  echo "Menunggu service agent Dataflow siap (90 detik)..."
+  sleep 90
+
   JOB_ID=$(gcloud dataflow jobs run spanner-load \
     --gcs-location gs://dataflow-templates/latest/GCS_Text_to_Cloud_Spanner \
     --region="$DF_REGION" \
@@ -141,8 +147,12 @@ else
     case "$STATE" in
       JOB_STATE_DONE) break ;;
       JOB_STATE_FAILED|JOB_STATE_CANCELLED)
-        echo "Job gagal. Kalau errornya soal worker tidak ter-provision, ulangi dengan"
-        echo "region lain, misal: DF_REGION=us-east1 bash gsp1049.sh"
+        echo "--- log error job ---"
+        gcloud dataflow logs list "$JOB_ID" --region="$DF_REGION" --project="$PROJECT" \
+          --importance=error 2>/dev/null | head -20
+        echo "---------------------"
+        echo "Kalau errornya soal worker tidak ter-provision, ulangi dengan region"
+        echo "lain, misal: DF_REGION=us-east1 bash gsp1049.sh"
         exit 1 ;;
     esac
     sleep 60
