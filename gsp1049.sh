@@ -18,6 +18,11 @@ set -euo pipefail
 PROJECT="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
 [[ -n "$PROJECT" ]] || { echo "Project belum di-set. Jalankan: gcloud config set project <ID>"; exit 1; }
 
+# Client library Spanner mencoba mengirim metrik internal ke Cloud Monitoring dan
+# selalu ditolak 400 (label instance_id kosong). Tidak berpengaruh ke insert, cuma
+# membanjiri output — matikan.
+export SPANNER_DISABLE_BUILTIN_METRICS=true
+
 # Regional endpoint Dataflow diacak per peserta — lihat instruksi Task 5 di lab.
 DF_REGION="${DF_REGION:-asia-south1}"
 INSTANCE="banking-instance"
