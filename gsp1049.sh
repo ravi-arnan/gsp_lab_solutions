@@ -108,6 +108,19 @@ python3 batch_insert.py || echo "  (baris sudah ada, lanjut)"
 
 echo "Jumlah baris sekarang: $(row_count)"
 
+# Checkpoint Task 3 dan 4 memeriksa jumlah baris tabel Customer, bukan cuma
+# keberadaan baris tertentu: Task 3 menuntut tepat 2 baris, Task 4 tepat 6.
+# Begitu Dataflow menambah 151k baris, keduanya langsung merah. Karena itu
+# script berhenti di sini — persis urutan klik di lab manual.
+step "Klik Check my progress dulu"
+echo "  - Insert data through a client library      (butuh tepat 2 baris)"
+echo "  - Insert batch data through a client library (butuh tepat 6 baris)"
+echo
+echo "JANGAN lanjut sebelum keduanya hijau. Dataflow di bawah menambah 151k baris"
+echo "dan membuat kedua checkpoint itu tidak bisa lolos lagi tanpa hapus data."
+echo
+read -r -p "Sudah hijau dua-duanya? Tekan Enter untuk lanjut ke Dataflow..."
+
 # ----------------------------------------------------------------- Task 5
 step "Task 5: Load 150k+ baris lewat Dataflow"
 COUNT=$(row_count)
