@@ -19,9 +19,25 @@
 
 set -euo pipefail
 
-ZONE="${ZONE:-us-east1-d}"
-REGION="${REGION:-us-east1}"
-CLUSTER="${CLUSTER:-hello-demo-cluster}"
+# Tanya nilai ke user kalau belum di-set lewat env var. Kalau stdin bukan
+# terminal (curl | bash, nohup), langsung pakai default supaya tidak menggantung.
+#   ask <NAMA_VAR> <default> <pertanyaan>
+ask() {
+  local _cur="${!1:-}"
+  if [[ -n "$_cur" ]]; then echo "$1 = $_cur (dari env)"; return; fi
+  if [[ -t 0 ]]; then
+    local _v
+    read -rp "$3 [$2]: " _v
+    printf -v "$1" '%s' "${_v:-$2}"
+  else
+    printf -v "$1" '%s' "$2"
+  fi
+  echo "$1 = ${!1}"
+}
+
+ask ZONE "us-east1-d" "Zone (cocokkan dengan panel lab)"
+ask REGION "us-east1" "Region (cocokkan dengan panel lab)"
+ask CLUSTER "hello-demo-cluster" "Nama cluster (cocokkan dengan teks task)"
 OLD_POOL="${OLD_POOL:-my-node-pool}"
 NEW_POOL="${NEW_POOL:-larger-pool}"
 RCLUSTER="${RCLUSTER:-regional-demo}"

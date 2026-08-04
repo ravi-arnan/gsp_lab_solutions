@@ -10,8 +10,24 @@
 
 set -euo pipefail
 
+# Tanya nilai ke user kalau belum di-set lewat env var. Kalau stdin bukan
+# terminal (curl | bash, nohup), langsung pakai default supaya tidak menggantung.
+#   ask <NAMA_VAR> <default> <pertanyaan>
+ask() {
+  local _cur="${!1:-}"
+  if [[ -n "$_cur" ]]; then echo "$1 = $_cur (dari env)"; return; fi
+  if [[ -t 0 ]]; then
+    local _v
+    read -rp "$3 [$2]: " _v
+    printf -v "$1" '%s' "${_v:-$2}"
+  else
+    printf -v "$1" '%s' "$2"
+  fi
+  echo "$1 = ${!1}"
+}
+
 # ----------------------------------------------------------------- parameter
-REGION="${REGION:-europe-west4}"
+ask REGION "europe-west4" "Region (cocokkan dengan panel lab)"
 LAKE_ID="orders-lake"
 LAKE_NAME="Orders Lake"
 ZONE_ID="customer-curated-zone"

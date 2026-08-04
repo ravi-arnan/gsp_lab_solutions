@@ -23,11 +23,27 @@
 
 set -euo pipefail
 
+# Tanya nilai ke user kalau belum di-set lewat env var. Kalau stdin bukan
+# terminal (curl | bash, nohup), langsung pakai default supaya tidak menggantung.
+#   ask <NAMA_VAR> <default> <pertanyaan>
+ask() {
+  local _cur="${!1:-}"
+  if [[ -n "$_cur" ]]; then echo "$1 = $_cur (dari env)"; return; fi
+  if [[ -t 0 ]]; then
+    local _v
+    read -rp "$3 [$2]: " _v
+    printf -v "$1" '%s' "${_v:-$2}"
+  else
+    printf -v "$1" '%s' "$2"
+  fi
+  echo "$1 = ${!1}"
+}
+
 PROJECT_ID="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
 [[ -n "$PROJECT_ID" ]] || { echo "Project belum di-set. Jalankan: gcloud config set project <ID>"; exit 1; }
 PROJECT_NUMBER="$(gcloud projects describe "$PROJECT_ID" --format='value(projectNumber)')"
 
-REGION="${REGION:-us-central1}"
+ask REGION "us-central1" "Region (cocokkan dengan panel lab)"
 BUCKET="${RESOURCES_BUCKET:-${PROJECT_ID}-bucket}"
 PDF="${PDF:-Cymbal_Shops_Paint_Datasheets.pdf}"
 MODEL="${MODEL:-gemini-2.5-flash}"

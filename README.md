@@ -25,6 +25,26 @@ git -C . log --oneline -1        # atau lihat SHA di GitHub
 curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/<SHA>/gsp416.sh
 ```
 
+### Region, zone, dan nilai yang diacak per peserta
+
+Script yang butuh region/zone (atau nilai lain yang berbeda tiap instance, seperti nama bucket di `arc111.sh` dan nama cluster di `gsp343.sh`) **akan bertanya sendiri** saat dijalankan dari terminal:
+
+```
+$ bash gsp081.sh
+Region (cocokkan dengan panel lab) [asia-east1]: europe-west1
+REGION = europe-west1
+```
+
+Tekan Enter saja kalau defaultnya sudah cocok. Tiga cara mengisinya, urutan prioritas dari atas:
+
+| Cara | Kapan dipakai |
+|------|---------------|
+| `REGION=europe-west1 bash gsp081.sh` | env var menang, tidak ada pertanyaan — enak untuk mengulang script |
+| Dijawab saat ditanya | jalan biasa dari terminal |
+| Default di dalam script | dipakai otomatis kalau stdin bukan terminal |
+
+Poin terakhir penting: `curl ... | bash` dan `nohup bash x.sh &` membuat stdin bukan terminal, jadi script **tidak akan menggantung menunggu jawaban** — dia langsung memakai default. Kalau region lab-mu berbeda dari default, isi lewat env var untuk dua pola itu.
+
 ### Script yang butuh fase atau parameter
 
 Sebagian lab tidak bisa dijalankan sebagai one-liner. Download dulu, jangan di-pipe ke `bash`, karena `curl ... | bash -s <arg>` membuat script dan stdin berebut, dan biasanya filenya masih dibutuhkan untuk fase berikutnya.
