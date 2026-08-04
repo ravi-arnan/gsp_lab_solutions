@@ -60,7 +60,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | ARC125 | Use APIs to Work with Cloud Storage: Challenge Lab | [arc125.sh](arc125.sh) | - | Terverifikasi, semua checkpoint hijau, dua fase | 2026-07-30 |
 | GSP294 | Introduction to APIs in Google Cloud | [gsp294.sh](gsp294.sh) | - | Belum diuji | - |
 | GSP421 | APIs Explorer: Cloud Storage | [gsp421.sh](gsp421.sh) | - | Belum diuji | - |
-| GSP038 | Entity and Sentiment Analysis with the Natural Language API | [gsp038.sh](gsp038.sh) | - | Belum diuji | - |
+| GSP038 | Entity and Sentiment Analysis with the Natural Language API | [gsp038.sh](gsp038.sh) | [docs/gsp038.md](docs/gsp038.md) | Terverifikasi, skor 100/100 sekali jalan; API key dibuat lewat console | 2026-08-04 |
 | GSP074 | Cloud Storage: Qwik Start - CLI/SDK | [gsp074.sh](gsp074.sh) | - | Belum diuji | - |
 | GSP522 | Discover and Protect Sensitive Data Across Your Ecosystem: Challenge Lab | [gsp522.sh](gsp522.sh) | - | Dikerjakan manual 100/100 (petunjuk Task 3 di script sudah dikoreksi ke SDK google-genai); script sendiri belum diuji | 2026-07-31 |
 | GSP766 | Managing a GKE Multi-tenant Cluster with Namespaces | [gsp766.sh](gsp766.sh) | - | Terverifikasi, skor 100/100, Looker Studio manual (tidak di-score) | 2026-07-24 |
