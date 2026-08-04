@@ -97,6 +97,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP1108 | Monitor an Apache Web Server using Ops Agent | [gsp1108.sh](gsp1108.sh) | [docs/gsp1108.md](docs/gsp1108.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-08-04 |
 | GSP736 | Debug Apps on Google Kubernetes Engine | [gsp736.sh](gsp736.sh) | [docs/gsp736.md](docs/gsp736.md) | Terverifikasi, skor 100/100; grader mencocokkan teks filter alerting policy (`resource.type` dulu) | 2026-08-04 |
 | GSP1026 | Collect Metrics from Exporters using the Managed Service for Prometheus | [gsp1026.sh](gsp1026.sh) | - | Belum diuji | - |
+| GSP053 | Managing Deployments Using Kubernetes Engine | [gsp053.sh](gsp053.sh) | - | Belum diuji | - |
 | GSP1089 | Cloud Run Functions: Qwik Start | [gsp1089.sh](gsp1089.sh) | - | Terverifikasi, skor 100/100; min-instances dan concurrency wajib lewat `gcloud run services update` (CPU `1000m`) | 2026-07-31 |
 | ARC104 | Build Serverless Applications with Cloud Run Functions: Challenge Lab | [arc104.sh](arc104.sh) | - | Terverifikasi, skor 100/100 sekali jalan | 2026-07-31 |
 | GSP156 | Terraform Fundamentals | [gsp156.sh](gsp156.sh) | [docs/gsp156.md](docs/gsp156.md) | Belum diuji | - |
