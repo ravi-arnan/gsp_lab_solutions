@@ -4,12 +4,19 @@
 #   REGION=asia-east1 bash gsp081.sh
 #
 # Checkpoint:
-#   Task 2 - Deploy the function
-#   Task 3 - Test the function (script memanggil function-nya)
-#   Task 4 (0 pts) - Baca log (dikerjakan script)
-#   Task 5 (0 pts) - Kuis, jawaban di penutup
+#   Task 2 (50 pts) - Deploy the function
+#   Task 3 (50 pts) - Test the function (script memanggil function-nya)
+#   Task 4 (0 pts)  - Baca log (dikerjakan script)
+#   Task 5 (0 pts)  - Kuis, jawaban di penutup
 #
 # Region diacak per peserta. Cocokkan REGION dengan halaman lab-mu.
+#
+# Dua hal yang wajib, kalau tidak Task 2 tetap nol (terbukti 2026-08-04):
+#   - Deploy lewat 'gcloud run deploy --function', BUKAN 'gcloud functions
+#     deploy --gen2'. Grader mencari Cloud Run service bikinan "Write a
+#     function"; service milik Cloud Functions bentuknya beda.
+#   - --execution-environment=gen2. Lab minta "Execution environment: Second
+#     generation", dan ini setting Cloud Run yang default-nya gen1.
 
 set -euo pipefail
 
@@ -17,19 +24,18 @@ REGION="${REGION:-asia-east1}"
 PROJECT="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
 [[ -n "$PROJECT" ]] || { echo "Project belum di-set. Jalankan: gcloud config set project <ID>"; exit 1; }
 
-FUNC_NAME="gcfunction"
+SERVICE="gcfunction"
 WORKDIR="/tmp/gsp081-source"
 
 echo "Project : $PROJECT"
 echo "Region  : $REGION"
-echo "Function: $FUNC_NAME"
+echo "Service : $SERVICE"
 
 step() { echo; echo "=============================================================="; echo ">> $1"; echo "=============================================================="; }
 
 # ----------------------------------------------------------------- API
 step "Enable API yang dibutuhkan"
 gcloud services enable \
-  cloudfunctions.googleapis.com \
   run.googleapis.com \
   cloudbuild.googleapis.com \
   artifactregistry.googleapis.com \
@@ -59,20 +65,22 @@ EOF
 echo "index.js + package.json siap di $WORKDIR"
 
 # ----------------------------------------------------------------- Task 2
-step "Task 2: Deploy '$FUNC_NAME' (~2-3 menit)"
-gcloud functions deploy "$FUNC_NAME" \
-  --gen2 \
-  --runtime=nodejs22 \
-  --region="$REGION" \
+step "Task 2: Deploy '$SERVICE' (~2-3 menit)"
+# -q supaya prompt pembuatan repo Artifact Registry 'cloud-run-source-deploy'
+# di-iyakan otomatis.
+gcloud run deploy "$SERVICE" \
   --source="$WORKDIR" \
-  --entry-point=helloHttp \
-  --trigger-http \
+  --function=helloHttp \
+  --base-image=nodejs22 \
+  --region="$REGION" \
   --allow-unauthenticated \
   --max-instances=5 \
-  --project="$PROJECT"
+  --execution-environment=gen2 \
+  --project="$PROJECT" \
+  -q
 
-URL="$(gcloud functions describe "$FUNC_NAME" \
-  --region="$REGION" --project="$PROJECT" --format='value(serviceConfig.uri)')"
+URL="$(gcloud run services describe "$SERVICE" \
+  --region="$REGION" --project="$PROJECT" --format='value(status.url)')"
 echo "URL: $URL"
 
 # ----------------------------------------------------------------- Task 3
@@ -84,8 +92,9 @@ echo
 
 # ----------------------------------------------------------------- Task 4
 step "Task 4: Baca log (bisa telat beberapa menit)"
-gcloud functions logs read "$FUNC_NAME" \
-  --region="$REGION" --project="$PROJECT" --limit=20 || true
+gcloud logging read \
+  "resource.type=cloud_run_revision AND resource.labels.service_name=$SERVICE" \
+  --limit=20 --project="$PROJECT" --format="value(timestamp, textPayload)" || true
 
 cat <<EOF
 
