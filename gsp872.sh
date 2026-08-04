@@ -12,7 +12,11 @@
 #   Task 6 - Testing Calls Using Your API Key
 #
 # Semua task dikerjakan dari CLI, Console tidak perlu dibuka.
-# Pembuatan gateway makan ~5-10 menit, jadi total ~15 menit. Sabar.
+# Pembuatan gateway makan ~10 menit. Sesi Cloud Shell bisa putus di tengah,
+# jadi jalankan di background:
+#   REGION=us-central1 nohup bash gsp872.sh > gsp872.log 2>&1 &
+#   tail -f ~/gsp872.log
+# Script idempoten, aman dijalankan ulang kalau sesi mati.
 
 set -euo pipefail
 
