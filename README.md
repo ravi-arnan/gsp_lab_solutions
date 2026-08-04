@@ -72,7 +72,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP081 | Cloud Run Functions: Qwik Start - Console | [gsp081.sh](gsp081.sh) | [docs/gsp081.md](docs/gsp081.md) | Terverifikasi, skor 100/100 | 2026-08-04 |
 | GSP872 | API Gateway: Qwik Start | [gsp872.sh](gsp872.sh) | [docs/gsp872.md](docs/gsp872.md) | Terverifikasi, skor 100/100 | 2026-08-04 |
 | GSP080 | Cloud Run Functions: Qwik Start - Command Line | [gsp080.sh](gsp080.sh) | - | Terverifikasi, skor 100/100 | 2026-07-31 |
-| GSP089 | Cloud Monitoring: Qwik Start | [gsp089.sh](gsp089.sh) | - | Belum diuji | - |
+| GSP089 | Cloud Monitoring: Qwik Start | [gsp089.sh](gsp089.sh) | [docs/gsp089.md](docs/gsp089.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-08-04 |
 | GSP1089 | Cloud Run Functions: Qwik Start | [gsp1089.sh](gsp1089.sh) | - | Terverifikasi, skor 100/100; min-instances dan concurrency wajib lewat `gcloud run services update` (CPU `1000m`) | 2026-07-31 |
 | ARC104 | Build Serverless Applications with Cloud Run Functions: Challenge Lab | [arc104.sh](arc104.sh) | - | Terverifikasi, skor 100/100 sekali jalan | 2026-07-31 |
 | GSP156 | Terraform Fundamentals | [gsp156.sh](gsp156.sh) | [docs/gsp156.md](docs/gsp156.md) | Belum diuji | - |
