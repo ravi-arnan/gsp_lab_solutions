@@ -58,14 +58,19 @@ cat > "$WORKDIR/src/package.json" << 'EOF'
 }
 EOF
 
-gcloud functions deploy "$FUNC" \
-  --runtime=nodejs20 \
-  --trigger-http \
-  --allow-unauthenticated \
-  --region="$REGION" \
-  --source="$WORKDIR/src" \
-  --entry-point=helloGET \
-  --project="$PROJECT"
+if [[ "$(gcloud functions describe "$FUNC" --region="$REGION" --project="$PROJECT" \
+        --format='value(state)' 2>/dev/null)" == "ACTIVE" ]]; then
+  echo "Function '$FUNC' sudah ACTIVE, lewati deploy."
+else
+  gcloud functions deploy "$FUNC" \
+    --runtime=nodejs20 \
+    --trigger-http \
+    --allow-unauthenticated \
+    --region="$REGION" \
+    --source="$WORKDIR/src" \
+    --entry-point=helloGET \
+    --project="$PROJECT"
+fi
 
 # Gen1 pakai httpsTrigger.url, gen2 pakai url/serviceConfig.uri. Ambil yang ada.
 FUNC_URL="$(gcloud functions describe "$FUNC" --region="$REGION" --project="$PROJECT" \
@@ -85,8 +90,9 @@ curl -sS -m 60 -w "\n" "$FUNC_URL"
 step "Task 3: Buat API, config, dan gateway"
 
 # Pakai ulang API lama kalau script diulang, supaya tidak menumpuk hello-world-*.
-API_ID="$(gcloud api-gateway apis list --project="$PROJECT" \
-  --filter='name~hello-world' --format='value(name)' --limit=1 | awk -F/ '{print $NF}')"
+# apis list tidak menerima filter 'name~', jadi saring di sisi klien.
+API_ID="$(gcloud api-gateway apis list --project="$PROJECT" --format='value(name)' \
+  | awk -F/ '{print $NF}' | grep '^hello-world-' | head -1 || true)"
 if [[ -z "$API_ID" ]]; then
   API_ID="hello-world-$(tr -dc 'a-z' < /dev/urandom | head -c 8)"
   gcloud api-gateway apis create "$API_ID" \
@@ -160,14 +166,14 @@ gcloud services enable "$MANAGED_SERVICE" --project="$PROJECT"
 
 KEY_DISPLAY="hello-world-key"
 KEY_NAME="$(gcloud services api-keys list --project="$PROJECT" \
-  --filter="displayName=$KEY_DISPLAY" --format='value(name)' --limit=1)"
+  --filter="displayName='$KEY_DISPLAY'" --format='value(name)' --limit=1)"
 if [[ -z "$KEY_NAME" ]]; then
   gcloud services api-keys create \
     --display-name="$KEY_DISPLAY" \
     --api-target="service=$MANAGED_SERVICE" \
     --project="$PROJECT"
   KEY_NAME="$(gcloud services api-keys list --project="$PROJECT" \
-    --filter="displayName=$KEY_DISPLAY" --format='value(name)' --limit=1)"
+    --filter="displayName='$KEY_DISPLAY'" --format='value(name)' --limit=1)"
 fi
 API_KEY="$(gcloud services api-keys get-key-string "$KEY_NAME" --format='value(keyString)')"
 echo "API key dibuat (${API_KEY:0:8}...)"
