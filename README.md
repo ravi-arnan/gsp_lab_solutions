@@ -69,6 +69,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP1281 | Enabling Sensitive Data Protection Discovery for Cloud Storage | [gsp1281.sh](gsp1281.sh) | [docs/gsp1281.md](docs/gsp1281.md) | Belum diuji | - |
 | GSP412 | Troubleshooting and Solving Data Join Pitfalls | [gsp412.sh](gsp412.sh) | - | Belum diuji | - |
 | GSP081 | Cloud Run Functions: Qwik Start - Console | [gsp081.sh](gsp081.sh) | [docs/gsp081.md](docs/gsp081.md) | Terverifikasi, skor 100/100 | 2026-08-04 |
+| GSP872 | API Gateway: Qwik Start | [gsp872.sh](gsp872.sh) | - | Belum diuji | - |
 | GSP080 | Cloud Run Functions: Qwik Start - Command Line | [gsp080.sh](gsp080.sh) | - | Terverifikasi, skor 100/100 | 2026-07-31 |
 | GSP1089 | Cloud Run Functions: Qwik Start | [gsp1089.sh](gsp1089.sh) | - | Terverifikasi, skor 100/100; min-instances dan concurrency wajib lewat `gcloud run services update` (CPU `1000m`) | 2026-07-31 |
 | ARC104 | Build Serverless Applications with Cloud Run Functions: Challenge Lab | [arc104.sh](arc104.sh) | - | Terverifikasi, skor 100/100 sekali jalan | 2026-07-31 |
