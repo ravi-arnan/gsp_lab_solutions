@@ -116,6 +116,9 @@ TOKEN="$(gcloud auth print-access-token)"
 if curl -s -H "Authorization: Bearer $TOKEN" "$API/alertPolicies" | grep -q "$ALERT_NAME"; then
   echo "Alerting policy sudah ada, lewati."
 else
+  # Filter ditulis persis seperti keluaran UI: resource.type DULU, lalu
+  # metric.type, dengan spasi di sekitar '='. Urutan terbalik (metric.type
+  # dulu) membuat grader menolak walau isinya sama — diuji 2026-08-04.
   cat > /tmp/gsp736_alert.json << 'EOF'
 {
   "displayName": "Error Rate SLI",
@@ -124,7 +127,7 @@ else
     {
       "displayName": "Kubernetes Container - logging/user/Error_Rate_SLI",
       "conditionThreshold": {
-        "filter": "metric.type=\"logging.googleapis.com/user/Error_Rate_SLI\" AND resource.type=\"k8s_container\"",
+        "filter": "resource.type = \"k8s_container\" AND metric.type = \"logging.googleapis.com/user/Error_Rate_SLI\"",
         "aggregations": [
           { "alignmentPeriod": "60s", "perSeriesAligner": "ALIGN_RATE" }
         ],
@@ -135,6 +138,8 @@ else
       }
     }
   ],
+  "alertStrategy": { "autoClose": "604800s" },
+  "notificationChannels": [],
   "enabled": true
 }
 EOF
