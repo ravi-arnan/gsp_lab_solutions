@@ -94,7 +94,9 @@ step "Task 3: Buat API, config, dan gateway"
 API_ID="$(gcloud api-gateway apis list --project="$PROJECT" --format='value(name)' \
   | awk -F/ '{print $NF}' | grep '^hello-world-' | head -1 || true)"
 if [[ -z "$API_ID" ]]; then
-  API_ID="hello-world-$(tr -dc 'a-z' < /dev/urandom | head -c 8)"
+  # Jangan pakai 'tr < /dev/urandom | head': head keluar duluan, tr kena SIGPIPE,
+  # dan pipefail+set -e membunuh script tanpa pesan apa pun.
+  API_ID="hello-world-${RANDOM}${RANDOM}"
   gcloud api-gateway apis create "$API_ID" \
     --display-name="Hello World API" --project="$PROJECT"
 fi
@@ -161,6 +163,7 @@ curl -sS -m 60 -w "\n" "https://$GATEWAY_URL/hello" || true
 step "Task 4: Enable managed service + buat API key"
 MANAGED_SERVICE="$(gcloud api-gateway apis describe "$API_ID" --project="$PROJECT" \
   --format='value(managedService)')"
+MANAGED_SERVICE="${MANAGED_SERVICE##*/}"   # buang prefix path kalau ada
 echo "Managed service: $MANAGED_SERVICE"
 gcloud services enable "$MANAGED_SERVICE" --project="$PROJECT"
 
