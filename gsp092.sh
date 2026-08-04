@@ -8,9 +8,15 @@
 #   Task 2 - Create logs-based metric (CloudRunFunctionLatency-Logs)
 #   Task 3-5 - Metrics Explorer, dashboard, kuis: tanpa checkpoint, manual
 #
-# Deploy pakai 'gcloud run deploy --function' + --execution-environment=gen2,
-# resep yang lolos grader di gsp081/arc109. 'gcloud functions deploy --gen2'
-# tidak diterima di lab keluarga ini.
+# Deploy Task 1 butuh DUA langkah, dan urutannya penting (diuji 2026-08-04):
+#   1. 'gcloud functions deploy --gen2' — grader GSP092 mencari resource
+#      Cloud Functions v2. Ini KEBALIKAN gsp081/arc109 yang justru menolak
+#      resource itu dan menuntut 'gcloud run deploy --function'. Jangan
+#      menyamaratakan lab keluarga Cloud Run functions.
+#   2. 'gcloud run services update --execution-environment=gen2 --cpu=1' —
+#      lab minta "Execution environment: second generation", dan Cloud
+#      Functions tidak menyetelnya. gen2 menolak CPU < 1 (default function
+#      0.1666), jadi CPU dan memory ikut dinaikkan ke nilai default console.
 #
 # LAMA: ~4 menit (deploy ~2 menit + generate traffic ~1 menit).
 
@@ -59,19 +65,25 @@ cat > "$WORKDIR/package.json" << 'EOF'
 }
 EOF
 
-gcloud run deploy "$SERVICE" \
-  --source="$WORKDIR" \
-  --function=helloWorld \
-  --base-image=nodejs22 \
+gcloud functions deploy "$SERVICE" \
+  --gen2 \
+  --runtime=nodejs22 \
   --region="$REGION" \
+  --source="$WORKDIR" \
+  --entry-point=helloWorld \
+  --trigger-http \
   --allow-unauthenticated \
   --max-instances=5 \
-  --execution-environment=gen2 \
-  --project="$PROJECT" \
-  -q
+  --project="$PROJECT"
 
-CLOUD_RUN_URL="$(gcloud run services describe "$SERVICE" --region="$REGION" \
-  --project="$PROJECT" --format='value(status.url)')"
+# Cloud Functions tidak menyetel execution environment gen2; tambahkan lewat
+# Cloud Run. CPU wajib >= 1 untuk gen2, function default 0.1666.
+gcloud run services update "$SERVICE" \
+  --region="$REGION" --project="$PROJECT" \
+  --execution-environment=gen2 --cpu=1 --memory=512Mi
+
+CLOUD_RUN_URL="$(gcloud functions describe "$SERVICE" --region="$REGION" \
+  --project="$PROJECT" --format='value(serviceConfig.uri)')"
 echo "URL: $CLOUD_RUN_URL"
 curl -sS -m 60 -w "\n" "$CLOUD_RUN_URL"
 
