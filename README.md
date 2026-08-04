@@ -91,6 +91,13 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | ARC115 | Monitoring in Google Cloud: Challenge Lab | [arc115.sh](arc115.sh) | [docs/arc115.md](docs/arc115.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-08-04 |
 | ARC130 | Analyze Sentiment with Natural Language API: Challenge Lab | [arc130.sh](arc130.sh) | [docs/arc130.md](docs/arc130.md) | Terverifikasi, skor 100/100; Task 3-4 otomatis, Task 1-2 manual | 2026-08-04 |
 | ARC132 | Implement Speech and Language Solutions with Pre-trained APIs: Challenge Lab | [arc132.sh](arc132.sh) | - | Terverifikasi, skor 100/100; Task 2-5 otomatis (scp + ssh ke `lab-vm`), Task 1 wajib bikin API key lewat console — key buatan gcloud tidak diterima grader | 2026-08-02 |
+| GSP1048 | Cloud Spanner - Database Fundamentals | [gsp1048.sh](gsp1048.sh) | [docs/gsp1048.md](docs/gsp1048.md) | Terverifikasi, skor 100/100 | 2026-08-03 |
+| GSP1049 | Cloud Spanner - Loading Data and Performing Backups | [gsp1049.sh](gsp1049.sh) | [docs/gsp1049.md](docs/gsp1049.md) | Terverifikasi, skor 100/100; ada jeda klik checkpoint sebelum tahap Dataflow | 2026-08-03 |
+| GSP1050 | Spanner - Defining Schemas and Understanding Query Plans | [gsp1050.sh](gsp1050.sh) | [docs/gsp1050.md](docs/gsp1050.md) | Terverifikasi, skor 100/100 | 2026-08-03 |
+| GSP381 | Create and Manage Cloud Spanner Instances: Challenge Lab | [gsp381.sh](gsp381.sh) | [docs/gsp381.md](docs/gsp381.md) | Terverifikasi, skor 100/100 | 2026-08-03 |
+| GSP752 | Manage Terraform State | [gsp752.sh](gsp752.sh) | - | Belum diuji | - |
+| GSP1124 | Get Started with Security Command Center | [gsp1124.sh](gsp1124.sh) | - | Belum diuji; Task 1-2 wajib manual (UI + enable SHA module) | - |
+| GSP1164 | Analyze Findings with Security Command Center | [gsp1164.sh](gsp1164.sh) | - | Belum diuji | - |
 
 Tiap lab punya runbook di `docs/` berisi urutan perintah, nilai yang harus muncul sebagai sanity check, dan troubleshooting. **Baca runbook-nya dulu sebelum jalan**, terutama GSP340 (parameter acak) dan GSP1143 (dua fase).
 
