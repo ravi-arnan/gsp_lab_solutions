@@ -88,6 +88,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | ARC120 | The Basics of Google Cloud Compute: Challenge Lab | [arc120.sh](arc120.sh) | - | Terverifikasi, skor 100/100 sekali jalan, tanpa SSH (NGINX lewat startup-script) | 2026-08-02 |
 | ARC111 | Implement Cloud Storage and Data Protection Solutions: Challenge Lab | [arc111.sh](arc111.sh) | - | Terverifikasi, skor 100/100 sekali jalan (varian form-3); nama bucket diacak per instance, wajib diisi lewat `B1`/`B2`/`B3` | 2026-08-02 |
 | ARC109 | Deploy and Secure Serverless APIs with API Gateway: Challenge Lab | [arc109.sh](arc109.sh) | [docs/arc109.md](docs/arc109.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-08-04 |
+| ARC115 | Monitoring in Google Cloud: Challenge Lab | [arc115.sh](arc115.sh) | - | Belum diuji | - |
 | ARC130 | Analyze Sentiment with Natural Language API: Challenge Lab | [arc130.sh](arc130.sh) | [docs/arc130.md](docs/arc130.md) | Terverifikasi, skor 100/100; Task 3-4 otomatis, Task 1-2 manual | 2026-08-04 |
 | ARC132 | Implement Speech and Language Solutions with Pre-trained APIs: Challenge Lab | [arc132.sh](arc132.sh) | - | Terverifikasi, skor 100/100; Task 2-5 otomatis (scp + ssh ke `lab-vm`), Task 1 wajib bikin API key lewat console — key buatan gcloud tidak diterima grader | 2026-08-02 |
 
