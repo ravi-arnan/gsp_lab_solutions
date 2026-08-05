@@ -17,9 +17,11 @@
 # dijalankan sekali dari satu Cloud Shell. Buka console tiap project dari
 # panel lab, lalu jalankan fase yang sesuai di Cloud Shell masing-masing.
 #
-# Bagian Looker Studio (pie chart + cek share link) TIDAK dikerjakan script:
-# artefaknya di luar Google Cloud dan tidak bisa dibuat lewat API. Checkpoint
-# Task 4 dan 5 menilai tabel customer_x_table di BigQuery.
+# SKOR MAKSIMUM LEWAT SCRIPT: 80/100 (diuji 2026-08-05).
+# Task 4 dan 5 bernilai 20 masing-masing dan terbagi dua: 10 untuk tabel
+# customer_x_table di BigQuery (dikerjakan script) dan 10 untuk report Looker
+# Studio, yang tidak bisa dibuat lewat API. Grader ternyata BISA melihat
+# report Looker Studio. Langkah manualnya dicetak di penutup tiap fase.
 #
 # Beda dari gsp1041: customer_x_table di sini disimpan dari query JOIN dengan
 # customer_info, bukan dari select polos ke authorized view.
@@ -182,13 +184,22 @@ FASE $PHASE SELESAI!
 
 $DATASET.$TABLE sudah dibuat di project $PROJECT.
 
-Klik Check my progress untuk Task $([[ "$PHASE" == "a" ]] && echo 4 || echo 5).
+Task $([[ "$PHASE" == "a" ]] && echo 4 || echo 5) baru dapat 10/20 sampai dashboard-nya dibuat.
+WAJIB manual, tidak ada API-nya:
 
-Bagian Looker Studio di lab (pie chart + cek share link dari
-akun customer lain) tidak dikerjakan script dan tidak dinilai
-checkpoint. Kerjakan manual kalau ingin mengikuti materinya:
-  lookerstudio.google.com -> Blank Report -> BigQuery ->
-  $PROJECT > $DATASET > $TABLE -> Insert > Pie chart,
-  ganti dimension zip_code jadi city.
+  1. Buka lookerstudio.google.com DARI JENDELA CONSOLE INI
+     (harus akun customer ini, bukan akun partner)
+  2. Blank Report -> cari BigQuery -> Authorize -> Allow
+  3. $PROJECT > $DATASET > $TABLE
+     -> Add -> Add to report
+  4. Ganti judul jadi "Customer $([[ "$PHASE" == "a" ]] && echo A || echo B) Visualization"
+  5. Insert -> Pie chart
+  6. Seret 'city' ke dimension, menggantikan 'zip_code'
+
+Kalau MY PROJECTS cuma menampilkan project partner dengan
+demo_dataset, berarti Looker Studio masih pakai sesi akun
+partner. Sign out, masuk sebagai customer ini, ulangi.
+
+Baru setelah itu klik Check my progress.
 ==============================================================
 EOF
