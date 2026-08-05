@@ -188,9 +188,15 @@ Kerjakan DENGAN AKUN PARTNER, bukan akun customer ini:
 
   1. Buka lookerstudio.google.com dari jendela console PARTNER
   2. Blank Report -> cari BigQuery -> Authorize -> Allow
-  3. Panel kiri MY PROJECTS -> project customer ($PROJECT)
+  3. Panel kiri, cari project CUSTOMER ($PROJECT) di MY
+     PROJECTS atau SHARED PROJECTS
      -> $DATASET -> $CUSTOMER_VIEW
      -> Add -> Add to report
+
+     JANGAN pakai view partner. Kalau daftar field memuat
+     area_land_meters/city/state_code, itu skema zip_codes
+     alias view partner - salah. View customer yang benar
+     hanya punya kolom 'county' dan 'Count'.
   4. Ganti judul report jadi "Data Sharing Partner Vizualization"
      (ejaan 'Vizualization' memang begitu di instruksi lab)
   5. Insert -> Column chart (Vertical bar chart)
