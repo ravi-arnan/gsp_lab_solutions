@@ -126,6 +126,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP752 | Manage Terraform State | [gsp752.sh](gsp752.sh) | - | Belum diuji | - |
 | GSP1124 | Get Started with Security Command Center | [gsp1124.sh](gsp1124.sh) | - | Belum diuji; Task 1-2 wajib manual (UI + enable SHA module) | - |
 | GSP1164 | Analyze Findings with Security Command Center | [gsp1164.sh](gsp1164.sh) | - | Belum diuji | - |
+| GSP1077 | Google Kubernetes Engine Pipeline using Cloud Build | [gsp1077.sh](gsp1077.sh) | [docs/gsp1077.md](docs/gsp1077.md) | Belum diuji; tiga fase, `gh auth login` + install Cloud Build GitHub App wajib manual | - |
 
 Tiap lab punya runbook di `docs/` berisi urutan perintah, nilai yang harus muncul sebagai sanity check, dan troubleshooting. **Baca runbook-nya dulu sebelum jalan**, terutama GSP340 (parameter acak) dan GSP1143 (dua fase).
 

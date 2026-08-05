@@ -31,6 +31,7 @@ gcloud)
     # lanjut kalau belum ada. Sebut semuanya supaya guard-nya teruji, bukan dilewati.
     p="${DEVSHELL_PROJECT_ID:-dryrun-project}"
     printf '%s\n' "$p-bucket" "$p-customer-online-sessions" "$p-dq-config"
+  elif has 'value(status)'                 ; then echo "RUNNING"   # loop tunggu cluster/operasi
   elif has 'google-compute-default-zone'   ; then echo "us-central1-a"
   elif has 'google-compute-default-region' ; then echo "us-central1"
   elif has 'binauthz policy export'        ; then
@@ -96,6 +97,13 @@ git)
     for a in "$@"; do [[ "$a" == http* || "$a" == git@* ]] && dir=$(basename "$a" .git); done
     for a in "$@"; do [[ "$a" != -* && "$a" != clone && "$a" != http* && "$a" != git@* ]] && dir="$a"; done
     [[ -n "$dir" ]] && mkdir -p "$dir"
+  fi
+  ;;
+
+gh)
+  # GitHub CLI: cukup jawab login dan username, sisanya diam dan sukses.
+  if   has 'api user'          ; then echo "dryrun-user"
+  elif has 'deploy-key list'   ; then :   # belum ada deploy key
   fi
   ;;
 

@@ -22,7 +22,7 @@ STUBS="$WORK/bin"
 trap 'rm -rf "$WORK"' EXIT
 
 # Script yang butuh argumen fase, kalau tidak akan berhenti di awal.
-declare -A ARGS=( [gsp1143.sh]="create" [gsp1157.sh]="reader" )
+declare -A ARGS=( [gsp1143.sh]="create" [gsp1157.sh]="reader" [gsp1077.sh]="deliver" )
 
 # Script yang wajib diberi env, guard-nya sengaja exit kalau kosong.
 declare -A ENVS=(
@@ -36,7 +36,7 @@ declare -A ENVS=(
 declare -A SKIP=( [gsp1154.sh]="terbukti 0/5, lab berbasis UI" )
 
 mkdir -p "$STUBS"
-for c in gcloud bq gsutil kubectl terraform curl git docker sleep; do
+for c in gcloud bq gsutil kubectl terraform curl git docker gh sleep; do
   install -m755 "$ROOT/test/stubs.sh" "$STUBS/$c"
 done
 export PATH="$STUBS:$PATH"
