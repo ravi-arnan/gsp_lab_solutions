@@ -28,7 +28,7 @@ Tanda ✅ berarti scriptnya sudah ada di repo ini.
 | 681 Build a Data Mesh with Dataplex | ✅GSP1143, ✅GSP1145, ✅GSP1157, ✅GSP1158, ✅GSP514 — **lengkap** |
 | 726 Get Started with Dataplex | ✅GSP1143, GSP1144, ✅GSP1145, ARC117 |
 | 1164 Secure Software Delivery | ✅GSP1183, ✅GSP1184, ✅GSP1185, ✅GSP521 |
-| 783 Manage Kubernetes in Google Cloud | ✅GSP053, ✅GSP736, ✅GSP1026, GSP510 |
+| 783 Manage Kubernetes in Google Cloud | ✅GSP053, ✅GSP736, ✅GSP1026, ✅GSP510 — **lengkap** |
 | 663 Deploy Kubernetes Applications | GSP055, GSP100, GSP021, GSP318 |
 | 750 Get Started with Sensitive Data Protection | GSP107, GSP864, GSP1073, ARC116 |
 | 1177 Discover and Protect Sensitive Data | ✅GSP1281, ✅GSP1282, GSP1283, ✅GSP522 |
@@ -54,15 +54,15 @@ jumlah kode yang tertulis.
 - **681 Build a Data Mesh with Dataplex** — GSP1143 + 1145 + 1157 + 1158 + 514.
 - **1164 Secure Software Delivery** — GSP1183 + 1184 + 1185 + 521.
 - **725 Get Started with Cloud Storage** — GSP421 + 074 + 297 + ARC111.
+- **783 Manage Kubernetes in Google Cloud** — GSP053 + 736 + 1026 + 510.
 
 "Lengkap" berarti scriptnya ada untuk tiap lab, **bukan** berarti sudah terbukti
 100 poin. Yang masih berstatus belum diuji: GSP156, GSP413, GSP421, GSP074,
-GSP1158, GSP1184, GSP1185, GSP521. GSP1158 malah memang hanya bisa mencapai
+GSP053, GSP510, GSP1026, GSP1158, GSP1184, GSP1185, GSP521. GSP1158 malah memang hanya bisa mencapai
 60/100 lewat script.
 
 ## Badge berikutnya yang paling dekat
 
-- **783 Manage Kubernetes in Google Cloud** — punya GSP053 + 736 + 1026, kurang GSP510.
 - **1177 Discover and Protect Sensitive Data** — punya GSP1281 + 1282 + 522, kurang GSP1283.
 - **726 Get Started with Dataplex** — punya GSP1143 + 1145, kurang GSP1144 dan ARC117.
 - **655 Optimize Costs for GKE** — punya GSP766 + 767 + 343, kurang GSP768 dan GSP769.
