@@ -98,7 +98,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP736 | Debug Apps on Google Kubernetes Engine | [gsp736.sh](gsp736.sh) | [docs/gsp736.md](docs/gsp736.md) | Terverifikasi, skor 100/100; grader mencocokkan teks filter alerting policy (`resource.type` dulu) | 2026-08-04 |
 | GSP1026 | Collect Metrics from Exporters using the Managed Service for Prometheus | [gsp1026.sh](gsp1026.sh) | - | Belum diuji | - |
 | GSP053 | Managing Deployments Using Kubernetes Engine | [gsp053.sh](gsp053.sh) | - | Belum diuji | - |
-| GSP1041 | Data Publishing on BigQuery using Authorized Views | [gsp1041.sh](gsp1041.sh) | - | Belum diuji; tiga project berbeda, wajib tiga fase (`partner`/`a`/`b`) | - |
+| GSP1041 | Data Publishing on BigQuery using Authorized Views | [gsp1041.sh](gsp1041.sh) | [docs/gsp1041.md](docs/gsp1041.md) | Terverifikasi, skor 100/100; tiga project berbeda, wajib tiga fase (`partner`/`a`/`b`) | 2026-08-05 |
 | GSP510 | Manage Kubernetes in Google Cloud: Challenge Lab | [gsp510.sh](gsp510.sh) | [docs/gsp510.md](docs/gsp510.md) | Terverifikasi, skor 100/100 (dua perbaikan terakhir belum diuji ulang sekali jalan); nama diacak per instance | 2026-08-05 |
 | GSP1089 | Cloud Run Functions: Qwik Start | [gsp1089.sh](gsp1089.sh) | - | Terverifikasi, skor 100/100; min-instances dan concurrency wajib lewat `gcloud run services update` (CPU `1000m`) | 2026-07-31 |
 | ARC104 | Build Serverless Applications with Cloud Run Functions: Challenge Lab | [arc104.sh](arc104.sh) | - | Terverifikasi, skor 100/100 sekali jalan | 2026-07-31 |
