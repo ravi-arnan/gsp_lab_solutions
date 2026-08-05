@@ -96,13 +96,12 @@ gcloud container clusters get-credentials "$CLUSTER_NAME" --zone="$ZONE" --proje
 
 # ----------------------------------------------------------------- Task 2
 step "Task 2: Managed Prometheus + namespace '$NAMESPACE_NAME'"
-if [[ "$(gcloud container clusters describe "$CLUSTER_NAME" --zone="$ZONE" --project="$PROJECT" \
-        --format='value(monitoringConfig.managedPrometheusConfig.enabled)')" == "True" ]]; then
-  echo "Managed Prometheus sudah aktif."
-else
-  gcloud container clusters update "$CLUSTER_NAME" --zone="$ZONE" \
-    --enable-managed-prometheus --project="$PROJECT"
-fi
+# Jangan dilewati walau describe sudah bilang enabled=True. Cluster baru bisa
+# melaporkan True sejak dibuat, tapi grader tetap menolak (15/20, "Please
+# enable Managed Prometheus on the cluster") sampai update ini dijalankan.
+# Diuji 2026-08-05. Perintahnya idempoten, ~1 menit.
+gcloud container clusters update "$CLUSTER_NAME" --zone="$ZONE" \
+  --enable-managed-prometheus --project="$PROJECT"
 
 kubectl get ns "$NAMESPACE_NAME" >/dev/null 2>&1 || kubectl create ns "$NAMESPACE_NAME"
 
@@ -232,7 +231,10 @@ gcloud auth configure-docker "${REGION}-docker.pkg.dev" -q
 docker build -t "$IMAGE" hello-app/
 docker push "$IMAGE"
 
-kubectl set image deployment/helloweb -n "$NAMESPACE_NAME" "helloweb=$IMAGE"
+# Nama container di manifest adalah 'hello-app', bukan 'helloweb'. Pakai '*'
+# supaya tidak bergantung pada nama itu — salah nama bikin 'set image' gagal
+# dan set -e menghentikan script tepat setelah docker push.
+kubectl set image deployment/helloweb -n "$NAMESPACE_NAME" "*=$IMAGE"
 kubectl rollout status deployment/helloweb -n "$NAMESPACE_NAME" --timeout=300s || true
 
 kubectl get svc "$SERVICE_NAME" -n "$NAMESPACE_NAME" >/dev/null 2>&1 || \
