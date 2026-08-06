@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # GSP1145 - Create and Add Aspects to Knowledge Catalog Assets
 #
-# REGION diisi dinamis per instance ("Region ____" di Task 1, "Location ____" di Task 2).
-# Cocokkan dengan halaman lab, override begini kalau bukan us-central1:
+# REGION: versi lab sekarang menulis us-east1 eksplisit di Task 1 dan Task 2,
+# tapi instance lama mengacaknya. Cocokkan dengan halaman lab, override begini:
 #   REGION=europe-west1 bash gsp1145.sh
 #
 # Task 4 (search pakai filter Aspect Types) murni UI dan tidak punya checkpoint,
@@ -27,7 +27,7 @@ ask() {
 }
 
 # ----------------------------------------------------------------- parameter
-ask REGION "europe-west4" "Region (cocokkan dengan panel lab)"
+ask REGION "us-east1" "Region (cocokkan dengan panel lab)"
 LAKE_ID="orders-lake"
 LAKE_NAME="Orders Lake"
 ZONE_ID="customer-curated-zone"
