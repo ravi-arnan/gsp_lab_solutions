@@ -68,7 +68,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP340 | Build a Data Warehouse with BigQuery: Challenge Lab | [gsp340.sh](gsp340.sh) | [docs/gsp340.md](docs/gsp340.md) | Terverifikasi, skor 40/40, satu varian task | 2026-07-16 |
 | GSP1143 | Knowledge Catalog (Dataplex): Qwik Start - Console | [gsp1143.sh](gsp1143.sh) | [docs/gsp1143.md](docs/gsp1143.md) | Terverifikasi, skor 100/100 | 2026-07-17 |
 | GSP1144 | Knowledge Catalog: Qwik Start - Command Line | [gsp1144.sh](gsp1144.sh) | [docs/gsp1144.md](docs/gsp1144.md) | Terverifikasi, skor 100/100, dua fase | 2026-08-06 |
-| GSP1145 | Create and Add Aspects to Knowledge Catalog Assets | [gsp1145.sh](gsp1145.sh) | [docs/gsp1145.md](docs/gsp1145.md) | Terverifikasi, semua checkpoint hijau | 2026-07-17 |
+| GSP1145 | Create and Add Aspects to Knowledge Catalog Assets | [gsp1145.sh](gsp1145.sh) | [docs/gsp1145.md](docs/gsp1145.md) | Terverifikasi, skor 100/100 (us-east1) | 2026-08-06 |
 | GSP1157 | Implementing Security in Knowledge Catalog | [gsp1157.sh](gsp1157.sh) | [docs/gsp1157.md](docs/gsp1157.md) | Terverifikasi, skor 100/100, Task 3 dan 5 manual (dua user) | 2026-07-17 |
 | GSP514 | Build a Data Mesh with Knowledge Catalog: Challenge Lab | [gsp514.sh](gsp514.sh) | [docs/gsp514.md](docs/gsp514.md) | Terverifikasi, Task 2b manual (UI) | 2026-07-17 |
 | GSP750 | Infrastructure as Code with Terraform | [gsp750.sh](gsp750.sh) | [docs/gsp750.md](docs/gsp750.md) | Belum diuji | - |
