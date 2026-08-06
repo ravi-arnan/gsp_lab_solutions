@@ -26,7 +26,7 @@ Tanda ✅ berarti scriptnya sudah ada di repo ini.
 | 624 Build a Data Warehouse with BigQuery | ✅GSP413, ✅GSP414, ✅GSP412, ✅GSP416, ✅GSP340 — **lengkap** |
 | 623 Derive Insights from BigQuery Data | GSP281, GSP072/GSP071, GSP407, GSP408, GSP409, GSP787 |
 | 681 Build a Data Mesh with Dataplex | ✅GSP1143, ✅GSP1145, ✅GSP1157, ✅GSP1158, ✅GSP514 — **lengkap** |
-| 726 Get Started with Dataplex | ✅GSP1143, ✅GSP1144, ✅GSP1145, ARC117 |
+| 726 Get Started with Dataplex | ✅GSP1143, ✅GSP1144, ✅GSP1145, ✅ARC117 — **lengkap** |
 | 1164 Secure Software Delivery | ✅GSP1183, ✅GSP1184, ✅GSP1185, ✅GSP521 |
 | 783 Manage Kubernetes in Google Cloud | ✅GSP053, ✅GSP736, ✅GSP1026, ✅GSP510 — **lengkap** |
 | 663 Deploy Kubernetes Applications | GSP055, GSP100, GSP021, GSP318 |
@@ -52,6 +52,7 @@ jumlah kode yang tertulis.
 - **636 Build Infrastructure with Terraform** — GSP156 + 750 + 751 + 752 + 345.
 - **624 Build a Data Warehouse with BigQuery** — GSP413 + 414 + 412 + 416 + 340.
 - **681 Build a Data Mesh with Dataplex** — GSP1143 + 1145 + 1157 + 1158 + 514.
+- **726 Get Started with Dataplex** — GSP1143 + 1144 + 1145 + ARC117.
 - **1164 Secure Software Delivery** — GSP1183 + 1184 + 1185 + 521.
 - **725 Get Started with Cloud Storage** — GSP421 + 074 + 297 + ARC111.
 - **783 Manage Kubernetes in Google Cloud** — GSP053 + 736 + 1026 + 510.
@@ -64,7 +65,6 @@ GSP053, GSP510, GSP1026, GSP1158, GSP1184, GSP1185, GSP521. GSP1158 malah memang
 ## Badge berikutnya yang paling dekat
 
 - **1177 Discover and Protect Sensitive Data** — punya GSP1281 + 1282 + 522, kurang GSP1283.
-- **726 Get Started with Dataplex** — punya GSP1143 + 1144 + 1145, kurang ARC117.
 - **655 Optimize Costs for GKE** — punya GSP766 + 767 + 343, kurang GSP768 dan GSP769.
 
 ## Kenapa sisanya tidak ditulis borongan
