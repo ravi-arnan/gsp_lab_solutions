@@ -199,8 +199,11 @@ else
   Task 3 - aspect type SUDAH dibuat, tapi aspect BELUM menempel ke zone.
 
 Sisa Task 3 lewat UI (Knowledge Catalog > Discover > Search):
-  1. Filters > Systems, centang Dataplex (atau cari langsung "$ZONE_NAME").
-  2. Klik entry zone $ZONE_NAME.
+  1. Search terbuka dalam mode natural language. Klik link "here." di
+     kalimat "To return to keyword search, click here."
+  2. Cari "$ZONE_NAME", klik entry zone-nya.
+     (Filter Systems tidak punya "Dataplex" lagi, namanya kini
+      "Knowledge Catalog" — tapi cari langsung lebih cepat.)
   3. Scroll ke Aspects, di sebelah Optional aspects klik Add.
   4. Ketik "protected raw data", pilih $ASPECT_NAME.
   5. $FIELD_NAME pilih Y, klik Save.
