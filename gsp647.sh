@@ -1,10 +1,21 @@
 #!/usr/bin/env bash
 # GSP647 - Configuring IAM Permissions with gcloud
 #
+# Dua fase.
+#
+#   # 1. Cloud Shell, sebagai Username 1:
 #   curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp647.sh
 #   bash gsp647.sh
 #
-# Dijalankan dari Cloud Shell sebagai Username 1 (sudah terautentikasi).
+#   # 2. SSH ke centos-clean dari Console:
+#   gcloud auth login      <- Username 1, satu-satunya langkah yang butuh browser
+#   curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp647.sh
+#   bash gsp647.sh vm
+#
+# Fase vm WAJIB. Empat checkpoint dinilai dari dalam VM, bukan lewat API:
+# dua membaca ~/.config/gcloud milik VM, dan seluruh checkpoint IAM butuh VM
+# terautentikasi sebagai Username 1 plus PROJECTID2/USERID2 di ~/.bashrc dan
+# jq terpasang. Lihat docs/gsp647.md.
 #
 # Checkpoint:
 #   Create an instance with name as lab-1 in Project 1        (otomatis)
@@ -19,11 +30,8 @@
 #   Check devops SA bound to project2 + roles/compute.instanceAdmin  (otomatis)
 #   Check lab-3 has the service account attached              (otomatis)
 #
-# CATATAN konfigurasi user2: script membuat gcloud configuration bernama
-# 'user2' tanpa login karena OAuth butuh browser. Kalau checkpoint itu tetap
-# merah, lakukan manual di SSH centos-clean: gcloud init --no-launch-browser,
-# pilih 2 (create new configuration), namai user2, login sebagai Username 2.
-# Semua checkpoint lain tidak bergantung padanya.
+# Configuration 'user2' TIDAK perlu gcloud init: checkpoint-nya cuma membaca
+# file config, dan gcloud config set tidak memvalidasi kredensial.
 
 set -euo pipefail
 
