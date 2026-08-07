@@ -89,51 +89,56 @@ if [[ "$PHASE" == "task12" ]]; then
 
 step "Task 1 - hub $HUB_ONPREM + dua spoke VPN tunnel"
 
-# Pasangkan tunnel ke on-prem VPC lewat peer gateway-nya, bukan lewat tebakan
-# nama. Yang dipakai cuma tunnel yang berada di VPC routing.
+# Resource vpn-tunnel TIDAK punya field 'network' — yang punya itu VPN gateway.
+# Jadi peta gateway -> VPC dibangun dulu, lalu tunnel dipasangkan lewat
+# vpnGateway (sisi routing) dan peerGcpGateway (sisi on-prem).
 declare -A GW_NET=()
-gw_network() {
-  local gw="$1" region="$2"
-  if [[ -z "${GW_NET[$gw]:-}" ]]; then
-    GW_NET[$gw]="$(gcloud compute vpn-gateways describe "$gw" --region="$region" \
-      --format='value(network.basename())' 2>/dev/null || echo '')"
-  fi
-  echo "${GW_NET[$gw]}"
-}
+while IFS=, read -r gname _ gnet; do
+  [[ -n "$gname" ]] && GW_NET["$gname"]="$gnet"
+done < <(gcloud compute vpn-gateways list \
+  --format='csv[no-heading](name,region.basename(),network.basename())')
 
-TUN_OFFICE1=""; TUN_OFFICE2=""; TUN_REGION1=""; TUN_REGION2=""
-while IFS=, read -r tname tregion tnet tpeer; do
-  [[ "$tnet" == "$ROUTING" ]] || continue
-  [[ -n "$tpeer" ]] || continue
-  peer_gw="${tpeer##*/}"
-  peer_net="$(gw_network "$peer_gw" "$tregion")"
-  case "$peer_net" in
-    "$ONPREM1") TUN_OFFICE1+="${TUN_OFFICE1:+,}$tname"; TUN_REGION1="$tregion" ;;
-    "$ONPREM2") TUN_OFFICE2+="${TUN_OFFICE2:+,}$tname"; TUN_REGION2="$tregion" ;;
-  esac
-done < <(gcloud compute vpn-tunnels list \
-  --format='csv[no-heading](name,region.basename(),network.basename(),peerGcpGateway)')
+TUNNELS_CSV="$(gcloud compute vpn-tunnels list \
+  --format='csv[no-heading](name,region.basename(),vpnGateway,peerGcpGateway)')"
 
-# Cadangan: kalau tunnel-nya classic VPN (peerGcpGateway kosong), cocokkan nama.
+# Env var menang: kalau keduanya sudah di-set, deteksi dilewati sama sekali.
+TUN_OFFICE1="${TUN_OFFICE1:-}"; TUN_OFFICE2="${TUN_OFFICE2:-}"
+TUN_REGION1="${TUN_REGION1:-}"; TUN_REGION2="${TUN_REGION2:-}"
 if [[ -z "$TUN_OFFICE1" || -z "$TUN_OFFICE2" ]]; then
-  echo "  (peer gateway tidak terbaca, jatuh ke pencocokan nama tunnel)"
+  while IFS=, read -r tname tregion tgw tpeer; do
+    [[ -n "$tname" ]] || continue
+    [[ "${GW_NET[${tgw##*/}]:-}" == "$ROUTING" ]] || continue
+    case "${GW_NET[${tpeer##*/}]:-}" in
+      "$ONPREM1") TUN_OFFICE1+="${TUN_OFFICE1:+,}$tname"; TUN_REGION1="$tregion" ;;
+      "$ONPREM2") TUN_OFFICE2+="${TUN_OFFICE2:+,}$tname"; TUN_REGION2="$tregion" ;;
+    esac
+  done <<<"$TUNNELS_CSV"
+fi
+
+# Cadangan: classic VPN (peerGcpGateway kosong) atau nama gateway tak terpetakan.
+if [[ -z "$TUN_OFFICE1" || -z "$TUN_OFFICE2" ]]; then
+  echo "  (pemetaan lewat gateway gagal, jatuh ke pencocokan nama tunnel)"
   NEED1=$([[ -z "$TUN_OFFICE1" ]] && echo 1 || echo 0)
   NEED2=$([[ -z "$TUN_OFFICE2" ]] && echo 1 || echo 0)
-  while IFS=, read -r tname tregion tnet _; do
-    [[ "$tnet" == "$ROUTING" ]] || continue
+  while IFS=, read -r tname tregion _ _; do
+    [[ -n "$tname" ]] || continue
     if [[ "$NEED1" == 1 && "$tname" =~ (on.?prem|office).*0*1([^0-9]|$) ]]; then
       TUN_OFFICE1+="${TUN_OFFICE1:+,}$tname"; TUN_REGION1="$tregion"
     elif [[ "$NEED2" == 1 && "$tname" =~ (on.?prem|office).*0*2([^0-9]|$) ]]; then
       TUN_OFFICE2+="${TUN_OFFICE2:+,}$tname"; TUN_REGION2="$tregion"
     fi
-  done < <(gcloud compute vpn-tunnels list \
-    --format='csv[no-heading](name,region.basename(),network.basename(),peerGcpGateway)')
+  done <<<"$TUNNELS_CSV"
 fi
 
 echo "  tunnel -> Office 1 : ${TUN_OFFICE1:-(kosong)} [${TUN_REGION1:-?}]"
 echo "  tunnel -> Office 2 : ${TUN_OFFICE2:-(kosong)} [${TUN_REGION2:-?}]"
 [[ -n "$TUN_OFFICE1" && -n "$TUN_OFFICE2" ]] || {
-  echo "VPN tunnel tidak terdeteksi. Cek 'gcloud compute vpn-tunnels list' dan VPC routing."
+  echo "VPN tunnel tidak terdeteksi. Isi manual lewat env var, contoh:"
+  echo "  TUN_OFFICE1=t1,t2 TUN_REGION1=us-east1 TUN_OFFICE2=t3,t4 TUN_REGION2=us-east1 bash gsp528.sh"
+  echo "Daftar tunnel (name,region,vpnGateway,peerGcpGateway):"
+  echo "$TUNNELS_CSV" | sed 's/^/  /'
+  echo "Peta gateway -> VPC:"
+  for g in "${!GW_NET[@]}"; do echo "  $g -> ${GW_NET[$g]}"; done
   exit 1
 }
 
