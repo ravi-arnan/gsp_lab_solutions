@@ -45,7 +45,14 @@ ask() {
 
 step() { echo; echo "=== $* ==="; }
 
+PHASE="${1:-cloud}"
+case "$PHASE" in
+  cloud|vm) ;;
+  *) echo "Fase tidak dikenal: $PHASE (pakai 'cloud' atau 'vm')"; exit 1 ;;
+esac
+
 ZONE1="europe-west1-b"        # zona lab-1 sesuai instruksi Task 1
+ZONE1_ALT="europe-west1-c"    # "zona lain di region yang sama" untuk Task 1
 ZONE2="us-east4-a"            # zona lab-2 dan lab-3 sesuai instruksi Task 4/6
 MACHINE="e2-standard-2"
 
@@ -54,6 +61,42 @@ PROJECT1="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}
 ACCOUNT="$(gcloud config get-value account 2>/dev/null)"
 echo "PROJECT1 = $PROJECT1"
 echo "ACCOUNT  = $ACCOUNT (Username 1)"
+
+# --------------------------------------------------------------- fase 'vm'
+# Dijalankan DI DALAM SSH centos-clean. Dua checkpoint Task 1 dan Task 2
+# membaca ~/.config/gcloud milik VM itu, bukan Cloud Shell (home Cloud Shell
+# ada di luar project lab, grader tidak bisa melihatnya). Tidak perlu
+# 'gcloud auth login': config set tidak memvalidasi apa pun ke API.
+if [[ "$PHASE" == "vm" ]]; then
+  ask USERID2 "" "Email Username 2 (salin dari panel lab)"
+  [[ -n "$USERID2" ]] || { echo "Username 2 wajib diisi."; exit 1; }
+
+  step "Task 1 - default zone diubah ke zona lain di region yang sama"
+  # Checkpoint menuntut zona di config BERBEDA dari zona tempat lab-1 dibuat.
+  gcloud config set compute/region "${ZONE1%-*}"
+  gcloud config set compute/zone "$ZONE1_ALT"
+  cat ~/.config/gcloud/configurations/config_default
+
+  step "Task 2 - configuration user2"
+  gcloud config configurations describe user2 >/dev/null 2>&1 || \
+    gcloud config configurations create user2 --no-activate
+  env CLOUDSDK_ACTIVE_CONFIG_NAME=user2 gcloud config set account "$USERID2" || true
+  env CLOUDSDK_ACTIVE_CONFIG_NAME=user2 gcloud config set project "$PROJECT1" -q || true
+  gcloud config configurations list
+
+  cat <<EOF
+
+SELESAI (fase vm). Klik Check my progress untuk:
+  - Update the default zone
+  - Create a configuration for Username 2 and name it as user2
+
+Kalau checkpoint user2 tetap merah, configuration-nya butuh kredensial asli:
+  gcloud init --no-launch-browser
+    2 -> Create a new configuration, namai user2
+    3 -> Log in with a new account, login sebagai \$USERID2
+EOF
+  exit 0
+fi
 
 step "Mendeteksi project kedua dan Username 2"
 
