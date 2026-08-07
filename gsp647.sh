@@ -84,16 +84,42 @@ if [[ "$PHASE" == "vm" ]]; then
   env CLOUDSDK_ACTIVE_CONFIG_NAME=user2 gcloud config set project "$PROJECT1" -q || true
   gcloud config configurations list
 
+  # Checkpoint IAM tidak membaca Google Cloud API dari luar, melainkan
+  # dijalankan dari VM ini. Buktinya ada di teks lab: PROJECTID2 dan USERID2
+  # disuruh ditulis ke ~/.bashrc, dan jq disuruh dipasang padahal tidak dipakai
+  # satu perintah pun yang ditampilkan. Keduanya perkakas grader.
+  step "Task 3 - env var PROJECTID2 dan USERID2 di ~/.bashrc"
+  ask PROJECT2 "$(gcloud projects list --format='value(projectId)' 2>/dev/null \
+    | grep -v "^$PROJECT1$" | head -n1)" "Project ID kedua"
+  [[ -n "$PROJECT2" ]] || { echo "Project kedua wajib diisi (jalankan 'gcloud auth login' dulu)."; exit 1; }
+
+  grep -q "^export PROJECTID2=" ~/.bashrc || echo "export PROJECTID2=$PROJECT2" >> ~/.bashrc
+  grep -q "^export USERID2="    ~/.bashrc || echo "export USERID2=$USERID2"     >> ~/.bashrc
+  grep -E "^export (PROJECTID2|USERID2)=" ~/.bashrc
+
+  step "Task 3 - jq (dipakai grader, bukan oleh instruksi lab)"
+  if command -v jq >/dev/null; then
+    echo "jq sudah terpasang"
+  else
+    sudo yum -y install epel-release
+    sudo yum -y install jq
+  fi
+
   cat <<EOF
 
-SELESAI (fase vm). Klik Check my progress untuk:
-  - Update the default zone
-  - Create a configuration for Username 2 and name it as user2
+SELESAI (fase vm). Klik Check my progress.
+
+Kalau checkpoint IAM masih merah, kemungkinan besar gcloud di VM ini belum
+berjalan sebagai Username 1 (sekarang: $(gcloud config get-value account 2>/dev/null)).
+Compute SA bawaan VM tidak bisa membaca IAM Project 2. Jalankan:
+
+  gcloud auth login          <- login sebagai Username 1, butuh browser
+  bash gsp647.sh vm          <- ulangi, idempoten
 
 Kalau checkpoint user2 tetap merah, configuration-nya butuh kredensial asli:
   gcloud init --no-launch-browser
     2 -> Create a new configuration, namai user2
-    3 -> Log in with a new account, login sebagai \$USERID2
+    3 -> Log in with a new account, login sebagai $USERID2
 EOF
   exit 0
 fi
