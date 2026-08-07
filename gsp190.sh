@@ -33,15 +33,18 @@ role_exists()  { gcloud iam roles describe "$1" --project="$PROJECT" >/dev/null 
 role_deleted() { [[ "$(gcloud iam roles describe "$1" --project="$PROJECT" --format='value(deleted)' 2>/dev/null)" == "True" ]]; }
 
 # ------------------------------------------------------------- Task 1, 2, 3
-# Ketiganya cuma baca. Output dipotong supaya tidak membanjiri terminal.
-step "Task 1 - permission yang bisa dipakai di project (10 pertama)"
-gcloud iam list-testable-permissions "$RES" --limit=10
+# Ketiganya cuma baca dan tidak dinilai. Output dipotong supaya tidak
+# membanjiri terminal.
+step "Task 1 - permission yang bisa dipakai di project (dipotong)"
+# Perintah ini tidak punya --limit, jadi dipotong head. pipefail bikin
+# SIGPIPE dihitung gagal, makanya ada || true.
+gcloud iam list-testable-permissions "$RES" | head -n 30 || true
 
 step "Task 2 - metadata role (roles/iam.roleViewer)"
 gcloud iam roles describe roles/iam.roleViewer
 
-step "Task 3 - role yang grantable di project (10 pertama)"
-gcloud iam list-grantable-roles "$RES" --limit=10
+step "Task 3 - role yang grantable di project (dipotong)"
+gcloud iam list-grantable-roles "$RES" | head -n 30 || true
 
 # ------------------------------------------------------------------- Task 4
 step "Task 4a - buat custom role 'editor' lewat file YAML"
