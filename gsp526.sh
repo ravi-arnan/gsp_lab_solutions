@@ -89,7 +89,7 @@ if [[ "$PHASE" == "approve" || "$PHASE" == "revoke" ]]; then
 
   if [[ "$PHASE" == "approve" ]]; then
     step "Task 4 - menyetujui grant"
-    gcloud pam grants approve "$GRANT" --reason="Approved for scheduled maintenance"
+    gcloud pam grants approve "$GRANT" --reason="Approved for scheduled maintenance" -q
     cat <<EOF
 
 SELESAI. Klik Check my progress: "Request temporary elevated access".
@@ -100,7 +100,7 @@ Lanjut setelah checkpoint itu hijau:
 EOF
   else
     step "Task 5 - mencabut grant"
-    gcloud pam grants revoke "$GRANT" --reason="Task completed, restoring least privilege"
+    gcloud pam grants revoke "$GRANT" --reason="Task completed, restoring least privilege" -q
     cat <<EOF
 
 SELESAI. Klik Check my progress: "Revoke a grant".
@@ -168,8 +168,11 @@ ask PRIMARY "$ACCOUNT" "Requester principal (user 1)"
 ask SECONDARY "$SECONDARY_DEFAULT" "Approver principal (user 2)"
 [[ -n "$SECONDARY" ]] || { echo "User kedua tidak terdeteksi. Salin dari panel lab."; exit 1; }
 
+# Argumen kedua opsional: etag. 'entitlements update' menolak dengan ABORTED
+# kalau etag tidak ikut atau sudah basi, dan create baru saja mengubahnya.
 write_entitlement() {
   cat > /tmp/pam-entitlement.yaml <<EOF
+${2:+etag: '$2'}
 privilegedAccess:
   gcpIamAccess:
     resourceType: cloudresourcemanager.googleapis.com/Project
@@ -201,8 +204,17 @@ else
 fi
 
 step "Task 3 - mengubah maximum duration jadi 4 jam"
-write_entitlement "$MAX_DURATION_UPDATE"
-pam entitlements update "$ENTITLEMENT" --entitlement-file=/tmp/pam-entitlement.yaml
+UPDATED=0
+for i in 1 2 3; do
+  ETAG="$(pam entitlements describe "$ENTITLEMENT" --format='value(etag)')"
+  write_entitlement "$MAX_DURATION_UPDATE" "$ETAG"
+  if pam entitlements update "$ENTITLEMENT" --entitlement-file=/tmp/pam-entitlement.yaml -q; then
+    UPDATED=1; break
+  fi
+  echo "  etag basi, ambil ulang (percobaan $i)"
+  sleep 10
+done
+[[ "$UPDATED" == 1 ]] || { echo "Gagal mengubah maxRequestDuration."; exit 1; }
 pam entitlements describe "$ENTITLEMENT" --format='value(name,maxRequestDuration)'
 
 step "Task 4 - meminta grant 4 jam sebagai user 1"
@@ -213,7 +225,7 @@ if [[ -n "$EXISTING" ]]; then
 else
   pam grants create --entitlement="$ENTITLEMENT" \
     --requested-duration="$GRANT_DURATION" \
-    --justification="Test justification for scheduled maintenance"
+    --justification="Test justification for scheduled maintenance" -q
 fi
 
 cat <<EOF
