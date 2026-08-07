@@ -3,17 +3,20 @@
 #
 #   curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp526.sh
 #
-# Empat fase, dua di antaranya harus dijalankan sebagai user KEDUA:
+# Empat fase, dua di antaranya di Cloud Shell milik user KEDUA:
 #
-#   bash gsp526.sh              # Task 1, 2, 3, dan permintaan grant (user 1)
+#   # Cloud Shell user 1:
+#   bash gsp526.sh              # Task 1, 2, 3, dan permintaan grant
 #   # klik checkpoint Task 1, 2, 3
-#   gcloud auth login           # login sebagai user 2 (Cymbal Security Lead)
-#   bash gsp526.sh approve      # Task 4 (user 2)
+#
+#   # Cloud Shell user 2 (jendela incognito Console, unduh ulang script):
+#   bash gsp526.sh approve      # Task 4
 #   # klik checkpoint Task 4, tunggu 1-2 menit dulu, log approval lambat
-#   bash gsp526.sh revoke       # Task 5 (user 2)
+#   bash gsp526.sh revoke       # Task 5
 #   # klik checkpoint Task 5
-#   gcloud config set account <email user 1>
-#   bash gsp526.sh delete       # Task 6 (user 1)
+#
+#   # kembali ke Cloud Shell user 1:
+#   bash gsp526.sh delete       # Task 6
 #
 # Checkpoint:
 #   Task 1 - Enable Privileged Access Manager
@@ -25,8 +28,8 @@
 #
 # Persetujuan HARUS datang dari approver principal, dan itu user kedua. Tidak
 # ada jalan pintas: PAM menolak approve dari siapa pun di luar daftar approver,
-# termasuk owner project. Login user kedua boleh lewat 'gcloud auth login' di
-# Cloud Shell (seperti di atas) atau lewat Console di jendela incognito.
+# termasuk owner project. Pakai Cloud Shell milik masing-masing user, jangan
+# bertukar akun lewat 'gcloud auth login' di satu sesi.
 
 set -euo pipefail
 
@@ -81,8 +84,8 @@ if [[ "$PHASE" == "approve" || "$PHASE" == "revoke" ]]; then
 
   if [[ -z "$GRANT" ]]; then
     echo "Tidak ada grant yang bisa di-$PHASE oleh $ACCOUNT."
-    echo "Pastikan sudah 'gcloud auth login' sebagai user kedua (Cymbal Security Lead),"
-    echo "dan fase setup sudah membuat permintaan grant."
+    echo "Jalankan fase ini di Cloud Shell milik user kedua (Cymbal Security Lead),"
+    echo "dan pastikan fase setup sudah membuat permintaan grant."
     exit 1
   fi
   echo "GRANT = $GRANT"
@@ -105,8 +108,7 @@ EOF
 
 SELESAI. Klik Check my progress: "Revoke a grant".
 
-Lanjut sebagai user pertama:
-  gcloud config set account <email user 1>
+Lanjut di Cloud Shell user pertama:
   bash gsp526.sh delete
 EOF
   fi
@@ -235,14 +237,13 @@ Klik Check my progress untuk:
   - Create the entitlement             (Task 2)
   - Update the entitlement             (Task 3)
 
-Lalu lanjutkan sebagai user kedua ($SECONDARY):
+Lalu buka Cloud Shell di jendela incognito sebagai $SECONDARY,
+unduh ulang script di sana, dan jalankan:
 
-  gcloud auth login          <- login sebagai user kedua, butuh browser
   bash gsp526.sh approve     <- Task 4
   bash gsp526.sh revoke      <- Task 5, setelah checkpoint Task 4 hijau
 
-Terakhir kembali ke user pertama:
+Terakhir kembali ke Cloud Shell ini:
 
-  gcloud config set account $PRIMARY
   bash gsp526.sh delete      <- Task 6
 EOF
