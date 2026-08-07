@@ -17,18 +17,22 @@
 # terautentikasi sebagai Username 1 plus PROJECTID2/USERID2 di ~/.bashrc dan
 # jq terpasang. Lihat docs/gsp647.md.
 #
-# Checkpoint:
-#   Create an instance with name as lab-1 in Project 1        (otomatis)
-#   Check gcloud user2 configuration was created              (lihat catatan)
-#   Restricting Username 2 to roles/viewer in Project 2       (otomatis)
-#   Create a new role with permissions for the devops team    (otomatis)
-#   Check user2 bound to project2 + roles/iam.serviceAccountUser (otomatis)
-#   Bound Username 2 to devops role                           (otomatis)
-#   Create an instance with name as lab-2 in Project 2        (otomatis)
-#   Check the created devops service account                  (otomatis)
-#   Check devops SA bound to project2 + roles/iam.serviceAccountUser (otomatis)
-#   Check devops SA bound to project2 + roles/compute.instanceAdmin  (otomatis)
-#   Check lab-3 has the service account attached              (otomatis)
+# Checkpoint (12, total 100 poin):
+#   10  Create an instance with name as lab-1 in Project 1        fase cloud
+#   10  Update the default zone                                   fase vm
+#   10  Create a configuration for Username 2 and name it as user2 fase vm
+#   10  Restricting Username 2 to roles/viewer in Project 2       cloud, dinilai via vm
+#   10  Create a new role with permissions for the devops team    cloud, dinilai via vm
+#    5  Check binding to roles/iam.serviceAccountUser             cloud, dinilai via vm
+#    5  Bound Username 2 to devops role                           cloud, dinilai via vm
+#    5  Create an instance with name as lab-2 in Project 1        fase cloud
+#    5  Check the created service account                         cloud, dinilai via vm
+#   10  Check the binding for the SA to roles/iam.serviceAccountUser  cloud, via vm
+#   10  Check the binding for the SA to roles/compute.instanceAdmin   cloud, via vm
+#   10  Check lab-3 has the service account attached              fase cloud
+#
+# Judul checkpoint di panel skor tidak akurat: "lab-2 in Project 1" hijau
+# padahal instansnya memang dibuat di Project 2, sesuai perintah lab.
 #
 # Configuration 'user2' TIDAK perlu gcloud init: checkpoint-nya cuma membaca
 # file config, dan gcloud config set tidak memvalidasi kredensial.
