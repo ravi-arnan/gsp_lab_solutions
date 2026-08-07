@@ -96,17 +96,20 @@ step "Task 2 - gcloud configuration 'user2'"
 if gcloud config configurations describe user2 >/dev/null 2>&1; then
   echo "configuration user2 sudah ada"
 else
-  gcloud config configurations create user2 --no-activate
+  gcloud config configurations create user2 --no-activate || true
 fi
 # CLOUDSDK_ACTIVE_CONFIG_NAME menargetkan configuration lain hanya untuk satu
-# perintah, jadi configuration aktif (default, yang punya kredensial) tidak
-# ikut berpindah dan perintah setelah ini tetap jalan sebagai Username 1.
-CFG=(env CLOUDSDK_ACTIVE_CONFIG_NAME=user2 gcloud config set)
-"${CFG[@]}" account "$USERID2" >/dev/null
-"${CFG[@]}" project "$PROJECT2" >/dev/null
-"${CFG[@]}" compute/region "${ZONE2%-*}" >/dev/null
-"${CFG[@]}" compute/zone "$ZONE2" >/dev/null
-gcloud config configurations list
+# perintah, jadi configuration aktif (yang punya kredensial) tidak ikut
+# berpindah dan perintah setelah ini tetap jalan sebagai Username 1.
+#
+# Hanya account dan project yang di-set. compute/region dan compute/zone
+# ditolak gcloud karena validasinya butuh kredensial user2 yang memang belum
+# ada, dan keduanya tidak dibutuhkan checkpoint. -q supaya peringatan "you do
+# not appear to have access to project" tidak menggantung menunggu jawaban.
+CFG=(env CLOUDSDK_ACTIVE_CONFIG_NAME=user2 gcloud config set -q)
+"${CFG[@]}" account "$USERID2" >/dev/null 2>&1 || true
+"${CFG[@]}" project "$PROJECT2" >/dev/null 2>&1 || true
+gcloud config configurations list || true
 
 # ------------------------------------------------------------------- Task 3
 step "Task 3 - beri Username 2 role viewer di project 2"
@@ -171,8 +174,6 @@ else
     --scopes "https://www.googleapis.com/auth/compute"
 fi
 
-# Kembalikan configuration aktif ke default supaya sesi berikutnya tidak kaget.
-gcloud config configurations activate default >/dev/null 2>&1 || true
 
 cat <<EOF
 
