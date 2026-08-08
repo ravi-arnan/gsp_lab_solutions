@@ -5,18 +5,20 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 
 ## Posisi sekarang
 
-**Game Arcade 2026 (Agustus): 3/6 selesai** — Base Camp, Adventure (Data Vault),
-Special (Spans and Plans).
+**Game Arcade 2026 (Agustus): 6/6 SELESAI** (dikonfirmasi user 2026-08-08) — Base Camp,
+Adventure (Data Vault), Voyage (Google Sheets), Trail (Cloud Delivery Systems),
+Special (Spans and Plans), Simulator (Network Security Engineer).
 
-Sisa: **Trail (Cloud Delivery Systems)**, Voyage (Google Sheets),
-Simulator (Network Security Engineer).
+Bonus di luar game: **GEAR Mini-Project** (bangun AI agent + submit form
+verifikasi) — form sudah disubmit 2026-08-08, biaya Rp 0, hasil verifikasi
+menunggu ≤48 jam. Runbook + jebakan billing Indonesia ada di
+[docs/gear-bonus.md](docs/gear-bonus.md). Jangan hapus project `gear-agent-12083`
+atau binding verifiernya sampai program selesai + 2 minggu.
 
-**Langkah berikutnya: Trail.** Isi labnya belum diketahui. Minta user menempel
-halaman lab pertamanya (kode GSP/ARC + daftar task), cocokkan dulu dengan tabel
-di [README](README.md) sebelum menulis script baru.
-
-Urutan yang disarankan setelah Trail: Voyage, lalu Simulator terakhir (paling
-panjang, paling sedikit yang bisa diotomasi).
+**Langkah berikutnya: tidak ada yang mendesak.** Kalau ada sesi lanjutan, isinya
+melunasi utang di bagian bawah dokumen ini (script yang belum pernah diuji) atau
+menambah cakupan badge di [docs/coverage.md](docs/coverage.md), bukan mengejar
+game.
 
 ## Yang diselesaikan sesi ini
 
