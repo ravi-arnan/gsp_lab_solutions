@@ -1,4 +1,4 @@
-# Handoff — sesi 2026-08-04/05
+# Handoff — terakhir diperbarui 2026-08-08
 
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
@@ -20,7 +20,28 @@ melunasi utang di bagian bawah dokumen ini (script yang belum pernah diuji) atau
 menambah cakupan badge di [docs/coverage.md](docs/coverage.md), bukan mengejar
 game.
 
-## Yang diselesaikan sesi ini
+## Sesi 2026-08-08 (bonus GEAR, tanpa lab)
+
+Sesi ini tidak menyentuh script lab sama sekali. Isinya menuntaskan bonus
+GEAR Mini-Project dan merapikan dokumen.
+
+- **[docs/gear-bonus.md](docs/gear-bonus.md)** — runbook baru. Tiga temuan yang
+  menghemat waktu kalau program serupa muncul lagi: verifier
+  `arcade-agent-verifier@google.com` itu **Google Group** (`--member="group:..."`,
+  `user:` ditolak); `gcloud services enable` **berhasil walau `billingEnabled: false`**;
+  dan prabayar Rp 500rb untuk kartu debit Indonesia itu syarat kredit trial, **bukan**
+  syarat verifikasi. Total biaya akhirnya Rp 0.
+- **README** dapat pointer ke dokumen itu.
+
+**Badge berikutnya yang disarankan: 716 Implement DevOps Workflows.** Paling murah —
+`gsp053.sh` dan `gsp1077.sh` sudah ada dan terverifikasi, sisa GSP121 + challenge
+GSP330, dan materinya sekelanjutan Trail yang baru selesai. Cadangan: 727 Eventarc
+(punya `gsp1089.sh`, sisa GSP095, GSP773, ARC118). Hindari dulu 623, 663, 750, 641,
+654, 648 — nol script, tiap lab harus ditulis dari nol.
+
+Profil user per 2026-08-08: 28 skill badge, Silver League 693 poin.
+
+## Yang diselesaikan sesi 2026-08-04/05
 
 Semua 100/100 di lab instance sungguhan:
 
@@ -126,3 +147,10 @@ Ini yang paling berharga dari sesi ini — beberapa **mengoreksi asumsi lama**.
 - `gsp510.sh` belum diuji ulang sekali jalan setelah diperbaiki.
 - Beberapa script lama masih "Belum diuji" — lihat kolom Status di README.
 - `docs/coverage.md` masih memetakan 20 dari 68 badge; 48 sisanya belum.
+- `docs/coverage.md` bagian "Badge berikutnya yang paling dekat" **basi** — dua badge
+  yang disebut di situ (1177, 655) sudah dimiliki user sejak Juli. Belum diperbarui,
+  dan file itu memang tidak menandai badge mana yang sudah dimiliki.
+- Hasil verifikasi bonus GEAR belum diketahui. Risiko yang tersisa: billing account
+  user berstatus `OPEN: False` (prabayar tidak dibayar). Kalau checker mereka menuntut
+  billing aktif, poin itu gagal — catat hasilnya di `docs/gear-bonus.md` kalau sudah
+  ada kabar dari facilitator.
