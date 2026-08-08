@@ -65,7 +65,6 @@ PROD="cd-production"
 CONTEXTS=("$STAGING" "$PROD")
 SRC="$HOME/cloud-deploy-tutorials/tutorials/base"
 COMPUTE_SA="$PROJECT_NUMBER-compute@developer.gserviceaccount.com"
-ROLLBACK_ID="rollback-001"
 
 gcloud config set compute/region "$REGION" >/dev/null
 gcloud config set deploy/region "$REGION" >/dev/null
@@ -94,21 +93,32 @@ if [[ "$PHASE" == "rollback" ]]; then
   step "Task 7 - rollback $STAGING ke web-app-001"
   cd "$SRC" 2>/dev/null || true
 
-  if gcloud deploy rollouts describe "$ROLLBACK_ID" --delivery-pipeline "$PIPELINE" \
-       --release web-app-001 --region="$REGION" >/dev/null 2>&1; then
-    echo "rollout rollback sudah ada"
+  # JANGAN pakai --rollout-id. Checkpoint mencari nama kanonik yang dibuat
+  # Cloud Deploy sendiri (web-app-001-to-cd-staging-0002); rollout dengan nama
+  # kustom tetap memulihkan aplikasinya tapi dinilai 0. Terbukti di lab.
+  #
+  # Idempotensi diukur dari jumlah rollout: cd-staging sudah punya satu rollout
+  # web-app-001 dari Task 4, jadi rollback menambah yang kedua.
+  COUNT="$(gcloud deploy rollouts list --delivery-pipeline "$PIPELINE" \
+    --release web-app-001 --region="$REGION" --filter="targetId=$STAGING" \
+    --format='value(name)' 2>/dev/null | wc -l)"
+  if [[ "$COUNT" -ge 2 ]]; then
+    echo "rollout rollback sudah ada ($COUNT rollout ke $STAGING)"
   else
     # --release menunjuk versi TUJUAN rollback, bukan versi yang sedang jalan.
     gcloud deploy targets rollback "$STAGING" \
-      --delivery-pipeline="$PIPELINE" --release=web-app-001 \
-      --rollout-id="$ROLLBACK_ID" --region="$REGION" -q
+      --delivery-pipeline="$PIPELINE" --release=web-app-001 --region="$REGION" -q
   fi
   wait_rollout web-app-001 "$STAGING"
 
+  gcloud deploy rollouts list --delivery-pipeline "$PIPELINE" \
+    --release web-app-001 --region="$REGION" \
+    --format='table(name.basename(),state)' || true
   kubectl --context "$STAGING" get all -n web-app || true
   cat <<EOF
 
 SELESAI. Klik Check my progress: "Verify the rollback ran successfully".
+Nama rollout barunya harus web-app-001-to-$STAGING-0002.
 
 Bukti manual kalau mau: port-forward lalu curl, teksnya harus kembali tanpa "v2".
   kubectl --context $STAGING -n web-app port-forward deployment/leeroy-web 9000:8080
