@@ -4,8 +4,8 @@ Bukan lab Qwiklabs. Ini tugas bonus program Arcade/GEAR yang dikerjakan di **aku
 pribadi** dengan billing sendiri, bukan di project lab. Tidak ada Check my progress; verifikasinya
 lewat form.
 
-Status (2026-08-08): **sisi teknis selesai tanpa biaya sepeser pun**, hasil verifikasinya belum
-diketahui. `aiplatform.googleapis.com` sudah ENABLED dan binding verifier sudah terpasang di project
+Status (2026-08-08): **form sudah disubmit, biaya Rp 0**. Hasil verifikasinya belum diketahui —
+prosesnya sampai 48 jam, poin (10) baru masuk di akhir program. `aiplatform.googleapis.com` sudah ENABLED dan binding verifier sudah terpasang di project
 `gear-agent-12083`, tapi billing account-nya masih `OPEN: False` karena prabayar Rp 500rb tidak
 dibayar — lihat [Blocker](#blocker-prabayar-rp-500rb-untuk-kartu-debit).
 
