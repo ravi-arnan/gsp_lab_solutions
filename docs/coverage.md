@@ -40,7 +40,7 @@ Tanda ✅ berarti scriptnya sudah ada di repo ini.
 | 625 Develop Your Google Cloud Network | GSP064, GSP281, GSP211, ✅GSP089, ✅GSP053, GSP321 |
 | 648 Implement Load Balancing on Compute Engine | GSP001/GSP093, GSP002, GSP007, GSP313 |
 | 716 Implement DevOps Workflows | GSP121, ✅GSP053, GSP1077, GSP330 |
-| 691 Implement CI/CD Pipelines | GSP1076, GSP1077, GSP1079, GSP393 |
+| 691 Implement CI/CD Pipelines | GSP1076, ✅GSP1077, ✅GSP1079, ✅GSP393 |
 
 Badge 623 dan 648 menawarkan lab alternatif (`A/B`), jadi jumlah lab wajibnya lebih kecil dari
 jumlah kode yang tertulis.
