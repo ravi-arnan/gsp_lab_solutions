@@ -162,6 +162,11 @@ Status `NEED-NET` berarti script mati karena stub tidak benar-benar mengunduh ap
 
 Cakupan repo ini terhadap katalog Arcade ada di [docs/coverage.md](docs/coverage.md).
 
+Selain lab, program Arcade kadang menawarkan tugas bonus yang dikerjakan di akun Google Cloud
+pribadi. Yang pernah ditelusuri: [docs/gear-bonus.md](docs/gear-bonus.md) — GEAR Mini-Project
+(bangun AI agent + submit form). **Tidak diselesaikan**: billing pribadi dengan kartu debit
+Indonesia mewajibkan prabayar Rp 500rb.
+
 ### Lab yang tidak cocok diotomasi
 
 **Challenge lab** memilih task secara acak per instance, ditandai teks `Dynamically selected task will show up here...` di halaman labnya. Nama dataset, tabel, dan kolom berbeda tiap peserta, jadi script statis bisa salah parameter.
