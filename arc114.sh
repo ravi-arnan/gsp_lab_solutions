@@ -222,8 +222,8 @@ PYEOF
 # Library-nya ada di virtualenv lab; pasang kalau memang belum ada.
 if ! python3 -c "from google.cloud import language_v1" 2>/dev/null; then
   echo "google-cloud-language belum ada, pasang..."
-  pip3 install --quiet google-cloud-language || \
-    pip3 install --quiet --user google-cloud-language
+  python3 -m pip install --quiet google-cloud-language || \
+    python3 -m pip install --quiet --user google-cloud-language
   python3 -c "from google.cloud import language_v1" 2>/dev/null || {
     echo "GAGAL: google-cloud-language tetap tidak bisa diimpor."
     echo "Cek virtualenv di \$HOME: $(ls -d "$HOME"/*/bin/activate 2>/dev/null)"
