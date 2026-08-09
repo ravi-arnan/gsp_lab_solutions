@@ -1,7 +1,23 @@
-# Handoff — terakhir diperbarui 2026-08-08
+# Handoff — terakhir diperbarui 2026-08-09
 
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
+
+## Sesi 2026-08-09 (ARC114, ditinggalkan di 75/100)
+
+Script baru [`arc114.sh`](arc114.sh) + [runbook](docs/arc114.md). Task 1-3 hijau
+sekali jalan. **Checkpoint Task 4 dianggap rusak**: dua instance lab berbeda,
+dua belas hipotesis diuji satu per satu, semuanya gugur, sementara analisis
+sentimennya selalu berhasil dan mengeluarkan skor yang benar. Lab ditinggalkan,
+tidak diselesaikan.
+
+Runbook memuat tabel lengkap hipotesis yang sudah gugur — **baca dulu** kalau
+lab ini disentuh lagi, jangan mengulangi enam ronde diagnosis yang sama. Dua
+temuan yang berlaku umum untuk lab keluarga Speech/Language: virtualenv di
+`lab-vm` bernama `env` (ARC132 pakai `venv`) dan **isinya kosong**, jadi
+`google-cloud-language` harus dipasang sendiri; dan script remote wajib `exit 1`
+saat analisis gagal, kalau tidak `set -uo pipefail` tanpa `-e` membuatnya gagal
+diam-diam sambil tetap mencetak "SELESAI".
 
 ## Posisi sekarang
 
