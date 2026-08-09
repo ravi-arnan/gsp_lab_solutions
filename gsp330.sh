@@ -151,10 +151,12 @@ do_repo() {
   git checkout -B master
   git add .
   git commit -m "Add sample app source code"
-  git push -u origin master
+  # -f: repo sample-app sering sudah ada dari percobaan sebelumnya (repo GitHub
+  # hidup lebih lama dari project lab), riwayat remote-nya bisa berbeda.
+  git push -f -u origin master
 
   git checkout -B dev
-  git push -u origin dev
+  git push -f -u origin dev
   git branch -a
 
   cat <<EOF
