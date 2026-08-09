@@ -84,8 +84,15 @@ set -uo pipefail
 API_KEY="$1"
 cd "$HOME"
 
-# Lab sejenis menyiapkan venv; sentiment_analysis.py butuh google-cloud-language.
-[[ -f venv/bin/activate ]] && source venv/bin/activate
+# Lab menyiapkan virtualenv berisi google-cloud-language. Namanya beda-beda:
+# 'env' di arc114, 'venv' di arc132. Pakai yang mana pun yang ada.
+for _venv in env venv .venv; do
+  if [[ -f "$_venv/bin/activate" ]]; then
+    source "$_venv/bin/activate"
+    echo "virtualenv aktif: $HOME/$_venv"
+    break
+  fi
+done
 
 echo "== Task 2: entity analysis =="
 cat > nl_request.json << 'EOF'
@@ -212,11 +219,16 @@ open(path, "w").write(out)
 print(f"sentiment_analysis.py siap (modul: {mod}).")
 PYEOF
 
-# Library-nya biasanya sudah ada di lab-vm; pasang kalau belum.
+# Library-nya ada di virtualenv lab; pasang kalau memang belum ada.
 if ! python3 -c "from google.cloud import language_v1" 2>/dev/null; then
   echo "google-cloud-language belum ada, pasang..."
   pip3 install --quiet google-cloud-language || \
     pip3 install --quiet --user google-cloud-language
+  python3 -c "from google.cloud import language_v1" 2>/dev/null || {
+    echo "GAGAL: google-cloud-language tetap tidak bisa diimpor."
+    echo "Cek virtualenv di \$HOME: $(ls -d "$HOME"/*/bin/activate 2>/dev/null)"
+    exit 1
+  }
 fi
 
 cd "$(dirname "$PY")"
@@ -226,7 +238,10 @@ gcloud storage cp gs://cloud-samples-tests/natural-language/sentiment-samples.tg
 gunzip -f -c sentiment-samples.tgz | tar -xf -
 
 echo "-- jalankan analisis --"
-python3 sentiment_analysis.py reviews/bladerunner-pos.txt
+python3 sentiment_analysis.py reviews/bladerunner-pos.txt || {
+  echo "GAGAL: sentiment_analysis.py error, Task 4 tidak akan hijau."
+  exit 1
+}
 
 echo
 echo "== File hasil =="
