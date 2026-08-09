@@ -23,6 +23,11 @@
 # cukup untuk memanggil API (Task 2-4), tapi Task 1 kemungkinan tetap merah.
 #
 # LAMA: ~3 menit, paling lama menunggu SSH siap.
+#
+# STATUS 2026-08-09: 75/100. Task 1-3 hijau. Task 4 TIDAK pernah hijau padahal
+# analisisnya sukses ("Overall Sentiment: score of 0.2 with magnitude of 4.6").
+# Sembilan hipotesis sudah diuji dan gugur — baca docs/arc114.md sebelum
+# membuang waktu mengulang percobaan yang sama.
 
 set -euo pipefail
 
