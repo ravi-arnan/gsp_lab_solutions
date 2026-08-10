@@ -1,7 +1,23 @@
-# Handoff — terakhir diperbarui 2026-08-09
+# Handoff — terakhir diperbarui 2026-08-10
 
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
+
+## Sesi 2026-08-10 (GSP319, 100/100)
+
+Script baru [`gsp319.sh`](gsp319.sh) + [runbook](docs/gsp319.md). Challenge lab
+monolith-to-microservices: 7 task, semuanya otomatis, **100/100 sekali jalan**
+tanpa intervensi. Tiga hal yang membuatnya muat di waktu lab:
+
+- Cluster GKE dibuat di latar belakang (`&` + `wait $PID`) sambil `setup.sh` dan
+  build monolith jalan; build orders + products juga paralel. Dua antrean ~5
+  menit jadi tumpang tindih.
+- `npm run build` di `react-app` cukup sekali: `prebuild` mengurus versi monolith
+  dan `postbuild` menyalin hasilnya ke `microservices/src/frontend/public`, jadi
+  image frontend otomatis membawa IP orders/products yang baru.
+- Frontend dipasang `imagePullPolicy: Always`. Tag-nya tetap `1.0.0` padahal
+  isinya berubah antar-run, dan default `IfNotPresent` membuat node memakai image
+  lama yang masih menunjuk `localhost` — hanya kelihatan saat rerun.
 
 ## Sesi 2026-08-09 (ARC114, ditinggalkan di 75/100)
 
