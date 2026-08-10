@@ -40,6 +40,12 @@ ask() {
 }
 
 ask REGION "us-central1" "GCP Region dari panel lab (WAJIB cocok)"
+# Panel lab sering menampilkan zone (us-west1-c), bukan region. AlloyDB minta
+# region, jadi buang sufiks zone-nya daripada gagal dengan pesan yang bingung.
+if [[ "$REGION" =~ ^([a-z]+-[a-z]+[0-9])-[a-z]$ ]]; then
+  echo "REGION terlihat seperti zone, dipakai ${BASH_REMATCH[1]}"
+  REGION="${BASH_REMATCH[1]}"
+fi
 ask NETWORK "peering-network" "Network yang sudah dipeering lab"
 
 CLUSTER="${CLUSTER:-lab-cluster}"
