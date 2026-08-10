@@ -3,6 +3,23 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-08-10 (GSP329, belum diuji)
+
+Script baru [`gsp329.sh`](gsp329.sh) + [runbook](docs/gsp329.md). Challenge lab
+ML APIs (Vision + Translation): 5 task, semuanya otomatis, nol langkah Console.
+Dua keputusan yang membedakannya dari solusi umum:
+
+- **`analyze-images-v2.py` ditulis ulang, bukan ditambal.** Grader menilai
+  hasilnya (file `.txt` di bucket, baris BigQuery, query yang pernah jalan),
+  bukan isi file `.py`. Menambal komentar `# TBD:` bergantung pada teks yang
+  bisa berubah antar-revisi lab, dan `sed` yang meleset baru ketahuan di
+  tengah lab.
+- **Kolom BigQuery dipetakan dari `table.schema`,** bukan tuple posisional
+  seperti solusi resmi. Urutan/jumlah kolom yang berbeda antar-instance tidak
+  lagi bisa menggagalkan insert. Nama kolom dicetak saat jalan.
+
+Belum dijalankan di lab sungguhan — perbarui README + runbook setelah ada skor.
+
 ## Sesi 2026-08-10 (GSP319, 100/100)
 
 Script baru [`gsp319.sh`](gsp319.sh) + [runbook](docs/gsp319.md). Challenge lab
