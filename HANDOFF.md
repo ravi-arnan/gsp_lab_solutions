@@ -3,6 +3,26 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-08-10 (GSP364, 100/100)
+
+Script baru [`gsp364.sh`](gsp364.sh) + [runbook](docs/gsp364.md). Challenge lab
+Managed Service for Prometheus: 4 task, semuanya otomatis, 100/100 sekali jalan.
+Tiga hal yang tidak ada di instruksi lab tapi dipasang script:
+
+- **PodMonitoring dibuat sendiri.** `examples/example-app.yaml` upstream hanya
+  berisi Deployment (dicek di v0.17.0), jadi tanpa itu tidak ada yang men-scrape
+  dan filter `{job="prom-example"}` tidak mengenai metrik apa pun.
+- **Bucket dibuat `gsutil mb -b off`.** Perintah `acl set public-read` di
+  instruksi lab ditolak di bucket uniform bucket-level access; ada fallback ke
+  IAM `allUsers/objectViewer`.
+- **example-app di dua namespace** (`default` + `gmp-test`) karena instruksi
+  tidak menyebut namespace.
+
+Bug yang ditangkap dry-run harness, bukan lab: `VER="$(curl ... | grep ...)"`
+tanpa `|| true` membuat `set -e` membunuh script saat GitHub API tidak menjawab,
+jadi baris fallback versi tidak pernah tercapai. Pola ini layak dicek di script
+lain yang mengambil versi dari API.
+
 ## Sesi 2026-08-10 (GSP329, 100/100)
 
 Script baru [`gsp329.sh`](gsp329.sh) + [runbook](docs/gsp329.md). Challenge lab
