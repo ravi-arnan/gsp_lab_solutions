@@ -75,7 +75,12 @@ else
   sleep 10
 fi
 
-for ROLE in roles/bigquery.dataEditor roles/storage.admin; do
+# Dua role pertama yang diminta lab. Yang ketiga TIDAK ada di instruksi tapi
+# wajib: klien Python mengirim header quota-project, dan tanpa
+# serviceusage.services.use setiap panggilan Storage/Vision balik 403
+# "does not have serviceusage.services.use access" (terbukti 2026-08-10).
+# Role tambahan tidak menggagalkan checkpoint Task 1.
+for ROLE in roles/bigquery.dataEditor roles/storage.admin roles/serviceusage.serviceUsageConsumer; do
   gcloud projects add-iam-policy-binding "$PROJECT" \
     --member="serviceAccount:$SA_EMAIL" \
     --role="$ROLE" \
@@ -222,7 +227,14 @@ print('Selesai, %d baris masuk.' % len(rows_for_bq))
 PY_EOF
 
 step "Jalankan analyze-images-v2.py"
-GOOGLE_APPLICATION_CREDENTIALS="$KEY_FILE" "$PY" "$PY_SCRIPT" "$PROJECT" "$BUCKET"
+# Binding IAM di atas butuh waktu propagasi; percobaan pertama bisa 403.
+n=1
+until env -u GOOGLE_CLOUD_QUOTA_PROJECT \
+        GOOGLE_APPLICATION_CREDENTIALS="$KEY_FILE" "$PY" "$PY_SCRIPT" "$PROJECT" "$BUCKET"; do
+  (( n++ >= 4 )) && { echo "Gagal setelah 3 percobaan."; exit 1; }
+  echo "Gagal, kemungkinan role belum propagasi. Tunggu 30 detik (percobaan $n)..."
+  sleep 30
+done
 
 echo
 echo "File .txt di bucket:"
