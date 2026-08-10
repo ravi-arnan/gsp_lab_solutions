@@ -3,11 +3,21 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
-## Sesi 2026-08-10 (GSP329, belum diuji)
+## Sesi 2026-08-10 (GSP329, 100/100)
 
 Script baru [`gsp329.sh`](gsp329.sh) + [runbook](docs/gsp329.md). Challenge lab
 ML APIs (Vision + Translation): 5 task, semuanya otomatis, nol langkah Console.
-Dua keputusan yang membedakannya dari solusi umum:
+
+**Temuan utama, berlaku untuk semua lab yang memakai key service account dari
+Cloud Shell:** dua role yang diminta instruksi (`bigquery.dataEditor` +
+`storage.admin`) **tidak cukup**. Panggilan Storage pertama balik
+`403 ... does not have serviceusage.services.use access` karena klien Python
+mengirim header quota-project. Perbaikannya mengikat
+`roles/serviceusage.serviceUsageConsumer` juga dan menjalankan Python dengan
+`env -u GOOGLE_CLOUD_QUOTA_PROJECT`. Role tambahan tidak menggagalkan checkpoint
+Task 1 — grader mengecek keberadaan dua role lab, bukan ketiadaan yang lain.
+
+Dua keputusan lain yang membedakannya dari solusi umum:
 
 - **`analyze-images-v2.py` ditulis ulang, bukan ditambal.** Grader menilai
   hasilnya (file `.txt` di bucket, baris BigQuery, query yang pernah jalan),
@@ -16,9 +26,9 @@ Dua keputusan yang membedakannya dari solusi umum:
   tengah lab.
 - **Kolom BigQuery dipetakan dari `table.schema`,** bukan tuple posisional
   seperti solusi resmi. Urutan/jumlah kolom yang berbeda antar-instance tidak
-  lagi bisa menggagalkan insert. Nama kolom dicetak saat jalan.
-
-Belum dijalankan di lab sungguhan — perbarui README + runbook setelah ada skor.
+  lagi bisa menggagalkan insert. Nama kolom dicetak saat jalan. Kolom di
+  instance yang diuji: `original_text, locale, translated_text, file_name` —
+  bukan nama yang diasumsikan solusi resmi.
 
 ## Sesi 2026-08-10 (GSP319, 100/100)
 
