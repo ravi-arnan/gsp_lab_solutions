@@ -3,6 +3,25 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-08-10 (GSP395, 100/100)
+
+Script baru [`gsp395.sh`](gsp395.sh) + [runbook](docs/gsp395.md). AlloyDB, 5 task,
+100/100 di region `us-west1`. Tiga hal yang menentukan:
+
+- **SQL harus lewat SSH ke VM `alloydb-client`.** AlloyDB hanya punya private IP
+  di `peering-network`; `psql` dari Cloud Shell tidak akan pernah connect.
+- **`psql -v ON_ERROR_STOP=1`.** Tanpa itu psql exit 0 walau DDL gagal dan
+  script melapor SELESAI padahal tabelnya tidak ada — kembaran temuan ARC114.
+- **Panel lab menampilkan zone (`us-west1-c`), bukan region.** Script memotong
+  sufiks zone-nya sendiri. Layak ditiru di script lain yang meminta region.
+
+Read pool dibuat di latar belakang sambil tabel diisi (~5 menit hemat); backup
+tidak ikut diparalelkan karena cluster AlloyDB menolak operasi baru selagi ada
+operasi lain berjalan.
+
+`test/stubs.sh` dapat satu entri baru: `--format='value(ipAddress)'` mengembalikan
+`10.20.0.2`, kalau tidak dry-run berhenti di guard private IP.
+
 ## Sesi 2026-08-10 (ARC113, 100/100)
 
 Script baru [`arc113.sh`](arc113.sh) + [runbook](docs/arc113.md). 3 task, 100/100
