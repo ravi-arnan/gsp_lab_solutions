@@ -3,6 +3,21 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-08-10 (ARC113, 100/100)
+
+Script baru [`arc113.sh`](arc113.sh) + [runbook](docs/arc113.md). 3 task, 100/100
+sekali jalan. **Lab ini punya varian task** — deskripsinya sendiri bilang "you
+may get task to use Cloud Scheduler ... Snapshot ... Pub/Sub Lite". Yang ditulis
+baru varian schema + topic + Cloud Run function; perintah inti untuk tiga varian
+lain ada di runbook, tinggal dirapikan jadi fase kalau muncul.
+
+Dua hal yang menentukan hijau/merah:
+
+- **"Cloud Run Function environment" = `--gen2`.** Bukan Cloud Functions lama.
+- **`schemaSettings` hanya bisa diisi saat topic dibuat.** Tidak ada
+  `topics update` untuk menempelkan schema, jadi topic yang sudah ada tanpa
+  schema harus dihapus dan dibuat ulang.
+
 ## Sesi 2026-08-10 (GSP364, 100/100)
 
 Script baru [`gsp364.sh`](gsp364.sh) + [runbook](docs/gsp364.md). Challenge lab
