@@ -76,7 +76,10 @@ step "Task 1: salin cymbal-superstore dari bucket lab"
 
 # --------------------------------------------------------------------- Task 2
 step "Task 2: tulis unit test /outofstock"
-if grep -q "outofstock" "$SRC/backend/index.test.ts"; then
+# Guard-nya harus mengenali test yang sudah kita tulis, BUKAN kata "outofstock"
+# begitu saja — baris marker bawaan lab pun memuat kata itu, dan pernah membuat
+# insert dilewati diam-diam (2026-08-10, Task 2 nol).
+if grep -q "describe('GET /outofstock'" "$SRC/backend/index.test.ts"; then
   echo "Test sudah ada, lewati."
 else
   cat > "$LOGDIR/test-snippet.ts" <<'EOF'
@@ -254,7 +257,11 @@ fi
 step "Task 2: npm run test (install dulu, ~2-3 menit)"
 ( cd "$SRC/backend" && npm run test )
 
-if [[ "${SKIP_RUN:-0}" != "1" ]]; then
+# Lab GSP527 ternyata TIDAK men-deploy backend ke Cloud Run (terverifikasi
+# 2026-08-10: satu-satunya service di project adalah function outofstock), jadi
+# jangan membuat service baru — hanya redeploy kalau servicenya memang ada.
+if [[ "${SKIP_RUN:-0}" != "1" ]] && \
+   gcloud run services describe "$RUN_SERVICE" --region="$REGION" --project="$PROJECT" >/dev/null 2>&1; then
   step "Task 3: redeploy Cloud Run '$RUN_SERVICE' dengan endpoint baru"
   gcloud run deploy "$RUN_SERVICE" --source="$SRC/backend" --region="$REGION" \
     --allow-unauthenticated --quiet --project="$PROJECT"
