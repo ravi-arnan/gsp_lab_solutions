@@ -22,6 +22,7 @@ gcloud)
   if   has 'config get-value project'      ; then echo "${DEVSHELL_PROJECT_ID:-dryrun-project}"
   elif has 'auth print-access-token'       ; then echo "ya29.DRYRUN.fake-token"
   elif has 'projectNumber'                 ; then echo "123456789012"
+  elif has 'ipAddress'                     ; then echo "10.20.0.2"   # private IP AlloyDB/Spanner dsb
   elif has 'instances list' && has 'zone'  ; then echo "us-central1-a"
   elif has 'sourceImage'                   ; then echo "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/debian-12-bookworm-v20240110"
   elif has 'image_summary.digest'          ; then echo "sha256:0000000000000000000000000000000000000000000000000000000000000000"
