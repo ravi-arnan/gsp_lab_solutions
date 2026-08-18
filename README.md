@@ -134,6 +134,21 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP1124 | Get Started with Security Command Center | [gsp1124.sh](gsp1124.sh) | - | Belum diuji; Task 1-2 wajib manual (UI + enable SHA module) | - |
 | GSP1164 | Analyze Findings with Security Command Center | [gsp1164.sh](gsp1164.sh) | - | Belum diuji | - |
 | GSP1077 | Google Kubernetes Engine Pipeline using Cloud Build | [gsp1077.sh](gsp1077.sh) | [docs/gsp1077.md](docs/gsp1077.md) | Belum diuji; tiga fase, `gh auth login` + install Cloud Build GitHub App wajib manual | - |
+| GSP190 | IAM Custom Roles | [gsp190.sh](gsp190.sh) | [docs/gsp190.md](docs/gsp190.md) | Terverifikasi, skor 100/100; keenam checkpoint diklik sekaligus di akhir | 2026-08-07 |
+| GSP647 | Configuring IAM Permissions with gcloud | [gsp647.sh](gsp647.sh) | [docs/gsp647.md](docs/gsp647.md) | Terverifikasi, skor 100/100; dua fase, fase `vm` wajib (empat checkpoint dinilai dari dalam VM `centos-clean`) | 2026-08-07 |
+| GSP526 | Privileged Access with IAM: Challenge Lab | [gsp526.sh](gsp526.sh) | [docs/gsp526.md](docs/gsp526.md) | Terverifikasi, skor 100/100; empat fase, dua di antaranya di Cloud Shell milik user kedua | 2026-08-07 |
+| GSP499 | User Authentication: Identity-Aware Proxy | [gsp499.sh](gsp499.sh) | [docs/gsp499.md](docs/gsp499.md) | Belum diuji; nol langkah Console (IAP diatur lewat gcloud) | - |
+| GSP1317 | Establish VPC to VPC Connectivity using NCC | [gsp1317.sh](gsp1317.sh) | [docs/gsp1317.md](docs/gsp1317.md) | Terverifikasi, skor 100/100 sekali jalan; dua fase, Task 6 (hapus hub/spoke) terpisah | 2026-08-07 |
+| GSP528 | Connecting Cloud Networks with NCC: Challenge Lab | [gsp528.sh](gsp528.sh) | [docs/gsp528.md](docs/gsp528.md) | Terverifikasi, skor 100/100; dua fase (satu VPC cuma boleh nempel ke satu hub), nama resource dideteksi sendiri | 2026-08-07 |
+| GSP393 | Implement CI/CD Pipelines on Google Cloud: Challenge Lab | [gsp393.sh](gsp393.sh) | [docs/gsp393.md](docs/gsp393.md) | Terverifikasi, skor 100/100; dua fase, rollback tidak boleh diberi `--rollout-id` kustom | 2026-08-08 |
+| GSP1079 | Continuous Delivery with Google Cloud Deploy | [gsp1079.sh](gsp1079.sh) | [docs/gsp1079.md](docs/gsp1079.md) | Belum diuji; satu fase, 18-25 menit (tiga cluster GKE) | - |
+| GSP319 | Build a Website on Google Cloud: Challenge Lab | [gsp319.sh](gsp319.sh) | [docs/gsp319.md](docs/gsp319.md) | Terverifikasi, skor 100/100 sekali jalan; nama image dan cluster diacak per instance | 2026-08-10 |
+| GSP330 | Implement DevOps Workflows in Google Cloud: Challenge Lab | [gsp330.sh](gsp330.sh) | - | Belum diuji; lima fase, Task 3 (dua Cloud Build trigger) dan `gh auth login` wajib manual | - |
+| GSP527 | Kickstarting Application Development with Gemini Code Assist: Challenge Lab | [gsp527.sh](gsp527.sh) | - | Dijalankan di lab sungguhan 2026-08-10 (dari situ ketahuan lab tidak men-deploy backend ke Cloud Run), skor akhir belum tercatat | 2026-08-10 |
+| GSP1063 | Finding Data in Google Sheets | - | [docs/gsp1063.md](docs/gsp1063.md) | Tidak bisa di-script (100% Google Sheets); runbook terverifikasi 100/100 sekali jalan | 2026-08-07 |
+| GSP1062 | Validate Data in Google Sheets | - | [docs/gsp1062.md](docs/gsp1062.md) | Tidak bisa di-script (100% Google Sheets); runbook terverifikasi 100/100 — Task 1 wajib hijau penuh sebelum Task 3 | 2026-08-08 |
+| ARC126 | Develop with Apps Script and AppSheet: Challenge Lab | - | [docs/arc126.md](docs/arc126.md) | Tidak bisa di-script (AppSheet + Apps Script + Chat, semuanya UI); runbook terverifikasi 100/100 | 2026-08-08 |
+| GSP1146 | Develop No-Code Chat Apps with AppSheet | - | [docs/gsp1146.md](docs/gsp1146.md) | Tidak bisa di-script (UI AppSheet + Google Chat); runbook belum diuji langsung, tapi alurnya sama dengan ARC126 | - |
 
 Tiap lab punya runbook di `docs/` berisi urutan perintah, nilai yang harus muncul sebagai sanity check, dan troubleshooting. **Baca runbook-nya dulu sebelum jalan**, terutama GSP340 (parameter acak) dan GSP1143 (dua fase).
 

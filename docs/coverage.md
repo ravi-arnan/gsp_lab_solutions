@@ -32,14 +32,14 @@ Tanda ✅ berarti scriptnya sudah ada di repo ini.
 | 663 Deploy Kubernetes Applications | GSP055, GSP100, GSP021, GSP318 |
 | 750 Get Started with Sensitive Data Protection | GSP107, GSP864, GSP1073, ARC116 |
 | 1177 Discover and Protect Sensitive Data | ✅GSP1281, ✅GSP1282, GSP1283, ✅GSP522 |
-| 728 Get Started with Pub/Sub | GSP096, GSP401, GSP832, ARC113 |
+| 728 Get Started with Pub/Sub | GSP096, GSP401, GSP832, ✅ARC113 |
 | 725 Get Started with Cloud Storage | ✅GSP421, ✅GSP074, ✅GSP297, ✅ARC111 |
 | 727 Get Started with Eventarc | GSP095, ✅GSP1089, GSP773, ARC118 |
-| 641 Set Up a Google Cloud Network | GSP647, GSP662, GSP021, GSP016, GSP617, GSP918, GSP314 |
+| 641 Set Up a Google Cloud Network | ✅GSP647, GSP662, GSP021, GSP016, GSP617, GSP918, GSP314 |
 | 654 Build a Secure Google Cloud Network | GSP1036, GSP211, GSP213, GSP215, GSP216, GSP322 |
 | 625 Develop Your Google Cloud Network | GSP064, GSP281, GSP211, ✅GSP089, ✅GSP053, GSP321 |
 | 648 Implement Load Balancing on Compute Engine | GSP001/GSP093, GSP002, GSP007, GSP313 |
-| 716 Implement DevOps Workflows | GSP121, ✅GSP053, GSP1077, GSP330 |
+| 716 Implement DevOps Workflows | GSP121, ✅GSP053, ✅GSP1077, ✅GSP330 |
 | 691 Implement CI/CD Pipelines | GSP1076, ✅GSP1077, ✅GSP1079, ✅GSP393 |
 
 Badge 623 dan 648 menawarkan lab alternatif (`A/B`), jadi jumlah lab wajibnya lebih kecil dari
