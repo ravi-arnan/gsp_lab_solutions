@@ -50,19 +50,10 @@ echo "Dataflow : $DF_REGION"
 
 step() { echo; echo "=============================================================="; echo ">> $1"; echo "=============================================================="; }
 
-# execute-sql membalas {"metadata":..., "rows":[["7"]]} — ambil sel pertama lewat jq,
-# 0 kalau apa pun gagal supaya perbandingan aritmatika di bawah tidak meledak.
-row_count() {
-  local n
-  n=$(gcloud spanner databases execute-sql "$DATABASE" --instance="$INSTANCE" --project="$PROJECT" \
-        --sql='SELECT COUNT(*) FROM Customer' --format=json 2>/dev/null | jq -r '.rows[0][0] // 0')
-  [[ "$n" =~ ^[0-9]+$ ]] && echo "$n" || echo 0
-}
-
 # ----------------------------------------------------------------- Task 2
 step "Task 2: Insert satu baris lewat DML"
-gcloud spanner databases execute-sql "$DATABASE" --instance="$INSTANCE" --project="$PROJECT" \
-  --sql="INSERT INTO Customer (CustomerId, Name, Location) VALUES ('bdaaaa97-1b4b-4e58-b4ad-84030de92235', 'Richard Nelson', 'Ada Ohio')" \
+gcloud spanner databases execute-sql banking-db --instance=banking-instance \
+ --sql="INSERT INTO Customer (CustomerId, Name, Location) VALUES ('bdaaaa97-1b4b-4e58-b4ad-84030de92235', 'Richard Nelson', 'Ada Ohio')" \
   || echo "  (baris sudah ada, lanjut)"
 
 # ----------------------------------------------------------------- Task 3
