@@ -47,6 +47,24 @@ jumlah kode yang tertulis.
 
 48 badge sisanya belum dipetakan.
 
+## Lab bersertifikat di luar 20 badge itu
+
+Sesi 2026-08-21/22 menambah sebelas lab yang badge-nya belum ada di tabel atas.
+Dicatat di sini supaya tidak ditulis ulang dari nol nanti, semuanya sudah
+terverifikasi 100/100 kecuali yang ditandai:
+
+| Lab | Tema |
+|-----|------|
+| ✅GSP073, ✅GSP074 | Cloud Storage Qwik Start (console dan CLI) |
+| ✅GSP095 | Pub/Sub Qwik Start CLI |
+| ✅GSP207, ✅GSP903, ✅ARC110 | Dataflow: batch, streaming Pub/Sub→GCS, dan challenge-nya |
+| ✅GSP659 | Deploy website di Cloud Run |
+| ✅ARC100, ✅ARC102 | Challenge thumbnail: gen2 (Memories) dan gen1 (Wild) |
+| ✅ARC112 | Challenge App Engine |
+| ✅ARC131 | Challenge Speech API |
+| ✅GSP351 | Challenge Database Migration Service |
+| ⚠️ARC114 | Challenge Speech + Language — maks 75/100, checkpoint Task 4 rusak |
+
 ## Badge yang sudah tertutup penuh
 
 - **636 Build Infrastructure with Terraform** — GSP156 + 750 + 751 + 752 + 345.

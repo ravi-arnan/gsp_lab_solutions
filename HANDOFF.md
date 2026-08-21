@@ -1,7 +1,71 @@
-# Handoff — terakhir diperbarui 2026-08-10
+# Handoff — terakhir diperbarui 2026-08-22
 
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
+
+## Sesi 2026-08-21/22 — borongan 17 lab
+
+Sesi panjang, 16 dari 17 lab dapat 100/100. Script baru: `gsp073`, `gsp095`,
+`gsp207`, `gsp351`, `gsp659`, `gsp903`, `arc100`, `arc102`, `arc110`, `arc112`,
+`arc131`. Yang sudah ada dan terverifikasi/diperluas: `gsp074`, `gsp080`,
+`gsp421`, `arc111` (varian form-1), `arc114`.
+
+Badge **725 Get Started with Cloud Storage** jadi badge pertama yang keempat
+labnya terbukti 100/100, bukan sekadar punya script.
+
+### Temuan lintas-lab yang layak diingat
+
+**API key buatan CLI tidak menghijaukan checkpoint "Create an API key".**
+Terbukti di ARC131 lalu dipisah variabelnya di ARC114 pada hari yang sama: key
+`gcloud` **dengan** `--api-target` tetap merah, key console hijau. Jadi
+pembuatan lewat console yang menentukan, bukan restriction-nya. Berlaku juga
+untuk arc132, gsp038, arc130. Detail di [docs/arc114.md](docs/arc114.md).
+
+**Generasi Cloud Functions mengikuti tanda tangan kode, bukan selera.** ARC100
+dan ARC102 dua-duanya "bikin thumbnail dari upload ke bucket", tapi ARC100
+pakai `functions.cloudEvent(...)` → gen2, sedangkan ARC102 pakai
+`exports.thumbnail = (event, context)` → **gen1 wajib**. Tambahan: ARC102
+memakai `imagemagick-stream` yang butuh binary `convert`, tersedia di runtime
+gen1 tapi tidak di buildpack gen2 — kalau salah generasi, fungsi ter-deploy
+sehat tapi thumbnail tidak pernah terbentuk. Bandingkan
+[docs/arc100.md](docs/arc100.md) dan [docs/arc102.md](docs/arc102.md).
+
+**Service agent Google dibuat malas.** Mengaktifkan API tidak membuat service
+account-nya ada, jadi `add-iam-policy-binding` menolak dengan "Service account
+... does not exist". Paksa dengan `gcloud beta services identity create
+--service=<api>`. Ditemukan di ARC100.
+
+**Yang tersembunyi di balik pilihan console.** GSP351: memilih "Existing
+instance" sebagai destination DMS diam-diam men-demote instance itu jadi
+replica. Lewat CLI harus eksplisit (`migration-jobs demote-destination`), dan
+demote itu membuat instance `<destination>-master` yang tidak pernah `RUNNABLE`
+— deteksi otomatis harus mengecualikannya. Juga: hanya `create` yang punya
+`--no-async`; `start` dan `promote` menolaknya.
+
+**Jangan telan error dengan `|| true`.** Versi pertama `gsp351.sh` menelan
+kegagalan `start`, akibatnya loop memantau `NOT_STARTED` selama 25 menit tanpa
+sebab yang terlihat. Pola yang dipakai sekarang: cetak errornya, dan menyerah
+cepat kalau state tidak beranjak.
+
+### ARC114 Task 4: ronde keempat, tetap rusak
+
+Ditelusuri ulang atas permintaan, kali ini dengan mencari **bukti apa yang
+tersedia untuk dibaca grader**, bukan menebak. Hasilnya: startup script VM
+kosong, hanya ada satu home (jadi grader tidak pernah SSH), dan metrik API
+menunjukkan `AnalyzeSentiment` tercatat dengan credential service account
+maupun API key setelah diuji keduanya. Ketiga saluran bukti dipenuhi serentak,
+checkpoint tetap 0/25. Lima belas hipotesis, empat instance, dua di antaranya
+setelah lab di-update. Maks tetap **75/100**. Resep query Cloud Monitoring untuk
+memeriksa request per credential disimpan di runbook — berguna kalau ada
+checkpoint mencurigakan lain.
+
+### Pola yang mengeras jadi kebiasaan
+
+Lab yang punya langkah "undo" (hapus bucket, cabut akses publik, promote,
+kembalikan concurrency) selalu dipisah ke fase kedua yang tidak jalan otomatis,
+karena langkah itu menghapus persis yang dinilai checkpoint sebelumnya. Sekarang
+dipakai di `gsp073`, `gsp074`, `gsp421`, `gsp659`, `gsp903`, `arc110`, `arc112`,
+`gsp351`.
 
 ## Sesi 2026-08-10 (GSP395, 100/100)
 
