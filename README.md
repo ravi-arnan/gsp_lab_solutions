@@ -105,7 +105,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP1043 | Consuming Customer Specific Datasets from Data Sharing Partners | [gsp1043.sh](gsp1043.sh) | [docs/gsp1043.md](docs/gsp1043.md) | Terverifikasi, skor 100/100; tiga project, empat fase (`partner`/`publisher`/`customer`/`insert`) | 2026-08-05 |
 | GSP1042 | Analytics as a Service for Data Sharing Partners | [gsp1042.sh](gsp1042.sh) | [docs/gsp1042.md](docs/gsp1042.md) | Terverifikasi 100/100, tapi script maks 80/100 — dua dashboard Looker Studio wajib manual | 2026-08-05 |
 | GSP510 | Manage Kubernetes in Google Cloud: Challenge Lab | [gsp510.sh](gsp510.sh) | [docs/gsp510.md](docs/gsp510.md) | Terverifikasi, skor 100/100 (dua perbaikan terakhir belum diuji ulang sekali jalan); nama diacak per instance | 2026-08-05 |
-| GSP095 | Pub/Sub: Qwik Start - Command Line | [gsp095.sh](gsp095.sh) | - | Belum diuji | - |
+| GSP095 | Pub/Sub: Qwik Start - Command Line | [gsp095.sh](gsp095.sh) | - | Terverifikasi, skor 100/100 sekali jalan | 2026-08-21 |
 | GSP1089 | Cloud Run Functions: Qwik Start | [gsp1089.sh](gsp1089.sh) | - | Terverifikasi, skor 100/100; min-instances dan concurrency wajib lewat `gcloud run services update` (CPU `1000m`) | 2026-07-31 |
 | ARC104 | Build Serverless Applications with Cloud Run Functions: Challenge Lab | [arc104.sh](arc104.sh) | - | Terverifikasi, skor 100/100 sekali jalan | 2026-07-31 |
 | GSP659 | Deploy Your Website on Cloud Run | [gsp659.sh](gsp659.sh) | [docs/gsp659.md](docs/gsp659.md) | Terverifikasi, skor 100/100 (us-west1), dua fase | 2026-08-21 |

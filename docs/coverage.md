@@ -34,7 +34,7 @@ Tanda ✅ berarti scriptnya sudah ada di repo ini.
 | 1177 Discover and Protect Sensitive Data | ✅GSP1281, ✅GSP1282, GSP1283, ✅GSP522 |
 | 728 Get Started with Pub/Sub | GSP096, GSP401, GSP832, ✅ARC113 |
 | 725 Get Started with Cloud Storage | ✅GSP421, ✅GSP074, ✅GSP297, ✅ARC111 — **lengkap**, keempatnya sudah terverifikasi 100/100 |
-| 727 Get Started with Eventarc | GSP095, ✅GSP1089, GSP773, ARC118 |
+| 727 Get Started with Eventarc | ✅GSP095, ✅GSP1089, GSP773, ARC118 |
 | 641 Set Up a Google Cloud Network | ✅GSP647, GSP662, GSP021, GSP016, GSP617, GSP918, GSP314 |
 | 654 Build a Secure Google Cloud Network | GSP1036, GSP211, GSP213, GSP215, GSP216, GSP322 |
 | 625 Develop Your Google Cloud Network | GSP064, GSP281, GSP211, ✅GSP089, ✅GSP053, GSP321 |
