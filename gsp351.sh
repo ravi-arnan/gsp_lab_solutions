@@ -113,6 +113,32 @@ for INST in "$CLOUDSQL_ONE" "$CLOUDSQL_CONT"; do
   fi
 done
 
+# Destination berupa instance Cloud SQL yang SUDAH ADA harus di-demote jadi
+# replica dulu, kalau tidak 'start' menolak dengan:
+#   FAILED_PRECONDITION: Destination has to be demoted in order to be able to
+#   start/verify the migration.
+# Di console langkah ini tersembunyi di balik pilihan "Existing instance".
+# Nama job sengaja disamakan dengan nama instance, jadi $JOB dipakai untuk dua-duanya.
+demote_destination() {
+  local JOB=$1 T I=0
+  T=$(gcloud sql instances describe "$JOB" --project="$PROJECT" --format='value(instanceType)')
+  if [[ "$T" == "READ_REPLICA_INSTANCE" ]]; then
+    echo "  [$JOB] sudah replica, demote dilewat."
+    return 0
+  fi
+  gcloud database-migration migration-jobs demote-destination "$JOB" \
+    --region="$REGION" --project="$PROJECT" \
+    || echo "  demote-destination menolak, cek statusnya di bawah."
+  while (( I++ < 30 )); do
+    T=$(gcloud sql instances describe "$JOB" --project="$PROJECT" --format='value(instanceType)')
+    echo "  [$JOB] instanceType: $T"
+    [[ "$T" == "READ_REPLICA_INSTANCE" ]] && return 0
+    sleep 10
+  done
+  echo "  [$JOB] tidak menjadi replica dalam 5 menit."
+  return 1
+}
+
 wait_state() {   # wait_state <job> <state yang diinginkan> <menit maksimal>
   local JOB=$1 WANT=$2 MAX=$((${3:-20} * 6)) I=0 ST
   while (( I++ < MAX )); do
@@ -155,6 +181,8 @@ fi
 # ditunggu oleh wait_state di bawah. Error selain "sudah jalan" harus terlihat,
 # jangan ditelan — kalau start gagal diam-diam, loop menunggu NOT_STARTED
 # sampai batas waktu tanpa alasan yang jelas.
+demote_destination "$CLOUDSQL_ONE"
+
 gcloud database-migration migration-jobs start "$CLOUDSQL_ONE" \
   --region="$REGION" --project="$PROJECT" \
   || echo "start gagal atau job sudah berjalan, lanjut memantau state."
@@ -176,6 +204,8 @@ else
     --display-name="$CLOUDSQL_CONT" \
     --no-async
 fi
+
+demote_destination "$CLOUDSQL_CONT"
 
 gcloud database-migration migration-jobs start "$CLOUDSQL_CONT" \
   --region="$REGION" --project="$PROJECT" \
