@@ -91,6 +91,12 @@ gcloud pubsub topics describe "$TOPIC" --project="$PROJECT" >/dev/null 2>&1 \
 step "Beri role yang dibutuhkan Eventarc dan trigger Cloud Storage"
 # Ini bagian yang paling sering menggagalkan lab kalau dikerjakan lewat console:
 # trigger Cloud Storage baru bisa dibuat setelah keempat binding di bawah ada.
+# Service agent Pub/Sub dan Eventarc dibuat malas oleh Google: belum ada sampai
+# layanannya benar-benar dipakai, sehingga add-iam-policy-binding menolak dengan
+# "Service account ... does not exist". Perintah ini memaksa pembuatannya.
+gcloud beta services identity create --service=pubsub.googleapis.com --project="$PROJECT" >/dev/null 2>&1 || true
+gcloud beta services identity create --service=eventarc.googleapis.com --project="$PROJECT" >/dev/null 2>&1 || true
+
 GCS_SA="service-${PROJECT_NUMBER}@gs-project-accounts.iam.gserviceaccount.com"
 PUBSUB_SA="service-${PROJECT_NUMBER}@gcp-sa-pubsub.iam.gserviceaccount.com"
 COMPUTE_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
