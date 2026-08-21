@@ -30,19 +30,26 @@ step() { echo; echo "===========================================================
 step "Task 1: buat API key (checkpoint 1)"
 gcloud services enable apikeys.googleapis.com speech.googleapis.com --project="$PROJECT"
 
-KEY_NAME=$(gcloud services api-keys list \
-  --project="$PROJECT" \
-  --filter="displayName=$KEY_DISPLAY_NAME AND NOT state:DELETED" \
-  --format='value(name)' 2>/dev/null | head -1)
+# 'api-keys create' mengembalikan objek operation, bukan key-nya, jadi
+# --format='value(name)' di situ memberi nama operation dan get-key-string
+# akan balas 404. Nama key selalu diambil lewat list.
+find_key() {
+  gcloud services api-keys list \
+    --project="$PROJECT" \
+    --filter="displayName=$KEY_DISPLAY_NAME" \
+    --format='value(name)' 2>/dev/null | head -1
+}
 
+KEY_NAME=$(find_key)
 if [[ -n "$KEY_NAME" ]]; then
   echo "API key '$KEY_DISPLAY_NAME' sudah ada, dipakai ulang."
 else
-  KEY_NAME=$(gcloud services api-keys create \
+  gcloud services api-keys create \
     --display-name="$KEY_DISPLAY_NAME" \
-    --project="$PROJECT" \
-    --format='value(name)')
+    --project="$PROJECT" >/dev/null
+  KEY_NAME=$(find_key)
 fi
+[[ -n "$KEY_NAME" ]] || { echo "API key tidak ditemukan setelah dibuat."; exit 1; }
 
 API_KEY=$(gcloud services api-keys get-key-string "$KEY_NAME" --format='value(keyString)')
 [[ -n "$API_KEY" ]] || { echo "Gagal mengambil key string."; exit 1; }
