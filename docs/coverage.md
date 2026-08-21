@@ -33,7 +33,7 @@ Tanda ✅ berarti scriptnya sudah ada di repo ini.
 | 750 Get Started with Sensitive Data Protection | GSP107, GSP864, GSP1073, ARC116 |
 | 1177 Discover and Protect Sensitive Data | ✅GSP1281, ✅GSP1282, GSP1283, ✅GSP522 |
 | 728 Get Started with Pub/Sub | GSP096, GSP401, GSP832, ✅ARC113 |
-| 725 Get Started with Cloud Storage | ✅GSP421, ✅GSP074, ✅GSP297, ✅ARC111 |
+| 725 Get Started with Cloud Storage | ✅GSP421, ✅GSP074, ✅GSP297, ✅ARC111 — **lengkap**, keempatnya sudah terverifikasi 100/100 |
 | 727 Get Started with Eventarc | GSP095, ✅GSP1089, GSP773, ARC118 |
 | 641 Set Up a Google Cloud Network | ✅GSP647, GSP662, GSP021, GSP016, GSP617, GSP918, GSP314 |
 | 654 Build a Secure Google Cloud Network | GSP1036, GSP211, GSP213, GSP215, GSP216, GSP322 |
@@ -58,7 +58,7 @@ jumlah kode yang tertulis.
 - **783 Manage Kubernetes in Google Cloud** — GSP053 + 736 + 1026 + 510.
 
 "Lengkap" berarti scriptnya ada untuk tiap lab, **bukan** berarti sudah terbukti
-100 poin. Yang masih berstatus belum diuji: GSP156, GSP413, GSP074,
+100 poin. Yang masih berstatus belum diuji: GSP156, GSP413,
 GSP053, GSP510, GSP1026, GSP1158, GSP1184, GSP1185, GSP521. GSP1158 malah memang hanya bisa mencapai
 60/100 lewat script.
 
