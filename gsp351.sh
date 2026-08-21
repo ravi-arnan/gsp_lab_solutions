@@ -119,6 +119,11 @@ wait_state() {   # wait_state <job> <state yang diinginkan> <menit maksimal>
     ST=$(gcloud database-migration migration-jobs describe "$JOB" \
       --region="$REGION" --project="$PROJECT" --format='value(state)' 2>/dev/null || true)
     echo "  [$JOB] state: ${ST:-?}"
+    if [[ "$ST" == "NOT_STARTED" ]] && (( I > 6 )); then
+      echo "  Job belum jalan setelah 1 menit. Jalankan manual:"
+      echo "    gcloud database-migration migration-jobs start $JOB --region=$REGION"
+      return 1
+    fi
     [[ "$ST" == "$WANT" ]] && return 0
     [[ "$ST" == "FAILED" ]] && { 
       gcloud database-migration migration-jobs describe "$JOB" \
@@ -146,8 +151,13 @@ else
     --no-async
 fi
 
+# 'start' tidak punya --no-async (beda dari 'create'); dia memang asinkron dan
+# ditunggu oleh wait_state di bawah. Error selain "sudah jalan" harus terlihat,
+# jangan ditelan — kalau start gagal diam-diam, loop menunggu NOT_STARTED
+# sampai batas waktu tanpa alasan yang jelas.
 gcloud database-migration migration-jobs start "$CLOUDSQL_ONE" \
-  --region="$REGION" --project="$PROJECT" --no-async || true
+  --region="$REGION" --project="$PROJECT" \
+  || echo "start gagal atau job sudah berjalan, lanjut memantau state."
 wait_state "$CLOUDSQL_ONE" COMPLETED 25 || {
   echo "Job one-time belum COMPLETED. Cek statusnya sebelum lanjut."; }
 
@@ -168,7 +178,8 @@ else
 fi
 
 gcloud database-migration migration-jobs start "$CLOUDSQL_CONT" \
-  --region="$REGION" --project="$PROJECT" --no-async || true
+  --region="$REGION" --project="$PROJECT" \
+  || echo "start gagal atau job sudah berjalan, lanjut memantau state."
 wait_state "$CLOUDSQL_CONT" RUNNING 25 || {
   echo "Job continuous belum RUNNING. Jangan lanjut ke Task 4 dulu."; exit 1; }
 
