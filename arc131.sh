@@ -68,13 +68,19 @@ step "Task 2-3: buat request dan panggil Speech API dari dalam $VM (checkpoint 2
 # Semua dikerjakan di satu sesi SSH. Encoding dan sampleRateHertz sengaja tidak
 # diisi: untuk file WAV dan FLAC di Cloud Storage, Speech API membaca headernya
 # sendiri, dan menebak angka yang salah justru membuat request ditolak.
+#
+# question_en.wav ternyata STEREO. Speech API menolak audio multi-channel
+# ("Must use single channel (mono) audio, but WAV header indicates 2 channels")
+# kecuali jumlah channelnya disebut eksplisit lewat audioChannelCount. File
+# Spanyolnya mono, jadi tidak butuh field itu.
 REMOTE=$(cat <<REMOTE_EOF
 set -e
 
 cat > speech_request.json << 'JSON'
 {
   "config": {
-    "languageCode": "en-US"
+    "languageCode": "en-US",
+    "audioChannelCount": 2
   },
   "audio": {
     "uri": "gs://spls/arc131/question_en.wav"
