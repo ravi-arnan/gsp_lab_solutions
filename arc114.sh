@@ -60,7 +60,13 @@ else
     --format="value(name)" --project="$PROJECT" | head -1)
 
   if [[ -z "$KEY_NAME" ]]; then
-    gcloud services api-keys create --display-name="$KEY_DISPLAY_NAME" --project="$PROJECT"
+    # --api-target: di ARC131 (2026-08-21) checkpoint API key baru hijau oleh
+    # key yang dibatasi ke API labnya. Belum terbukti cukup dari CLI, tapi
+    # menutup kemungkinan itu tanpa biaya.
+    gcloud services api-keys create --display-name="$KEY_DISPLAY_NAME" \
+      --api-target=service=language.googleapis.com \
+      --api-target=service=speech.googleapis.com \
+      --project="$PROJECT"
     KEY_NAME=$(gcloud services api-keys list \
       --filter="displayName=$KEY_DISPLAY_NAME" \
       --format="value(name)" --project="$PROJECT" | head -1)
