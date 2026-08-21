@@ -44,8 +44,12 @@ KEY_NAME=$(find_key)
 if [[ -n "$KEY_NAME" ]]; then
   echo "API key '$KEY_DISPLAY_NAME' sudah ada, dipakai ulang."
 else
+  # --api-target membatasi key ke Speech-to-Text saja. Key buatan gcloud tanpa
+  # restriction pernah TIDAK menghijaukan checkpoint 1 (2026-08-21), padahal
+  # key-nya sah dan dipakai sukses oleh Task 2 dan 3. Lihat docs/arc131.md.
   gcloud services api-keys create \
     --display-name="$KEY_DISPLAY_NAME" \
+    --api-target=service=speech.googleapis.com \
     --project="$PROJECT" >/dev/null
   KEY_NAME=$(find_key)
 fi
@@ -131,8 +135,14 @@ SELESAI! Klik Check my progress untuk ketiga task:
   3. Create API request for transcription in Spanish language
 
 Kalau response.json berisi blok "error", transcript tidak terbentuk dan
-checkpoint tidak akan hijau. Penyebab tersering: API key baru dibuat dan
-belum aktif. Tunggu semenit lalu jalankan ulang script ini — key yang ada
-akan dipakai ulang, tidak dibuat dua kali.
+checkpoint tidak akan hijau. Tunggu semenit lalu jalankan ulang script ini
+— key yang ada dipakai ulang, tidak dibuat dua kali.
+
+CATATAN checkpoint 1: pada 2026-08-21, key buatan gcloud TANPA restriction
+tidak menghijaukannya meski Task 2 dan 3 sukses memakai key yang sama.
+Yang berhasil: buat key lewat console (APIs & Services > Credentials >
+Create credentials > API key) lalu Restrict key -> Cloud Speech-to-Text API.
+Script sekarang sudah memasang restriction itu sejak awal; kalau checkpoint 1
+tetap merah, tempuh jalur console tersebut.
 ==============================================================
 EOF
