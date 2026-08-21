@@ -62,12 +62,22 @@ echo "Cloud SQL cont : $CLOUDSQL_CONT"
 # ================================================================= fase promote
 if [[ "$PHASE" == "promote" ]]; then
   step "Task 5: promote $CLOUDSQL_CONT jadi stand-alone (checkpoint 5)"
+  # Seperti 'start', subcommand 'promote' tidak punya --no-async: dia asinkron
+  # dan hasilnya dipantau lewat instanceType.
   gcloud database-migration migration-jobs promote "$CLOUDSQL_CONT" \
-    --region="$REGION" --project="$PROJECT" --no-async
+    --region="$REGION" --project="$PROJECT"
+
+  echo "Menunggu $CLOUDSQL_CONT berhenti jadi replica (maksimal 10 menit)..."
+  for i in $(seq 1 60); do
+    T=$(gcloud sql instances describe "$CLOUDSQL_CONT" --project="$PROJECT" \
+      --format='value(instanceType)')
+    echo "  instanceType: $T"
+    [[ "$T" == "CLOUD_SQL_INSTANCE" ]] && break
+    sleep 10
+  done
+
   gcloud database-migration migration-jobs describe "$CLOUDSQL_CONT" \
     --region="$REGION" --project="$PROJECT" --format='value(state)'
-  gcloud sql instances describe "$CLOUDSQL_CONT" --project="$PROJECT" \
-    --format='value(instanceType)'
   cat <<EOF
 
 --------------------------------------------------------------
