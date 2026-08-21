@@ -109,7 +109,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP903 | Stream Processing with Cloud Pub/Sub and Dataflow: Qwik Start | [gsp903.sh](gsp903.sh) | [docs/gsp903.md](docs/gsp903.md) | Terverifikasi, skor 100/100 (us-central1), dua fase | 2026-08-21 |
 | ARC110 | Create a Streaming Data Lake on Cloud Storage: Challenge Lab | [arc110.sh](arc110.sh) | [docs/gsp903.md](docs/gsp903.md) | Terverifikasi, skor 100/100 (us-central1); turunan gsp903.sh, runbooknya dipakai bersama | 2026-08-21 |
 | ARC131 | Using the Google Cloud Speech API: Challenge Lab | [arc131.sh](arc131.sh) | [docs/arc131.md](docs/arc131.md) | Terverifikasi 100/100, tapi checkpoint API key butuh key ber-restriction (lihat runbook); Task 2-3 otomatis penuh | 2026-08-21 |
-| ARC112 | Deploy and Manage Applications on Google App Engine: Challenge Lab | [arc112.sh](arc112.sh) | - | Belum diuji, dua fase; kerjanya di VM lab-setup lewat SSH | - |
+| ARC112 | Deploy and Manage Applications on Google App Engine: Challenge Lab | [arc112.sh](arc112.sh) | [docs/arc112.md](docs/arc112.md) | Terverifikasi, skor 100/100 (us-east4), dua fase; kerjanya di VM lab-setup lewat SSH | 2026-08-21 |
 | GSP095 | Pub/Sub: Qwik Start - Command Line | [gsp095.sh](gsp095.sh) | - | Terverifikasi, skor 100/100 sekali jalan | 2026-08-21 |
 | GSP1089 | Cloud Run Functions: Qwik Start | [gsp1089.sh](gsp1089.sh) | - | Terverifikasi, skor 100/100; min-instances dan concurrency wajib lewat `gcloud run services update` (CPU `1000m`) | 2026-07-31 |
 | ARC104 | Build Serverless Applications with Cloud Run Functions: Challenge Lab | [arc104.sh](arc104.sh) | - | Terverifikasi, skor 100/100 sekali jalan | 2026-07-31 |
