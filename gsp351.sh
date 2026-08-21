@@ -41,10 +41,16 @@ step() { echo; echo "===========================================================
 # ----------------------------------------------------------------- discovery
 # Instance Cloud SQL: yang berakhiran -cont dipakai job continuous, sisanya
 # dipakai job one-time. Suffix di tengah nama diacak per lab.
+#
+# Yang berakhiran -master WAJIB dikecualikan: demote-destination membuat
+# "source representation instance" bernama <destination>-master. Instance itu
+# bukan database sungguhan (statusnya tidak pernah RUNNABLE) dan kalau
+# terpilih, 'migration-jobs create' menolak dengan
+# "FAILED_PRECONDITION: Instance must be in the RUNNABLE state".
 CLOUDSQL_CONT=$(gcloud sql instances list --project="$PROJECT" \
   --format='value(name)' --filter="name~-cont$" | head -1)
 CLOUDSQL_ONE=$(gcloud sql instances list --project="$PROJECT" \
-  --format='value(name)' --filter="NOT name~-cont$" | head -1)
+  --format='value(name)' --filter="NOT name~-cont$ AND NOT name~-master$" | head -1)
 [[ -n "$CLOUDSQL_ONE" && -n "$CLOUDSQL_CONT" ]] || {
   echo "Cloud SQL instance lab tidak ketemu. Isinya:"; gcloud sql instances list; exit 1; }
 
