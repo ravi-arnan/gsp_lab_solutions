@@ -2,16 +2,24 @@
 # ARC111 - Implement Cloud Storage and Data Protection Solutions: Challenge Lab
 #
 #   curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/arc111.sh
-#   B1=<Bucket1_name> B2=<Bucket2_name> B3=<Bucket3_name> bash arc111.sh
+#   FORM=1 B1=<Bucket1_name> B2=<Bucket2_name> B3=<Bucket3_name> bash arc111.sh
 #
-# Checkpoint (form-3):
+# Task-nya diacak per instance. Nomor form ada di catatan "Form ID: form-N"
+# di teks lab, tepat di atas Task 1. Isi lewat FORM=<n>.
+#
+# Checkpoint form-1:
+#   Task 1 - Buat bucket Bucket1 dengan storage class COLDLINE
+#   Task 2 - Pasang retention policy 30 detik di Bucket2
+#   Task 3 - Upload satu object ke Bucket3
+#
+# Checkpoint form-3:
 #   Task 1 - Buat bucket Bucket1 dengan storage class NEARLINE
 #   Task 2 - Ubah isi sample.txt di dalam Bucket2
 #   Task 3 - Ubah storage class Bucket3 dari Standard ke ARCHIVE
 #
 # Nama bucket diacak per instance (ada suffix random seperti 'w9kj'), jadi
 # TIDAK bisa diturunkan dari PROJECT_ID. Ambil ketiganya dari panel lab.
-# Task juga diacak: variabel yang tidak diisi akan dilewati.
+# Variabel bucket yang tidak diisi akan dilewati.
 #
 # LAMA: < 1 menit.
 
@@ -33,7 +41,8 @@ ask() {
   echo "$1 = ${!1}"
 }
 
-ask REGION "europe-west1" "Region (cocokkan dengan panel lab)"
+ask REGION "us-east4" "Region (cocokkan dengan panel lab)"
+ask FORM "1" "Form ID (lihat catatan 'Form ID: form-N' di teks lab)"
 
 PROJECT="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
 [[ -n "$PROJECT" ]] || { echo "Project belum di-set. Jalankan: gcloud config set project <ID>"; exit 1; }
@@ -46,7 +55,7 @@ if [[ -z "$B1$B2$B3" ]]; then
   cat <<EOF
 Tidak ada nama bucket yang diisi. Ambil dari panel lab, lalu:
 
-  B1=<Bucket1_name> B2=<Bucket2_name> B3=<Bucket3_name> bash $0
+  FORM=1 B1=<Bucket1_name> B2=<Bucket2_name> B3=<Bucket3_name> bash $0
 
 Isi hanya yang muncul di instance-mu; sisanya boleh dikosongkan.
 EOF
@@ -55,26 +64,39 @@ fi
 
 echo "Project: $PROJECT"
 echo "Region : $REGION"
+echo "Form   : form-$FORM"
 
 step() { echo; echo "=============================================================="; echo ">> $1"; echo "=============================================================="; }
 
 # ----------------------------------------------------------------- Task 1
 if [[ -n "$B1" ]]; then
-  step "Task 1: Buat gs://$B1 (NEARLINE)"
+  case "$FORM" in
+    1) CLASS1=COLDLINE ;;
+    3) CLASS1=NEARLINE ;;
+    *) echo "Form $FORM belum dikenal. Cek storage class yang diminta Task 1, lalu isi CLASS1 manual."; exit 1 ;;
+  esac
+
+  step "Task 1: Buat gs://$B1 ($CLASS1)"
   if gcloud storage buckets describe "gs://$B1" --project="$PROJECT" >/dev/null 2>&1; then
-    echo "Bucket sudah ada, pastikan class-nya NEARLINE."
-    gcloud storage buckets update "gs://$B1" --default-storage-class=NEARLINE --project="$PROJECT"
+    echo "Bucket sudah ada, pastikan class-nya $CLASS1."
+    gcloud storage buckets update "gs://$B1" --default-storage-class="$CLASS1" --project="$PROJECT"
   else
     gcloud storage buckets create "gs://$B1" \
       --location="$REGION" \
-      --default-storage-class=NEARLINE \
+      --default-storage-class="$CLASS1" \
       --project="$PROJECT"
   fi
   gcloud storage buckets describe "gs://$B1" --project="$PROJECT" --format='value(storageClass)'
 fi
 
 # ----------------------------------------------------------------- Task 2
-if [[ -n "$B2" ]]; then
+if [[ -n "$B2" && "$FORM" == "1" ]]; then
+  step "Task 2: Pasang retention policy 30 detik di gs://$B2"
+  gcloud storage buckets update "gs://$B2" --retention-period=30s --project="$PROJECT"
+  gcloud storage buckets describe "gs://$B2" --project="$PROJECT" \
+    --format='value(retentionPolicy.retentionPeriod)'
+
+elif [[ -n "$B2" ]]; then
   step "Task 2: Ubah isi gs://$B2/sample.txt"
   LINE="This is an example of editing the file content for cloud storage object"
   TMP=$(mktemp)
@@ -104,7 +126,16 @@ if [[ -n "$B2" ]]; then
 fi
 
 # ----------------------------------------------------------------- Task 3
-if [[ -n "$B3" ]]; then
+if [[ -n "$B3" && "$FORM" == "1" ]]; then
+  step "Task 3: Upload satu object ke gs://$B3"
+  # Checkpoint hanya memeriksa ada object di dalam bucket, isinya bebas.
+  TMP3=$(mktemp)
+  printf 'Sample object for ARC111 Task 3.\n' > "$TMP3"
+  gcloud storage cp "$TMP3" "gs://$B3/sample.txt" --project="$PROJECT"
+  rm -f "$TMP3"
+  gcloud storage ls "gs://$B3" --project="$PROJECT"
+
+elif [[ -n "$B3" ]]; then
   step "Task 3: gs://$B3 -> ARCHIVE"
   # Yang dinilai adalah default storage class di level bucket; object lama
   # tetap di class lamanya dan itu tidak masalah untuk checkpoint ini.
