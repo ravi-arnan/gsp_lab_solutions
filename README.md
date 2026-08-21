@@ -106,6 +106,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP1042 | Analytics as a Service for Data Sharing Partners | [gsp1042.sh](gsp1042.sh) | [docs/gsp1042.md](docs/gsp1042.md) | Terverifikasi 100/100, tapi script maks 80/100 — dua dashboard Looker Studio wajib manual | 2026-08-05 |
 | GSP510 | Manage Kubernetes in Google Cloud: Challenge Lab | [gsp510.sh](gsp510.sh) | [docs/gsp510.md](docs/gsp510.md) | Terverifikasi, skor 100/100 (dua perbaikan terakhir belum diuji ulang sekali jalan); nama diacak per instance | 2026-08-05 |
 | GSP207 | Dataflow: Qwik Start - Python | [gsp207.sh](gsp207.sh) | [docs/gsp207.md](docs/gsp207.md) | Terverifikasi, skor 100/100 (asia-southeast1); jalannya lama, 10-15 menit | 2026-08-21 |
+| GSP351 | Migrate MySQL Data to Cloud SQL Using DMS: Challenge Lab | [gsp351.sh](gsp351.sh) | - | Belum diuji, dua fase | - |
 | GSP903 | Stream Processing with Cloud Pub/Sub and Dataflow: Qwik Start | [gsp903.sh](gsp903.sh) | [docs/gsp903.md](docs/gsp903.md) | Terverifikasi, skor 100/100 (us-central1), dua fase | 2026-08-21 |
 | ARC110 | Create a Streaming Data Lake on Cloud Storage: Challenge Lab | [arc110.sh](arc110.sh) | [docs/gsp903.md](docs/gsp903.md) | Terverifikasi, skor 100/100 (us-central1); turunan gsp903.sh, runbooknya dipakai bersama | 2026-08-21 |
 | ARC131 | Using the Google Cloud Speech API: Challenge Lab | [arc131.sh](arc131.sh) | [docs/arc131.md](docs/arc131.md) | Terverifikasi 100/100, tapi checkpoint API key butuh key ber-restriction (lihat runbook); Task 2-3 otomatis penuh | 2026-08-21 |
