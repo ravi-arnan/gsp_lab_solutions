@@ -58,7 +58,7 @@ jumlah kode yang tertulis.
 - **783 Manage Kubernetes in Google Cloud** — GSP053 + 736 + 1026 + 510.
 
 "Lengkap" berarti scriptnya ada untuk tiap lab, **bukan** berarti sudah terbukti
-100 poin. Yang masih berstatus belum diuji: GSP156, GSP413, GSP421, GSP074,
+100 poin. Yang masih berstatus belum diuji: GSP156, GSP413, GSP074,
 GSP053, GSP510, GSP1026, GSP1158, GSP1184, GSP1185, GSP521. GSP1158 malah memang hanya bisa mencapai
 60/100 lewat script.
 
