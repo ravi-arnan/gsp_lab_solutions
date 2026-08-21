@@ -60,9 +60,9 @@ else
     --format="value(name)" --project="$PROJECT" | head -1)
 
   if [[ -z "$KEY_NAME" ]]; then
-    # --api-target: di ARC131 (2026-08-21) checkpoint API key baru hijau oleh
-    # key yang dibatasi ke API labnya. Belum terbukti cukup dari CLI, tapi
-    # menutup kemungkinan itu tanpa biaya.
+    # Restriction TIDAK menolong checkpoint Task 1 (diuji 2026-08-21: key CLI
+    # ber-restriction tetap merah, key console hijau). Tetap dipasang karena
+    # tidak merugikan; key ini gunanya untuk memanggil API di Task 2-4.
     gcloud services api-keys create --display-name="$KEY_DISPLAY_NAME" \
       --api-target=service=language.googleapis.com \
       --api-target=service=speech.googleapis.com \

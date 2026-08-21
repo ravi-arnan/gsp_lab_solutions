@@ -44,9 +44,10 @@ KEY_NAME=$(find_key)
 if [[ -n "$KEY_NAME" ]]; then
   echo "API key '$KEY_DISPLAY_NAME' sudah ada, dipakai ulang."
 else
-  # --api-target membatasi key ke Speech-to-Text saja. Key buatan gcloud tanpa
-  # restriction pernah TIDAK menghijaukan checkpoint 1 (2026-08-21), padahal
-  # key-nya sah dan dipakai sukses oleh Task 2 dan 3. Lihat docs/arc131.md.
+  # Key buatan gcloud TIDAK menghijaukan checkpoint 1, dengan atau tanpa
+  # restriction — dibuktikan di arc114 pada 2026-08-21. Key ini tetap dibuat
+  # karena Task 2 dan 3 butuh keyString-nya; untuk checkpoint 1 buat key lewat
+  # console. Lihat docs/arc131.md.
   gcloud services api-keys create \
     --display-name="$KEY_DISPLAY_NAME" \
     --api-target=service=speech.googleapis.com \
