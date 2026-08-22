@@ -45,7 +45,7 @@ Tanda ✅ berarti scriptnya sudah ada di repo ini.
 Badge 623 dan 648 menawarkan lab alternatif (`A/B`), jadi jumlah lab wajibnya lebih kecil dari
 jumlah kode yang tertulis.
 
-48 badge sisanya belum dipetakan.
+48 badge sisanya belum dipetakan. Urutan pengerjaan 51 badge yang belum selesai ada di [roadmap.md](roadmap.md).
 
 ## Lab bersertifikat di luar 20 badge itu
 
