@@ -3,10 +3,30 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
-## Sesi 2026-08-22 — GSP328 (100/100)
+## Sesi 2026-08-22 — GSP328 dan GSP523 (dua-duanya 100/100)
 
-Script baru [`gsp328.sh`](gsp328.sh) + [runbook](docs/gsp328.md). Challenge lab
-Cloud Run, 7 task, 100/100 sekali jalan. Dua hal yang menentukan:
+### GSP523 — nama dan region dideteksi, bukan ditanya
+
+[`gsp523.sh`](gsp523.sh) + [runbook](docs/gsp523.md). Multimodal vector search
+BigQuery, 4 task, 100/100 sekali jalan.
+
+Pola baru yang layak ditiru: **dataset bawaan lab dipakai sebagai sumber
+kebenaran**, bukan panel lab. Script mencari `*_bqml_dataset` lewat `bq ls`,
+lalu mengambil `location`-nya jadi region connection dan prefiksnya (`gcc`)
+jadi dasar nama keempat resource lain. Hasilnya lab ini aman di-pipe ke `bash`
+tanpa pertanyaan sama sekali. Region connection memang wajib sama dengan
+dataset — beda sedikit langsung `Not found: Connection` saat object table
+dibuat, dan pesan itu tidak menyebut region sebagai penyebabnya.
+
+Dua detail lain: service account connection ber-ID acak
+(`bqcx-...@gcp-sa-bigquery-condel`) jadi harus dibaca balik dari
+`bq show --connection --format=json`, dan role "Agent Platform User" di
+instruksi lab adalah nama baru `roles/aiplatform.user`.
+
+### GSP328 — instruksi lab sendiri yang salah
+
+[`gsp328.sh`](gsp328.sh) + [runbook](docs/gsp328.md). Challenge lab Cloud Run,
+7 task, 100/100 sekali jalan. Dua hal yang menentukan:
 
 - **Instruksi lab sendiri salah menunjuk `BILLING_URL`.** Task 5 menyuruh
   mengisi `PROD_BILLING_URL` dari `private-billing-service-339` — itu service
