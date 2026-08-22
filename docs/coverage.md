@@ -65,6 +65,7 @@ terverifikasi 100/100 kecuali yang ditandai:
 | ✅GSP351 | Challenge Database Migration Service |
 | ✅GSP328 | Challenge Cloud Run serverless |
 | ✅GSP523 | Challenge multimodal vector search BigQuery |
+| 🆕ARC119 | Challenge secure data lake Cloud Storage + Knowledge Catalog (belum diuji) |
 | ⚠️ARC114 | Challenge Speech + Language — maks 75/100, checkpoint Task 4 rusak |
 
 ## Badge yang sudah tertutup penuh
