@@ -9,7 +9,8 @@
 #   Task 2 - Lake "Customer-Lake" + zone "Public-Zone" (RAW, regional, discovery,
 #            label domain_type=source_data)
 #   Task 3 - Entry group "Custom entry group"
-#   Task 4 - Tag template "Customer Data Tag Template" + tempel tag ke entry bucket
+#   Task 4 - "Tag template" Customer Data Tag Template -> DIBUAT SEBAGAI ASPECT
+#            TYPE Knowledge Catalog, karena API Data Catalog sudah dimatikan
 #
 # DUA USER. Instruksi lab menyuruh Task 1 dikerjakan sebagai User 1 dan Task 2
 # sebagai User 2. Script tidak bisa berganti akun sendiri, jadi kegagalan izin
@@ -49,7 +50,6 @@ PROJECT="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
 [[ -n "$PROJECT" ]] || { echo "Project belum di-set. Jalankan: gcloud config set project <ID>"; exit 1; }
 
 ask REGION "us-west1" "Region (cocokkan dengan panel lab)"
-ask DATA_OWNER "Ravi Arnan" "Nama untuk field Data Owner di tag (Task 4)"
 
 BUCKET="${BUCKET:-${PROJECT}-bucket}"
 
@@ -72,9 +72,8 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
 # ================================================================= persiapan
-step "Enable API (dataplex + datacatalog, bisa ~1 menit)"
-gcloud services enable dataplex.googleapis.com datacatalog.googleapis.com \
-  --project="$PROJECT"
+step "Enable API Dataplex (bisa ~1 menit)"
+gcloud services enable dataplex.googleapis.com --project="$PROJECT"
 
 # ------------------------------------------------------- Task 2: lake + zone
 step "Task 2a: lake '$LAKE_NAME' (bisa ~3 menit)"
@@ -121,84 +120,44 @@ fi
 
 # ------------------------------------------------------ Task 3: entry group
 step "Task 3: entry group '$EG_NAME'"
-# "Entry groups" di console sekarang milik Knowledge Catalog (Dataplex), tapi
-# tag template di Task 4 masih API Data Catalog lama. Mana yang dibaca grader
-# tidak pasti, jadi dibuat di keduanya — masing-masing satu perintah, dan yang
-# gagal tidak menjatuhkan yang lain.
-EG_OK=0
+# "Custom entry group" di instruksi lab itu display name; ID-nya tidak boleh
+# berspasi, jadi diturunkan jadi custom-entry-group.
 if gcloud dataplex entry-groups describe "$EG_ID" --project="$PROJECT" --location="$REGION" >/dev/null 2>&1; then
-  echo "Entry group Dataplex sudah ada, dilewat."; EG_OK=1
-elif gcloud dataplex entry-groups create "$EG_ID" \
+  echo "Entry group sudah ada, dilewat."
+elif ! gcloud dataplex entry-groups create "$EG_ID" \
        --project="$PROJECT" --location="$REGION" --display-name="$EG_NAME"; then
-  EG_OK=1
-else
-  echo "-- entry group Dataplex gagal, coba Data Catalog"
+  fail "Task 3 - entry group $EG_NAME"
 fi
 
-# Data Catalog memakai ID bergaris bawah, bukan tanda hubung.
-DC_EG_ID="${DC_EG_ID:-custom_entry_group}"
-if gcloud data-catalog entry-groups describe "$DC_EG_ID" --project="$PROJECT" --location="$REGION" >/dev/null 2>&1; then
-  echo "Entry group Data Catalog sudah ada, dilewat."; EG_OK=1
-elif gcloud data-catalog entry-groups create "$DC_EG_ID" \
-       --project="$PROJECT" --location="$REGION" --display-name="$EG_NAME"; then
-  EG_OK=1
-else
-  echo "-- entry group Data Catalog gagal"
-fi
-[[ "$EG_OK" == "1" ]] || fail "Task 3 - entry group (dua-duanya gagal)"
-
-# ----------------------------------------------------- Task 4: tag template
-step "Task 4a: tag template '$TT_NAME'"
-if gcloud data-catalog tag-templates describe "$TT_ID" --project="$PROJECT" --location="$REGION" >/dev/null 2>&1; then
-  echo "Tag template sudah ada, dilewat."
-elif ! gcloud data-catalog tag-templates create "$TT_ID" \
-       --project="$PROJECT" --location="$REGION" \
-       --display-name="$TT_NAME" \
-       --field=id=data_owner,display-name="Data Owner",type=string \
-       --field=id=pii_data,display-name="PII Data",type='enum(Yes|No)'; then
-  fail "Task 4 - tag template $TT_NAME"
-fi
-
-step "Task 4b: tempel tag ke entry bucket di Data Catalog"
-# Entry Cloud Storage untuk bucket baru muncul setelah discovery Dataplex
-# jalan. Dicari lewat dua jalur; kalau belum ada, jangan menggantung script —
-# pelajaran dari GSP514/ARC117, menunggu entry Dataplex tidak pernah menolong.
-ENTRY="$(gcloud data-catalog entries lookup \
-           "//storage.googleapis.com/projects/_/buckets/$BUCKET" \
-           --format='value(name)' 2>/dev/null || true)"
-if [[ -z "$ENTRY" ]]; then
-  echo "-- lookup gagal, cari lewat Data Catalog search"
-  ENTRY="$(gcloud data-catalog search "$BUCKET" \
-             --include-project-ids="$PROJECT" --order-by=relevance \
-             --format='value(relativeResourceName)' 2>/dev/null | head -1 || true)"
-fi
-
-TAG_OK=0
-if [[ -n "$ENTRY" ]]; then
-  echo "Entry ketemu: $ENTRY"
-  cat > "$WORK/tag.json" <<EOF
+# ----------------------------------------------------- Task 4: aspect type
+step "Task 4: aspect type '$TT_NAME' (yang lab sebut tag template)"
+# API Data Catalog SUDAH MATI di project lab ini:
+#   INVALID_ARGUMENT: Project ... is not allowed to perform read operations
+#   due to Data Catalog deprecation.
+# "Tag template" di soal sekarang berarti aspect type Knowledge Catalog.
+cat > "$WORK/template.json" <<EOF
 {
-  "data_owner": "$DATA_OWNER",
-  "pii_data": "Yes"
+  "name": "$TT_ID",
+  "type": "record",
+  "recordFields": [
+    { "name": "data_owner", "type": "string", "index": 1,
+      "annotations": { "displayName": "Data Owner" } },
+    { "name": "pii_data", "type": "enum", "index": 2,
+      "annotations": { "displayName": "PII Data" },
+      "enumValues": [ { "index": 1, "name": "Yes" }, { "index": 2, "name": "No" } ] }
+  ]
 }
 EOF
-  python3 -m json.tool "$WORK/tag.json" >/dev/null
-  if gcloud data-catalog tags create --entry="$ENTRY" \
-       --tag-template="$TT_ID" --tag-template-location="$REGION" \
-       --tag-file="$WORK/tag.json"; then
-    TAG_OK=1
-  else
-    echo "-- pembuatan tag ditolak API"
-  fi
-else
-  echo "Entry Cloud Storage untuk gs://$BUCKET belum ada di Data Catalog."
-fi
+python3 -m json.tool "$WORK/template.json" >/dev/null
 
-step "Task 4c: search memakai tag template (meninggalkan jejak aktivitas)"
-gcloud data-catalog search "tag:${PROJECT}.${REGION}.${TT_ID}" \
-  --include-project-ids="$PROJECT" --format='table(relativeResourceName)' || true
-gcloud data-catalog search "$TT_NAME" \
-  --include-project-ids="$PROJECT" --format='table(relativeResourceName)' || true
+if gcloud dataplex aspect-types describe "$TT_ID" --project="$PROJECT" --location="$REGION" >/dev/null 2>&1; then
+  echo "Aspect type sudah ada, dilewat."
+elif ! gcloud dataplex aspect-types create "$TT_ID" \
+       --project="$PROJECT" --location="$REGION" \
+       --display-name="$TT_NAME" \
+       --metadata-template-file-name="$WORK/template.json"; then
+  fail "Task 4 - aspect type $TT_NAME"
+fi
 
 # ================================================================ verifikasi
 step "Verifikasi"
@@ -208,7 +167,9 @@ gcloud dataplex zones list  --project="$PROJECT" --location="$REGION" --lake="$L
   --format='table(name.basename(), displayName, type, state, labels)' || true
 gcloud dataplex assets list --project="$PROJECT" --location="$REGION" --lake="$LAKE_ID" --zone="$ZONE_ID" \
   --format='table(name.basename(), resourceSpec.name, state)' || true
-gcloud data-catalog tag-templates describe "$TT_ID" --project="$PROJECT" --location="$REGION" \
+gcloud dataplex entry-groups list --project="$PROJECT" --location="$REGION" \
+  --format='table(name.basename(), displayName)' || true
+gcloud dataplex aspect-types list --project="$PROJECT" --location="$REGION" \
   --format='table(name.basename(), displayName)' || true
 
 echo
@@ -228,24 +189,9 @@ Klik Check my progress untuk:
   Task 1 - Create a Cloud Storage bucket
   Task 2 - Create a lake and add a zone
   Task 3 - Create an entry group
-  Task 4 - Create a tag template
+  Task 4 - Create a tag template (aspect type)
 EOF
 
-if [[ "$TAG_OK" == "0" ]]; then
-  cat <<EOF
-
-Tag BELUM menempel ke entry bucket. Sisa Task 4 lewat UI
-(Knowledge Catalog > Discover > Search):
-  1. Search terbuka dalam mode natural language. Klik link "here." di
-     kalimat "To return to keyword search, click here."
-  2. Cari "$BUCKET", pilih entry di bawah source system CLOUD STORAGE.
-     Kalau belum muncul, tunggu discovery zone selesai (~5-15 menit) lalu
-     jalankan ulang script ini — bagian lain akan dilewat.
-  3. Di panel entry, bagian Tags klik "Attach tags".
-  4. Pilih template "$TT_NAME".
-  5. Data Owner = $DATA_OWNER, PII Data = Yes, klik Save.
-EOF
-fi
 echo "--------------------------------------------------------------"
 
 (( ${#FAILED[@]} == 0 ))

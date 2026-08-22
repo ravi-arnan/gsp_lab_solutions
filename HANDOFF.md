@@ -3,9 +3,40 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
-## Sesi 2026-08-22 — GSP328 dan GSP523 (dua-duanya 100/100)
+## Sesi 2026-08-22 — GSP328, GSP523, ARC119 (semua 100/100)
 
-### GSP523 — nama dan region dideteksi, bukan ditanya
+### ARC119 — API Data Catalog sudah dimatikan di project lab
+
+[`arc119.sh`](arc119.sh) + [runbook](docs/arc119.md). Secure data lake di
+Knowledge Catalog, 4 task.
+
+**Instruksi lab masih memakai kosakata Data Catalog yang API-nya sudah mati.**
+Task 4 minta "tag template"; `gcloud data-catalog tag-templates create` ditolak:
+
+```
+INVALID_ARGUMENT: Project ... is not allowed to perform read operations
+due to Data Catalog deprecation.
+WARNING: This command is deprecated. Please use `gcloud dataplex aspect-types` instead.
+```
+
+Yang dinilai ternyata **aspect type** dengan display name `Customer Data Tag
+Template`; field Text → `type: string`, field Enum → `type: enum` +
+`enumValues`. Aturan yang mengeras: kalau soal lab menyebut Data Catalog, tag,
+atau entry, terjemahkan dulu ke Knowledge Catalog sebelum menulis perintah.
+
+**Penempelan tag/aspect ke entry tetap tidak diperiksa grader.** Task 4 hijau
+25/25 begitu aspect type dibuat, tanpa menempelkannya ke entry bucket sama
+sekali — padahal soal menyuruhnya. Ini kali ketiga setelah GSP514 dan ARC117.
+Versi pertama script membuang waktu mencari entry bucket di Knowledge Catalog
+search (kosong) dan di `data-catalog search` (ditolak). Sekarang langkah itu
+dibuang total.
+
+**Pembagian "User 1 / User 2" di soal juga tidak diperiksa.** Semua dikerjakan
+dari satu Cloud Shell, keempat checkpoint hijau.
+
+### GSP328 dan GSP523
+
+#### GSP523 — nama dan region dideteksi, bukan ditanya
 
 [`gsp523.sh`](gsp523.sh) + [runbook](docs/gsp523.md). Multimodal vector search
 BigQuery, 4 task, 100/100 sekali jalan.
@@ -23,7 +54,7 @@ Dua detail lain: service account connection ber-ID acak
 `bq show --connection --format=json`, dan role "Agent Platform User" di
 instruksi lab adalah nama baru `roles/aiplatform.user`.
 
-### GSP328 — instruksi lab sendiri yang salah
+#### GSP328 — instruksi lab sendiri yang salah
 
 [`gsp328.sh`](gsp328.sh) + [runbook](docs/gsp328.md). Challenge lab Cloud Run,
 7 task, 100/100 sekali jalan. Dua hal yang menentukan:
