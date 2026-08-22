@@ -63,7 +63,7 @@ terverifikasi 100/100 kecuali yang ditandai:
 | ✅ARC112 | Challenge App Engine |
 | ✅ARC131 | Challenge Speech API |
 | ✅GSP351 | Challenge Database Migration Service |
-| 🆕GSP328 | Challenge Cloud Run serverless (script baru, belum diuji di lab) |
+| ✅GSP328 | Challenge Cloud Run serverless |
 | ⚠️ARC114 | Challenge Speech + Language — maks 75/100, checkpoint Task 4 rusak |
 
 ## Badge yang sudah tertutup penuh

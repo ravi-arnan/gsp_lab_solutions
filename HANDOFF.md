@@ -3,6 +3,21 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-08-22 — GSP328 (100/100)
+
+Script baru [`gsp328.sh`](gsp328.sh) + [runbook](docs/gsp328.md). Challenge lab
+Cloud Run, 7 task, 100/100 sekali jalan. Dua hal yang menentukan:
+
+- **Instruksi lab sendiri salah menunjuk `BILLING_URL`.** Task 5 menyuruh
+  mengisi `PROD_BILLING_URL` dari `private-billing-service-339` — itu service
+  Task 3. Yang benar billing prod (Task 5), karena SA frontend hanya diberi
+  `run.invoker` di service itu. Deploy tetap sukses kalau salah, tapi UI-nya
+  kosong. Jangan menyalin perintah lab mentah-mentah untuk nilai yang dipakai
+  script.
+- **Pola dua fase terpakai lagi.** Task 3 menghapus service yang dinilai Task 1,
+  jadi fase staging berhenti dan menunggu checkpoint hijau. Ini lab kesembilan
+  yang memakai pola itu.
+
 ## Sesi 2026-08-21/22 — borongan 17 lab
 
 Sesi panjang, 16 dari 17 lab dapat 100/100. Script baru: `gsp073`, `gsp095`,
