@@ -40,7 +40,7 @@ MULTI_REGION="US"
 DATASET="ecommerce"
 CONNECTION="customer_data_connection"
 TABLE="customer_online_sessions"
-GCS_URI="gs://qwiklabs-gcp-02-46aab1545321-bucket/customer-online-sessions.csv"
+GCS_URI="gs://qwiklabs-gcp-04-7f990f43eea1-bucket/customer-online-sessions.csv"
 ASPECT_NAME="Sensitive Data Aspect"
 
 step "Task 1: Create BigQuery dataset"
@@ -102,14 +102,20 @@ ASPECT_TYPE_ID=$(echo "$ASPECT_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
 if gcloud dataplex aspect-types describe "$ASPECT_TYPE_ID" --location="$REGION" --project="$PROJECT_ID" >/dev/null 2>&1; then
   echo "Aspect type $ASPECT_TYPE_ID sudah ada, lewati create"
 else
-  # Create metadata template file - try definition format
+  # Create metadata template file - JSON schema format for Dataplex aspect types
   cat > /tmp/metadata_template.json <<EOF
 {
-  "definition": {
-    "fields": [
-      {"name": "has_sensitive_data", "type": "BOOLEAN", "displayName": "Has Sensitive Data"},
-      {"name": "sensitive_data_type", "type": "ENUM", "displayName": "Sensitive Data Type", "enumValues": ["Location Info", "Contact Info", "None"]}
-    ]
+  "type": "object",
+  "properties": {
+    "has_sensitive_data": {
+      "type": "boolean",
+      "description": "Has Sensitive Data"
+    },
+    "sensitive_data_type": {
+      "type": "string",
+      "enum": ["Location Info", "Contact Info", "None"],
+      "description": "Sensitive Data Type"
+    }
   }
 }
 EOF
