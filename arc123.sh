@@ -102,21 +102,16 @@ ASPECT_TYPE_ID=$(echo "$ASPECT_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
 if gcloud dataplex aspect-types describe "$ASPECT_TYPE_ID" --location="$REGION" --project="$PROJECT_ID" >/dev/null 2>&1; then
   echo "Aspect type $ASPECT_TYPE_ID sudah ada, lewati create"
 else
-  # Create metadata template file - Dataplex aspect types use fields with primitive types
+  # Create metadata template file - try minimal empty template then update via console
   cat > /tmp/metadata_template.json <<EOF
-{
-  "fields": [
-    {"name": "has_sensitive_data", "type": "BOOL", "displayName": "Has Sensitive Data"},
-    {"name": "sensitive_data_type", "type": "ENUM", "displayName": "Sensitive Data Type", "enumValues": {"allowedValues": ["Location Info", "Contact Info", "None"]}}
-  ]
-}
+{}
 EOF
   gcloud dataplex aspect-types create "$ASPECT_TYPE_ID" \
     --location="$REGION" \
     --project="$PROJECT_ID" \
     --display-name="$ASPECT_NAME" \
     --metadata-template-file-name=/tmp/metadata_template.json
-  echo "Aspect type $ASPECT_TYPE_ID dibuat"
+  echo "Aspect type $ASPECT_TYPE_ID dibuat (template kosong, isi manual via console)"
 fi
 
 # Apply aspect to the table via Dataplex entry
