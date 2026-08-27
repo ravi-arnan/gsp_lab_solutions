@@ -102,16 +102,20 @@ ASPECT_TYPE_ID=$(echo "$ASPECT_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
 if gcloud dataplex aspect-types describe "$ASPECT_TYPE_ID" --location="$REGION" --project="$PROJECT_ID" >/dev/null 2>&1; then
   echo "Aspect type $ASPECT_TYPE_ID sudah ada, lewati create"
 else
+  # Create metadata template file
+  cat > /tmp/metadata_template.json <<EOF
+{
+  "fields": [
+    {"name": "has_sensitive_data", "type": "BOOLEAN", "displayName": "Has Sensitive Data"},
+    {"name": "sensitive_data_type", "type": "ENUM", "displayName": "Sensitive Data Type", "enumValues": ["Location Info", "Contact Info", "None"]}
+  ]
+}
+EOF
   gcloud dataplex aspect-types create "$ASPECT_TYPE_ID" \
     --location="$REGION" \
     --project="$PROJECT_ID" \
     --display-name="$ASPECT_NAME" \
-    --metadata-template='{
-      "fields": [
-        {"name": "has_sensitive_data", "type": "BOOLEAN", "displayName": "Has Sensitive Data"},
-        {"name": "sensitive_data_type", "type": "ENUM", "displayName": "Sensitive Data Type", "enumValues": ["Location Info", "Contact Info", "None"]}
-      ]
-    }'
+    --metadata-template-file-name=/tmp/metadata_template.json
   echo "Aspect type $ASPECT_TYPE_ID dibuat"
 fi
 
@@ -126,13 +130,7 @@ if [[ -n "$ENTRY_NAME" ]]; then
   echo "Entry ditemukan: $ENTRY_NAME"
   
   # Apply aspect to entry using dataplex entries update with aspects
-  gcloud dataplex entries update "$ENTRY_NAME" \
-    --project="$PROJECT_ID" \
-    --location="$REGION" \
-    --aspects="{\"$ASPECT_TYPE_ID\":{\"has_sensitive_data\":true,\"sensitive_data_type\":\"Location Info\"}}" \
-    --quiet 2>/dev/null || {
-    echo "Mencoba dengan format JSON file..."
-    cat > /tmp/aspect_data.json <<EOF
+  cat > /tmp/aspect_data.json <<EOF
 {
   "aspects": {
     "$ASPECT_TYPE_ID": {
@@ -142,12 +140,11 @@ if [[ -n "$ENTRY_NAME" ]]; then
   }
 }
 EOF
-    gcloud dataplex entries update "$ENTRY_NAME" \
-      --project="$PROJECT_ID" \
-      --location="$REGION" \
-      --aspects-file=/tmp/aspect_data.json \
-      --quiet
-  }
+  gcloud dataplex entries update "$ENTRY_NAME" \
+    --project="$PROJECT_ID" \
+    --location="$REGION" \
+    --aspects-file=/tmp/aspect_data.json \
+    --quiet
   echo "Aspect diterapkan ke table $DATASET.$TABLE"
 else
   echo "WARNING: Entry Data Catalog untuk table tidak ditemukan. Jalankan manual:"
