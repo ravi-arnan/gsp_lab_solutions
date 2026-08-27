@@ -98,8 +98,7 @@ else
     --direction=INGRESS \
     --action=ALLOW \
     --rules=tcp:22 \
-    --source-ranges=0.0.0.0/0 \
-    --target-tags=""
+    --source-ranges=0.0.0.0/0
   echo "Firewall $FW_SSH dibuat"
 fi
 
@@ -113,8 +112,7 @@ else
     --direction=INGRESS \
     --action=ALLOW \
     --rules=tcp:3389 \
-    --source-ranges=0.0.0.0/0 \
-    --target-tags=""
+    --source-ranges=0.0.0.0/0
   echo "Firewall $FW_RDP dibuat"
 fi
 
@@ -128,8 +126,7 @@ else
     --direction=INGRESS \
     --action=ALLOW \
     --rules=icmp \
-    --source-ranges="$SUBNET_A_RANGE,$SUBNET_B_RANGE" \
-    --target-tags=""
+    --source-ranges="$SUBNET_A_RANGE,$SUBNET_B_RANGE"
   echo "Firewall $FW_ICMP dibuat"
 fi
 
