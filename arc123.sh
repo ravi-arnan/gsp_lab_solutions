@@ -81,10 +81,16 @@ echo "IAM binding untuk $CONN_SA diberikan"
 if bq --project_id="$PROJECT_ID" show --format=prettyjson "$DATASET.$TABLE" >/dev/null 2>&1; then
   echo "Table $DATASET.$TABLE sudah ada, lewati create"
 else
-  bq --project_id="$PROJECT_ID" mk --external_table_definition="$GCS_URI" \
-    --connection_id="$PROJECT_ID.$MULTI_REGION.$CONNECTION" \
-    --autodetect \
-    "$DATASET.$TABLE"
+  # Create table definition JSON with autodetect
+  cat > /tmp/table_def.json <<EOF
+{
+  "sourceFormat": "CSV",
+  "sourceUris": ["$GCS_URI"],
+  "autodetect": true,
+  "connectionId": "$PROJECT_ID.$MULTI_REGION.$CONNECTION"
+}
+EOF
+  bq --project_id="$PROJECT_ID" mk --external_table_definition=/tmp/table_def.json "$DATASET.$TABLE"
   echo "Lakehouse table $DATASET.$TABLE dibuat"
 fi
 
