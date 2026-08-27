@@ -103,11 +103,9 @@ if gcloud dataplex aspect-types describe "$ASPECT_TYPE_ID" --location="$MULTI_RE
 else
   cat > /tmp/metadata_template.json <<EOF
 {
-  "definition": {
-    "fields": [
-      {"name": "has_sensitive_data", "type": "BOOL", "displayName": "Has Sensitive Data"}
-    ]
-  }
+  "fields": [
+    {"name": "has_sensitive_data", "type": "BOOL", "displayName": "Has Sensitive Data"}
+  ]
 }
 EOF
   gcloud dataplex aspect-types create "$ASPECT_TYPE_ID" \
