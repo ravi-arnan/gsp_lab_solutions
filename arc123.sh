@@ -97,7 +97,7 @@ fi
 step "Task 3: Create aspect and apply to Lakehouse table"
 
 # Check if Dataplex aspect type exists, create if not
-ASPECT_TYPE_ID=$(echo "$ASPECT_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
+ASPECT_TYPE_ID=$(echo "$ASPECT_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
 
 if gcloud dataplex aspect-types describe "$ASPECT_TYPE_ID" --location="$REGION" --project="$PROJECT_ID" >/dev/null 2>&1; then
   echo "Aspect type $ASPECT_TYPE_ID sudah ada, lewati create"
