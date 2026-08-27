@@ -102,21 +102,13 @@ ASPECT_TYPE_ID=$(echo "$ASPECT_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
 if gcloud dataplex aspect-types describe "$ASPECT_TYPE_ID" --location="$REGION" --project="$PROJECT_ID" >/dev/null 2>&1; then
   echo "Aspect type $ASPECT_TYPE_ID sudah ada, lewati create"
 else
-  # Create metadata template file - JSON schema format for Dataplex aspect types
+  # Create metadata template file - Dataplex aspect types use fields with primitive types
   cat > /tmp/metadata_template.json <<EOF
 {
-  "type": "object",
-  "properties": {
-    "has_sensitive_data": {
-      "type": "boolean",
-      "description": "Has Sensitive Data"
-    },
-    "sensitive_data_type": {
-      "type": "string",
-      "enum": ["Location Info", "Contact Info", "None"],
-      "description": "Sensitive Data Type"
-    }
-  }
+  "fields": [
+    {"name": "has_sensitive_data", "type": "BOOL", "displayName": "Has Sensitive Data"},
+    {"name": "sensitive_data_type", "type": "ENUM", "displayName": "Sensitive Data Type", "enumValues": {"allowedValues": ["Location Info", "Contact Info", "None"]}}
+  ]
 }
 EOF
   gcloud dataplex aspect-types create "$ASPECT_TYPE_ID" \
