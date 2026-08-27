@@ -97,13 +97,12 @@ fi
 step "Task 3: Create aspect and apply to Lakehouse table"
 
 # Check if Dataplex aspect type exists, create if not
-ASPECT_TYPE="projects/$PROJECT_ID/locations/$REGION/aspectTypes/$ASPECT_NAME"
 ASPECT_TYPE_ID=$(echo "$ASPECT_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
 
-if gcloud dataplex aspects types describe "$ASPECT_TYPE_ID" --location="$REGION" --project="$PROJECT_ID" >/dev/null 2>&1; then
+if gcloud dataplex aspect-types describe "$ASPECT_TYPE_ID" --location="$REGION" --project="$PROJECT_ID" >/dev/null 2>&1; then
   echo "Aspect type $ASPECT_TYPE_ID sudah ada, lewati create"
 else
-  gcloud dataplex aspects types create "$ASPECT_TYPE_ID" \
+  gcloud dataplex aspect-types create "$ASPECT_TYPE_ID" \
     --location="$REGION" \
     --project="$PROJECT_ID" \
     --display-name="$ASPECT_NAME" \
@@ -116,7 +115,7 @@ else
   echo "Aspect type $ASPECT_TYPE_ID dibuat"
 fi
 
-# Apply aspect to the table
+# Apply aspect to the table via Dataplex entry
 # Need to get the entry name for the BigQuery table in Data Catalog
 ENTRY_NAME=$(gcloud data-catalog entries lookup \
   --project="$PROJECT_ID" \
@@ -126,27 +125,27 @@ ENTRY_NAME=$(gcloud data-catalog entries lookup \
 if [[ -n "$ENTRY_NAME" ]]; then
   echo "Entry ditemukan: $ENTRY_NAME"
   
-  # Create aspect on the entry
-  gcloud dataplex aspects create \
+  # Apply aspect to entry using dataplex entries update with aspects
+  gcloud dataplex entries update "$ENTRY_NAME" \
     --project="$PROJECT_ID" \
     --location="$REGION" \
-    --aspect-type="$ASPECT_TYPE_ID" \
-    --resource="$ENTRY_NAME" \
-    --aspect-data='{
+    --aspects="{\"$ASPECT_TYPE_ID\":{\"has_sensitive_data\":true,\"sensitive_data_type\":\"Location Info\"}}" \
+    --quiet 2>/dev/null || {
+    echo "Mencoba dengan format JSON file..."
+    cat > /tmp/aspect_data.json <<EOF
+{
+  "aspects": {
+    "$ASPECT_TYPE_ID": {
       "has_sensitive_data": true,
       "sensitive_data_type": "Location Info"
-    }' \
-    --quiet 2>/dev/null || {
-    echo "Aspect mungkin sudah ada, mencoba update..."
-    gcloud dataplex aspects update \
+    }
+  }
+}
+EOF
+    gcloud dataplex entries update "$ENTRY_NAME" \
       --project="$PROJECT_ID" \
       --location="$REGION" \
-      --aspect-type="$ASPECT_TYPE_ID" \
-      --resource="$ENTRY_NAME" \
-      --aspect-data='{
-        "has_sensitive_data": true,
-        "sensitive_data_type": "Location Info"
-      }' \
+      --aspects-file=/tmp/aspect_data.json \
       --quiet
   }
   echo "Aspect diterapkan ke table $DATASET.$TABLE"
@@ -169,7 +168,7 @@ bq --project_id="$PROJECT_ID" show "$DATASET.$TABLE" 2>/dev/null | head -15
 
 echo
 echo "Aspect type: $ASPECT_TYPE_ID"
-gcloud dataplex aspects types describe "$ASPECT_TYPE_ID" --location="$REGION" --project="$PROJECT_ID" 2>/dev/null | head -15
+gcloud dataplex aspect-types describe "$ASPECT_TYPE_ID" --location="$REGION" --project="$PROJECT_ID" 2>/dev/null | head -15
 
 echo
 echo "SELESAI! Klik Check my progress untuk verifikasi:"
