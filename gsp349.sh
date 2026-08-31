@@ -501,34 +501,27 @@ fi
 gcloud compute security-policies describe "$POLICY" --project="$PROJECT_ID" --format='yaml(name,description,rules[].priority,rules[].action,rules[].match.expr.expression)' 2>/dev/null | head -60 || \
 gcloud compute security-policies describe "$POLICY" --format='yaml(name,rules)' 2>/dev/null | head -60 || true
 
-# Attach ke global LB backend-service
+# Attach ke global LB backend-service (checker cari apigee-proxy-backend, jadi attach ke semua apigee backend)
 echo "Cari backend-service global untuk Apigee..."
 BACKENDS="$(gcloud compute backend-services list --global --project="$PROJECT_ID" --format='value(name)' 2>/dev/null || true)"
 echo "Backends: $BACKENDS"
 
-TARGET_BACKEND=""
-for B in $BACKENDS; do
-  if echo "$B" | grep -qi apigee; then TARGET_BACKEND="$B"; break; fi
-done
-if [[ -z "$TARGET_BACKEND" && -n "$BACKENDS" ]]; then
-  # fallback ambil yang pertama yang punya global loadBalancingScheme EXTERNAL_MANAGED
-  TARGET_BACKEND="$(echo "$BACKENDS" | head -1)"
-  echo "Fallback backend: $TARGET_BACKEND"
-fi
-
-if [[ -n "$TARGET_BACKEND" ]]; then
-  echo "Attach policy $POLICY ke backend $TARGET_BACKEND ..."
-  gcloud compute backend-services update "$TARGET_BACKEND" --global --project="$PROJECT_ID" --security-policy="$POLICY" 2>&1 | head -30 || \
-  gcloud compute backend-services update "$TARGET_BACKEND" --global --security-policy="$POLICY" 2>&1 | head -30 || true
-
-  # Verifikasi
-  gcloud compute backend-services describe "$TARGET_BACKEND" --global --project="$PROJECT_ID" --format='value(securityPolicy)' 2>/dev/null | head -5 || \
-  gcloud compute backend-services describe "$TARGET_BACKEND" --global --format='value(securityPolicy)' 2>/dev/null | head -5 || true
+if [[ -n "$BACKENDS" ]]; then
+  for TARGET_BACKEND in $BACKENDS; do
+    if echo "$TARGET_BACKEND" | grep -qi apigee; then
+      echo "Attach policy $POLICY ke backend $TARGET_BACKEND ..."
+      gcloud compute backend-services update "$TARGET_BACKEND" --global --project="$PROJECT_ID" --security-policy="$POLICY" 2>&1 | head -30 || \
+      gcloud compute backend-services update "$TARGET_BACKEND" --global --security-policy="$POLICY" 2>&1 | head -30 || true
+      gcloud compute backend-services describe "$TARGET_BACKEND" --global --project="$PROJECT_ID" --format='value(securityPolicy)' 2>/dev/null | head -5 || \
+      gcloud compute backend-services describe "$TARGET_BACKEND" --global --format='value(securityPolicy)' 2>/dev/null | head -5 || true
+    fi
+  done
 else
   echo "Tidak ada backend-service global ditemukan. Pastikan Task 2 wizard sudah membuat LB."
-  echo "Coba list LB:"
   gcloud compute forwarding-rules list --global --project="$PROJECT_ID" 2>/dev/null | head -20 || true
 fi
+# Simpan satu untuk verifikasi akhir
+TARGET_BACKEND="$(echo "$BACKENDS" | grep -i apigee | head -1)"
 
 # Test RCE block (best-effort, butuh hostname nip.io)
 if [[ -n "$EVAL_HOST" && "$EVAL_HOST" != "" ]]; then
