@@ -276,6 +276,78 @@ EOF
   echo "Final eval-group hostname: $EVAL_HOST"
 fi
 
+# Fallback manual jika wizard redirect / error instanceTemplate (tanpa LB)
+if ! echo "$EVAL_HOST" | grep -q "nip.io"; then
+  echo "Fallback: wizard tidak jadi nip.io, coba buat via PSC NEG manual (best-effort)..."
+  set +e
+  SA="$(apigee_get "organizations/$ORG/instances/$INSTANCE" 2>/dev/null | jq -r '.serviceAttachment // empty' 2>/dev/null || true)"
+  echo "serviceAttachment: $SA"
+  if [[ -n "$SA" && "$SA" != "null" ]]; then
+    # NEG
+    if ! gcloud compute network-endpoint-groups describe apigee-neg --region="$REGION" --project="$PROJECT_ID" >/dev/null 2>&1; then
+      echo "Buat NEG apigee-neg -> $SA ..."
+      gcloud compute network-endpoint-groups create apigee-neg \
+        --region="$REGION" --project="$PROJECT_ID" \
+        --network="$NETWORK" --subnet="$SUBNET" \
+        --network-endpoint-type=private-service-connect \
+        --psc-target-service="$SA" 2>&1 | head -20 || true
+    else
+      echo "NEG apigee-neg sudah ada"
+    fi
+    # Reserve IP global
+    if ! gcloud compute addresses describe apigee-ip --global --project="$PROJECT_ID" >/dev/null 2>&1; then
+      gcloud compute addresses create apigee-ip --global --project="$PROJECT_ID" 2>&1 | head -20 || true
+    fi
+    IP_FALLBACK="$(gcloud compute addresses describe apigee-ip --global --project="$PROJECT_ID" --format='value(address)' 2>/dev/null || true)"
+    echo "Fallback IP: $IP_FALLBACK"
+    if [[ -n "$IP_FALLBACK" ]]; then
+      HOST_FALLBACK="$IP_FALLBACK.nip.io"
+      echo "Set eval-group hostname ke $HOST_FALLBACK ..."
+      # PATCH hostnames (replace list, wizard biasanya append, kita replace full list dengan fallback + keep existing jika ada)
+      CUR_HOST="$(apigee_get "organizations/$ORG/envgroups/$ENVGROUP_EVAL" 2>/dev/null | jq -r '.hostnames // []' 2>/dev/null || echo '[]')"
+      # Jika CUR_HOST sudah array, merge
+      NEW_HOSTS="$(echo "$CUR_HOST" | jq -c --arg h "$HOST_FALLBACK" '(. + [$h]) | unique' 2>/dev/null || echo "[\"$HOST_FALLBACK\"]")"
+      echo "PATCH hostnames=$NEW_HOSTS"
+      apigee_patch "organizations/$ORG/envgroups/$ENVGROUP_EVAL?updateMask=hostnames" "{\"hostnames\":$NEW_HOSTS}" | head -40 || true
+      # Backend service
+      if ! gcloud compute backend-services describe apigee-backend --global --project="$PROJECT_ID" >/dev/null 2>&1; then
+        gcloud compute backend-services create apigee-backend --global --project="$PROJECT_ID" \
+          --load-balancing-scheme=EXTERNAL_MANAGED --protocol=HTTPS 2>&1 | head -20 || true
+      fi
+      gcloud compute backend-services add-backend apigee-backend --global --project="$PROJECT_ID" \
+        --network-endpoint-group=apigee-neg --network-endpoint-group-region="$REGION" 2>&1 | head -20 || true
+      # URL map
+      if ! gcloud compute url-maps describe apigee-url-map --global --project="$PROJECT_ID" >/dev/null 2>&1; then
+        gcloud compute url-maps create apigee-url-map --global --project="$PROJECT_ID" \
+          --default-service=apigee-backend 2>&1 | head -20 || true
+      fi
+      # Cert
+      if ! gcloud compute ssl-certificates describe apigee-cert --global --project="$PROJECT_ID" >/dev/null 2>&1; then
+        gcloud compute ssl-certificates create apigee-cert --global --project="$PROJECT_ID" \
+          --domains="$HOST_FALLBACK" 2>&1 | head -20 || true
+      fi
+      # Proxy
+      if ! gcloud compute target-https-proxies describe apigee-proxy --global --project="$PROJECT_ID" >/dev/null 2>&1; then
+        gcloud compute target-https-proxies create apigee-proxy --global --project="$PROJECT_ID" \
+          --url-map=apigee-url-map --ssl-certificates=apigee-cert 2>&1 | head -20 || true
+      fi
+      # Forwarding rule
+      if ! gcloud compute forwarding-rules describe apigee-forwarding --global --project="$PROJECT_ID" >/dev/null 2>&1; then
+        gcloud compute forwarding-rules create apigee-forwarding --global --project="$PROJECT_ID" \
+          --load-balancing-scheme=EXTERNAL_MANAGED --network-tier=PREMIUM \
+          --address=apigee-ip --target-https-proxy=apigee-proxy --ports=443 2>&1 | head -30 || true
+      fi
+      # Refresh EVAL_HOST
+      sleep 5
+      EVAL_HOST="$(apigee_get "organizations/$ORG/envgroups/$ENVGROUP_EVAL" 2>/dev/null | jq -r '.hostnames[]' 2>/dev/null | grep nip.io | head -1 || echo "$HOST_FALLBACK")"
+      echo "Fallback EVAL_HOST: $EVAL_HOST"
+    fi
+  else
+    echo "serviceAttachment kosong, fallback manual tidak bisa, perlu wizard."
+  fi
+  set -e
+fi
+
 # Simpan IP dari nip.io hostname untuk Task 4 test
 EVAL_IP="$(echo "$EVAL_HOST" | cut -d'.' -f1-4 2>/dev/null || echo "")"
 echo "EVAL_IP (dari nip.io): $EVAL_IP"
