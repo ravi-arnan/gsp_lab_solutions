@@ -309,16 +309,23 @@ if ! echo "$EVAL_HOST" | grep -q "nip.io"; then
       echo "PATCH hostnames=$NEW_HOSTS"
       apigee_patch "organizations/$ORG/envgroups/$ENVGROUP_EVAL?updateMask=hostnames" "{\"hostnames\":$NEW_HOSTS}" | head -40 || true
       # Backend service
-      if ! gcloud compute backend-services describe apigee-backend --global --project="$PROJECT_ID" >/dev/null 2>&1; then
-        gcloud compute backend-services create apigee-backend --global --project="$PROJECT_ID" \
-          --load-balancing-scheme=EXTERNAL_MANAGED --protocol=HTTPS 2>&1 | head -20 || true
-      fi
-      gcloud compute backend-services add-backend apigee-backend --global --project="$PROJECT_ID" \
-        --network-endpoint-group=apigee-neg --network-endpoint-group-region="$REGION" 2>&1 | head -20 || true
-      # URL map
+      # Backend: wizard expects name apigee-proxy-backend (checker checks this name)
+      for BNAME in apigee-proxy-backend apigee-backend; do
+        if ! gcloud compute backend-services describe "$BNAME" --global --project="$PROJECT_ID" >/dev/null 2>&1; then
+          gcloud compute backend-services create "$BNAME" --global --project="$PROJECT_ID" \
+            --load-balancing-scheme=EXTERNAL_MANAGED --protocol=HTTPS 2>&1 | head -20 || true
+        fi
+        gcloud compute backend-services add-backend "$BNAME" --global --project="$PROJECT_ID" \
+          --network-endpoint-group=apigee-neg --network-endpoint-group-region="$REGION" 2>&1 | head -20 || true
+      done
+      # URL map (keep apigee-url-map as default, but ensure it points to apigee-proxy-backend for checker)
       if ! gcloud compute url-maps describe apigee-url-map --global --project="$PROJECT_ID" >/dev/null 2>&1; then
         gcloud compute url-maps create apigee-url-map --global --project="$PROJECT_ID" \
-          --default-service=apigee-backend 2>&1 | head -20 || true
+          --default-service=apigee-proxy-backend 2>&1 | head -20 || true
+      else
+        # Ensure default is the expected backend
+        gcloud compute url-maps set-default-service apigee-url-map --global --project="$PROJECT_ID" \
+          --default-service=apigee-proxy-backend 2>&1 | head -20 || true
       fi
       # Cert
       if ! gcloud compute ssl-certificates describe apigee-cert --global --project="$PROJECT_ID" >/dev/null 2>&1; then
