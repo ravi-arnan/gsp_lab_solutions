@@ -302,10 +302,8 @@ if ! echo "$EVAL_HOST" | grep -q "nip.io"; then
     if [[ -n "$IP_FALLBACK" ]]; then
       HOST_FALLBACK="$IP_FALLBACK.nip.io"
       echo "Set eval-group hostname ke $HOST_FALLBACK ..."
-      # PATCH hostnames (replace list, wizard biasanya append, kita replace full list dengan fallback + keep existing jika ada)
-      CUR_HOST="$(apigee_get "organizations/$ORG/envgroups/$ENVGROUP_EVAL" 2>/dev/null | jq -r '.hostnames // []' 2>/dev/null || echo '[]')"
-      # Jika CUR_HOST sudah array, merge
-      NEW_HOSTS="$(echo "$CUR_HOST" | jq -c --arg h "$HOST_FALLBACK" '(. + [$h]) | unique' 2>/dev/null || echo "[\"$HOST_FALLBACK\"]")"
+      # PATCH hostnames: checker expects hanya nip.io (single), bukan dual dengan dns-replaceme
+      NEW_HOSTS="$(jq -n --arg h "$HOST_FALLBACK" '[$h]')"
       echo "PATCH hostnames=$NEW_HOSTS"
       apigee_patch "organizations/$ORG/envgroups/$ENVGROUP_EVAL?updateMask=hostnames" "{\"hostnames\":$NEW_HOSTS}" | head -40 || true
       # Backend service
