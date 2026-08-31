@@ -259,16 +259,15 @@ Jika wizard error "instanceTemplate does not exist", hapus LB yang gagal:
 Script akan menunggu hostname jadi nip.io (maks 15 menit).
 EOF
   if [[ -t 0 ]]; then
-    read -rp "Tekan Enter setelah klik Set access di wizard (atau kosongkan untuk tunggu otomatis)..." _ || true
+    read -rp "Tekan Enter setelah klik Set access di wizard (atau kosongkan untuk tunggu otomatis 60s lalu fallback)..." _ || true
   fi
-  for i in $(seq 1 30); do
+  for i in $(seq 1 2); do
     EVAL_HOST="$(apigee_get "organizations/$ORG/envgroups/$ENVGROUP_EVAL" 2>/dev/null | jq -r '.hostnames[0] // empty' 2>/dev/null || true)"
-    echo "  [$i/30] host=$EVAL_HOST"
+    echo "  [$i/2] host=$EVAL_HOST"
     if echo "$EVAL_HOST" | grep -q "nip.io"; then
       echo "Hostname nip.io sudah terpasang!"
       break
     fi
-    # Juga cek LB global ada belum
     gcloud compute forwarding-rules list --global --project="$PROJECT_ID" --format='table(name,IPAddress,target.basename())' 2>/dev/null | head -10 || true
     sleep 30
   done
