@@ -330,11 +330,21 @@ if ! echo "$EVAL_HOST" | grep -q "nip.io"; then
         gcloud compute target-https-proxies create apigee-proxy --global --project="$PROJECT_ID" \
           --url-map=apigee-url-map --ssl-certificates=apigee-cert 2>&1 | head -20 || true
       fi
-      # Forwarding rule
+      # Forwarding rule HTTPS
       if ! gcloud compute forwarding-rules describe apigee-forwarding --global --project="$PROJECT_ID" >/dev/null 2>&1; then
         gcloud compute forwarding-rules create apigee-forwarding --global --project="$PROJECT_ID" \
           --load-balancing-scheme=EXTERNAL_MANAGED --network-tier=PREMIUM \
           --address=apigee-ip --target-https-proxy=apigee-proxy --ports=443 2>&1 | head -30 || true
+      fi
+      # Also HTTP for checker curl without cert (port 80)
+      if ! gcloud compute target-http-proxies describe apigee-http-proxy --global --project="$PROJECT_ID" >/dev/null 2>&1; then
+        gcloud compute target-http-proxies create apigee-http-proxy --global --project="$PROJECT_ID" \
+          --url-map=apigee-url-map 2>&1 | head -20 || true
+      fi
+      if ! gcloud compute forwarding-rules describe apigee-http-forwarding --global --project="$PROJECT_ID" >/dev/null 2>&1; then
+        gcloud compute forwarding-rules create apigee-http-forwarding --global --project="$PROJECT_ID" \
+          --load-balancing-scheme=EXTERNAL_MANAGED --network-tier=PREMIUM \
+          --address=apigee-ip --target-http-proxy=apigee-http-proxy --ports=80 2>&1 | head -30 || true
       fi
       # Refresh EVAL_HOST
       sleep 5
