@@ -9,8 +9,20 @@ ORG="$PROJECT_ID"
 INSTANCE="eval-instance"
 NETWORK="api-vpc"
 SUBNET="api-subnet"
-REGION="us-west1"
-SA="projects/ua7d6b9defb732eb4-tp/regions/us-west1/serviceAttachments/apigee-us-west1-2ii1"
+# Auto-detect REGION/SA dari instance (lab kadang di us-west1, kadang us-central1)
+DETECTED_SA="$(curl -s -H "Authorization: Bearer $(gcloud auth print-access-token 2>/dev/null)" "https://apigee.googleapis.com/v1/organizations/$ORG/instances/eval-instance" 2>/dev/null | grep -o '"serviceAttachment"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | cut -d'"' -f4)"
+if [[ -n "$DETECTED_SA" ]]; then
+  SA="$DETECTED_SA"
+  DETECTED_REGION="$(echo "$SA" | sed -n 's|.*/regions/\([^/]*\)/.*|\1|p')"
+  [[ -n "$DETECTED_REGION" ]] && REGION="$DETECTED_REGION"
+else
+  REGION="${REGION:-us-west1}"
+  SA="${SA:-projects/ua7d6b9defb732eb4-tp/regions/us-west1/serviceAttachments/apigee-us-west1-2ii1}"
+fi
+# Fallback jika env sudah set (untuk lab yang region-nya beda)
+REGION="${REGION:-us-west1}"
+SA="${SA:-projects/ua7d6b9defb732eb4-tp/regions/us-west1/serviceAttachments/apigee-us-west1-2ii1}"
+echo "Detected REGION=$REGION SA=$SA (dari instance eval-instance)"
 
 step() { echo; echo ">> $1"; echo "---"; }
 
