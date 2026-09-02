@@ -143,39 +143,65 @@ echo "Job name: $JOB_NAME"
 echo "Menjalankan Dataflow job (tunggu ~5-7 menit)..."
 
 # gcloud dataflow jobs run butuh staging-location terpisah dari temp
-DF_JOB_ID="$(gcloud dataflow jobs run "$JOB_NAME" \
+# ponytail: gcloud kadang menulis warning ke stderr, jadi pisahkan stdout.
+RAW_ID="$(gcloud dataflow jobs run "$JOB_NAME" \
   --gcs-location "$TEMPLATE" \
   --region "$DF_REGION" \
   --staging-location "gs://${MARKING_BUCKET}/staging" \
   --worker-machine-type=e2-standard-2 \
   --parameters "inputFilePattern=gs://spls/gsp323/lab.csv,JSONPath=gs://spls/gsp323/lab.schema,outputTable=${BQ_DATASET_FQN},bigQueryLoadingTemporaryDirectory=${TEMP_BQ_DIR},javascriptTextTransformGcsPath=gs://spls/gsp323/lab.js,javascriptTextTransformFunctionName=transform" \
-  --project="$PROJECT_ID" --format='value(id)' 2>&1 | tail -1)"
-
-# Kadang output berisi warning, ambil id yang valid (hex)
-DF_JOB_ID="$(echo "$DF_JOB_ID" | grep -Eo '[0-9a-f-]{10,}' | head -1 || echo "$DF_JOB_ID")"
-# Fallback: ambil dari jobs list kalau id tidak ke-capture
-if [[ -z "$DF_JOB_ID" || ! "$DF_JOB_ID" =~ ^[0-9] ]]; then
-  sleep 10
-  DF_JOB_ID="$(gcloud dataflow jobs list --region="$DF_REGION" --project="$PROJECT_ID" --filter="name=$JOB_NAME" --format='value(id)' | head -1)"
+  --project="$PROJECT_ID" --format='value(id)' 2> /tmp/gsp323_df_stderr.txt || true)"
+# Ambil baris terakhir yang mirip job id (format 2026-09-02_xx_xx_xx-xxxx). Fallback ke stdout murni.
+DF_JOB_ID="$(echo "$RAW_ID" | tr -d '[:space:]' | grep -Eo '[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]+.*' | head -1 || true)"
+if [[ -z "$DF_JOB_ID" ]]; then
+  DF_JOB_ID="$(echo "$RAW_ID" | tail -1 | tr -d '[:space:]')"
 fi
+if [[ -z "$DF_JOB_ID" || "${#DF_JOB_ID}" -lt 10 ]]; then
+  echo "Warning: parsing job id gagal, output mentah:"
+  cat /tmp/gsp323_df_stderr.txt 2>/dev/null || true
+  echo "RAW_ID=[$RAW_ID]"
+  sleep 10
+  DF_JOB_ID="$(gcloud dataflow jobs list --region="$DF_REGION" --project="$PROJECT_ID" --filter="name=$JOB_NAME" --format='value(id)' 2>/dev/null | head -1 || true)"
+fi
+if [[ -z "$DF_JOB_ID" ]]; then
+  echo "GAGAL: tidak dapat job id. Cek Dataflow console manual: https://console.cloud.google.com/dataflow/jobs?project=$PROJECT_ID"
+  # Jangan loop UNKNOWN selamanya — lanjut ke task berikutnya
+  echo "Lanjut ke Task 2 (Dataflow bisa dicek manual di console)."
+else
+  echo "Dataflow job: $DF_JOB_ID (region $DF_REGION)"
+  echo "Menunggu job selesai (polling 30 detik, timeout 15 menit)..."
 
-echo "Dataflow job: $DF_JOB_ID (region $DF_REGION)"
-echo "Menunggu job selesai (polling 30 detik)..."
-
-while true; do
-  STATE="$(gcloud dataflow jobs describe "$DF_JOB_ID" --region="$DF_REGION" --project="$PROJECT_ID" --format='value(currentState)' 2>/dev/null || echo UNKNOWN)"
-  echo "  $(date +%H:%M:%S) $STATE"
-  case "$STATE" in
-    JOB_STATE_DONE) echo "Dataflow selesai."; break ;;
-    JOB_STATE_FAILED|JOB_STATE_CANCELLED|JOB_STATE_DRAINED)
-      echo "Dataflow gagal dengan state $STATE. Cek log:"
-      gcloud dataflow jobs describe "$DF_JOB_ID" --region="$DF_REGION" --project="$PROJECT_ID" || true
-      echo "Coba jalankan ulang script setelah cek error di atas."
-      break ;;
-    JOB_STATE_RUNNING|JOB_STATE_PENDING|JOB_STATE_QUEUED|UNKNOWN) sleep 30 ;;
-    *) sleep 30 ;;
-  esac
-done
+  ATTEMPT=0
+  while true; do
+    STATE="$(gcloud dataflow jobs describe "$DF_JOB_ID" --region="$DF_REGION" --project="$PROJECT_ID" --format='value(currentState)' 2>/dev/null || echo UNKNOWN)"
+    echo "  $(date +%H:%M:%S) $STATE (id $DF_JOB_ID)"
+    case "$STATE" in
+      JOB_STATE_DONE) echo "Dataflow selesai."; break ;;
+      JOB_STATE_FAILED|JOB_STATE_CANCELLED|JOB_STATE_DRAINED)
+        echo "Dataflow gagal dengan state $STATE. Cek log:"
+        gcloud dataflow jobs describe "$DF_JOB_ID" --region="$DF_REGION" --project="$PROJECT_ID" || true
+        echo "Coba jalankan ulang script setelah cek error di atas."
+        break ;;
+      JOB_STATE_RUNNING|JOB_STATE_PENDING|JOB_STATE_QUEUED) sleep 30 ;;
+      UNKNOWN)
+        ATTEMPT=$((ATTEMPT+1))
+        if (( ATTEMPT > 30 )); then
+          echo "Polling UNKNOWN 15 menit, hentikan polling. Cek manual:"
+          echo "  gcloud dataflow jobs list --region=$DF_REGION --project=$PROJECT_ID"
+          echo "  https://console.cloud.google.com/dataflow/jobs?project=$PROJECT_ID"
+          break
+        fi
+        sleep 30
+        # Coba refresh id dari list kalau describe terus UNKNOWN (id kepotong)
+        if (( ATTEMPT == 5 )); then
+          REFRESH="$(gcloud dataflow jobs list --region="$DF_REGION" --project="$PROJECT_ID" --filter="name=$JOB_NAME" --format='value(id)' 2>/dev/null | head -1 || true)"
+          [[ -n "$REFRESH" && "$REFRESH" != "$DF_JOB_ID" ]] && { DF_JOB_ID="$REFRESH"; echo "Refresh job id -> $DF_JOB_ID"; }
+        fi
+        ;;
+      *) sleep 30 ;;
+    esac
+  done
+fi
 
 # ------------------------------------------------------------------ Task 2
 step "Task 2a: Buat Dataproc cluster $CLUSTER (n2d-standard-2, pd-standard 100GB, 2 worker)"
