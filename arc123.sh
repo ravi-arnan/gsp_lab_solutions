@@ -96,62 +96,82 @@ else
 fi
 
 step "Task 3: Create aspect and apply to Lakehouse table"
+# Multi-region aspect di United States = location "us" (bukan us-central1).
+# Ikut ePlus: DATAPLEX_LOCATION=us, ASPECT_TYPE_ID=sensitive-data-aspect
+ASPECT_TYPE_ID="sensitive-data-aspect"
+DATAPLEX_LOCATION="us"
 
-# Check if Dataplex aspect type exists, create if not
-ASPECT_TYPE_ID=$(echo "$ASPECT_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
-
-if gcloud dataplex aspect-types describe "$ASPECT_TYPE_ID" --location="$REGION" --project="$PROJECT_ID" >/dev/null 2>&1; then
+if gcloud dataplex aspect-types describe "$ASPECT_TYPE_ID" --location="$DATAPLEX_LOCATION" --project="$PROJECT_ID" >/dev/null 2>&1; then
   echo "Aspect type $ASPECT_TYPE_ID sudah ada, lewati create"
 else
-  # Create metadata template file - try definition format
-  cat > /tmp/metadata_template.json <<EOF
+  cat > /tmp/metadata_template.json <<'EOF'
 {
-  "definition": {
-    "fields": [
-      {"name": "has_sensitive_data", "type": "BOOL", "displayName": "Has Sensitive Data"},
-      {"name": "sensitive_data_type", "type": "ENUM", "displayName": "Sensitive Data Type", "enumValues": {"allowedValues": ["Location Info", "Contact Info", "None"]}}
-    ]
-  }
+  "name": "SensitiveDataAspect",
+  "type": "record",
+  "recordFields": [
+    {
+      "name": "has_sensitive_data",
+      "type": "bool",
+      "index": 1,
+      "annotations": {
+        "displayName": "Has Sensitive Data",
+        "displayOrder": 1
+      }
+    },
+    {
+      "name": "sensitive_data_type",
+      "type": "enum",
+      "index": 2,
+      "enumValues": [
+        {"name": "Location Info", "index": 1},
+        {"name": "Contact Info", "index": 2},
+        {"name": "None", "index": 3}
+      ],
+      "annotations": {
+        "displayName": "Sensitive Data Type",
+        "displayOrder": 2
+      }
+    }
+  ]
 }
 EOF
   gcloud dataplex aspect-types create "$ASPECT_TYPE_ID" \
-    --location="$REGION" \
+    --location="$DATAPLEX_LOCATION" \
     --project="$PROJECT_ID" \
     --display-name="$ASPECT_NAME" \
-    --metadata-template-file-name=/tmp/metadata_template.json
-  echo "Aspect type $ASPECT_TYPE_ID dibuat"
+    --metadata-template-file-name=/tmp/metadata_template.json --quiet
+  echo "Aspect type $ASPECT_TYPE_ID dibuat di $DATAPLEX_LOCATION"
 fi
 
-# Apply aspect to the table via Dataplex entry
-# Need to get the entry name for the BigQuery table in Data Catalog
-ENTRY_NAME=$(gcloud data-catalog entries lookup \
-  --project="$PROJECT_ID" \
-  --linked-resource="//bigquery.googleapis.com/projects/$PROJECT_ID/datasets/$DATASET/tables/$TABLE" \
-  --format="value(name)" 2>/dev/null || echo "")
-
-if [[ -n "$ENTRY_NAME" ]]; then
-  echo "Entry ditemukan: $ENTRY_NAME"
-  
-  # Apply aspect to entry using dataplex entries update with aspects
-  cat > /tmp/aspect_data.json <<EOF
+# Apply aspect ke entry BigQuery via Knowledge Catalog (ikut ePlus)
+# Entry untuk BigQuery table ada di entryGroups/@bigquery
+cat > /tmp/aspect_values.json <<EOF
 {
-  "aspects": {
-    "$ASPECT_TYPE_ID": {
+  "${PROJECT_ID}.${DATAPLEX_LOCATION}.${ASPECT_TYPE_ID}": {
+    "data": {
       "has_sensitive_data": true,
       "sensitive_data_type": "Location Info"
     }
   }
 }
 EOF
-  gcloud dataplex entries update "$ENTRY_NAME" \
-    --project="$PROJECT_ID" \
-    --location="$REGION" \
-    --aspects-file=/tmp/aspect_data.json \
-    --quiet
-  echo "Aspect diterapkan ke table $DATASET.$TABLE"
-else
-  echo "WARNING: Entry Data Catalog untuk table tidak ditemukan. Jalankan manual:"
-  echo "  gcloud data-catalog entries lookup --linked-resource=\"//bigquery.googleapis.com/projects/$PROJECT_ID/datasets/$DATASET/tables/$TABLE\""
+
+ENTRY_NAME="projects/${PROJECT_ID}/locations/${DATAPLEX_LOCATION}/entryGroups/@bigquery/entries/bigquery.googleapis.com/projects/${PROJECT_ID}/datasets/${DATASET}/tables/${TABLE}"
+ASPECT_APPLIED=false
+for ATTEMPT in 1 2 3 4 5 6; do
+  if gcloud dataplex entries modify "$ENTRY_NAME" \
+    --update-aspects=/tmp/aspect_values.json \
+    --project="$PROJECT_ID" --quiet 2>/dev/null; then
+    ASPECT_APPLIED=true
+    echo "Aspect diterapkan ke table $DATASET.$TABLE (attempt $ATTEMPT)"
+    break
+  fi
+  echo "Entry Knowledge Catalog belum siap, retry ($ATTEMPT/6)..."
+  sleep 10
+done
+if [[ "$ASPECT_APPLIED" != "true" ]]; then
+  echo "WARNING: Gagal apply aspect setelah 6 percobaan. Entry mungkin belum ter-index."
+  echo "Coba manual: gcloud dataplex entries modify $ENTRY_NAME --update-aspects=/tmp/aspect_values.json"
 fi
 
 step "Verifikasi"
@@ -167,8 +187,8 @@ echo "Table: $DATASET.$TABLE"
 bq --project_id="$PROJECT_ID" show "$DATASET.$TABLE" 2>/dev/null | head -15
 
 echo
-echo "Aspect type: $ASPECT_TYPE_ID"
-gcloud dataplex aspect-types describe "$ASPECT_TYPE_ID" --location="$REGION" --project="$PROJECT_ID" 2>/dev/null | head -15
+echo "Aspect type: $ASPECT_TYPE_ID ($DATAPLEX_LOCATION)"
+gcloud dataplex aspect-types describe "$ASPECT_TYPE_ID" --location="$DATAPLEX_LOCATION" --project="$PROJECT_ID" 2>/dev/null | head -15
 
 echo
 echo "SELESAI! Klik Check my progress untuk verifikasi:"
