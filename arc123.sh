@@ -31,16 +31,17 @@ step() {
   echo "=== $1 ==="
 }
 
-# Enable required APIs
+# Enable required APIs (ikut Happy.sh: datacatalog + bigqueryconnection + dataplex)
 step "Enable required APIs"
-gcloud services enable bigquery.googleapis.com dataplex.googleapis.com datacatalog.googleapis.com --project="$PROJECT_ID" --quiet
+gcloud services enable datacatalog.googleapis.com bigqueryconnection.googleapis.com dataplex.googleapis.com bigquery.googleapis.com --project="$PROJECT_ID" --quiet
 
 ask REGION "us-central1" "Region (cocokkan dengan panel lab)"
 MULTI_REGION="US"
 DATASET="ecommerce"
 CONNECTION="customer_data_connection"
 TABLE="customer_online_sessions"
-GCS_URI="gs://qwiklabs-gcp-04-7f990f43eea1-bucket/customer-online-sessions.csv"
+# Happy.sh pakai bucket dinamis gs://$PROJECT_ID-bucket/ (lebih tahan instance baru)
+GCS_URI="gs://${PROJECT_ID}-bucket/customer-online-sessions.csv"
 ASPECT_NAME="Sensitive Data Aspect"
 
 step "Task 1: Create BigQuery dataset"
@@ -78,20 +79,20 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
 echo "IAM binding untuk $CONN_SA diberikan"
 
 # Create Lakehouse table (external table with Cloud Resource connection)
+# Ikut Happy.sh: bq mkdef --autodetect --connection_id=... --source_format=CSV gs://... > /tmp/tabledef.json
 if bq --project_id="$PROJECT_ID" show --format=prettyjson "$DATASET.$TABLE" >/dev/null 2>&1; then
   echo "Table $DATASET.$TABLE sudah ada, lewati create"
 else
-  # Create table definition JSON with autodetect
-  cat > /tmp/table_def.json <<EOF
-{
-  "sourceFormat": "CSV",
-  "sourceUris": ["$GCS_URI"],
-  "autodetect": true,
-  "connectionId": "$PROJECT_ID.$MULTI_REGION.$CONNECTION"
-}
-EOF
-  bq --project_id="$PROJECT_ID" mk --external_table_definition=/tmp/table_def.json "$DATASET.$TABLE"
-  echo "Lakehouse table $DATASET.$TABLE dibuat"
+  bq mkdef \
+    --autodetect \
+    --connection_id="${PROJECT_ID}.${MULTI_REGION}.${CONNECTION}" \
+    --source_format=CSV \
+    "${GCS_URI}" > /tmp/tabledef.json
+  bq --project_id="$PROJECT_ID" mk \
+    --external_table_definition=/tmp/tabledef.json \
+    "$DATASET.$TABLE"
+  echo "Lakehouse table $DATASET.$TABLE dibuat (mkdef autodetect)"
+  rm -f /tmp/tabledef.json
 fi
 
 step "Task 3: Create aspect and apply to Lakehouse table"
