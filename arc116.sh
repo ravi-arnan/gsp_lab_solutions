@@ -351,10 +351,24 @@ EOF2
 fi
 
 # Tunggu trigger siap lalu activate (membuat job run pertama)
+# Di beberapa instance activate pertama gagal 403 PERMISSION_DENIED karena
+# service agent dlp-api belum punya dlp.jobs.create (race grant lab).
+# Student tidak bisa setIamPolicy, jadi cukup recreate trigger + retry.
 step "Activate job trigger dlp_job (memicu run pertama)"
 sleep 5
 ACTIVATE_R=$(curl -s -X POST "${API}/${PARENT}/jobTriggers/dlp_job:activate" -H "$AUTH" -H "$QP" -H "$CT" 2>&1 || true)
 echo "$ACTIVATE_R" | jq . 2>/dev/null || echo "$ACTIVATE_R" | head -c 500; echo
+
+if echo "$ACTIVATE_R" | grep -q "PERMISSION_DENIED.*dlp.jobs.create\|does not have all required permissions"; then
+  echo "Activate 403 (race IAM service agent), recreate trigger + retry..."
+  sleep 10
+  curl -s -X DELETE "${API}/${PARENT}/jobTriggers/dlp_job" -H "$AUTH" -H "$QP" >/dev/null 2>&1 || true
+  sleep 2
+  post "${API}/${PARENT}/jobTriggers" "$(cat /tmp/arc116_job.json)" >/dev/null 2>&1 || true
+  sleep 5
+  ACTIVATE_R=$(curl -s -X POST "${API}/${PARENT}/jobTriggers/dlp_job:activate" -H "$AUTH" -H "$QP" -H "$CT" 2>&1 || true)
+  echo "$ACTIVATE_R" | jq . 2>/dev/null || echo "$ACTIVATE_R" | head -c 500; echo
+fi
 
 # Juga coba hybrid trigger (menjalankan job sekarang)
 HYBRID_R=$(curl -s -X POST "${API}/${PARENT}/jobTriggers/dlp_job:hybridInspect" -H "$AUTH" -H "$QP" -H "$CT" -d '{}' 2>&1 || true)
