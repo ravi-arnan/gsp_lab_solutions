@@ -76,7 +76,7 @@ Sesi 2026-09-08 menambah lab:
 | ✅ARC129 | Challenge BigLake: dataset, koneksi, IAM, external table, policy tag, revoke (badge 751, Secure Lakehouse Data) |
 | ⚠️GSP338 | Monitor and Log with Google Cloud Observability: Challenge Lab — fix task 3+4 terpakai di lab sungguhan; script penuh belum diuji (lihat docs/gsp338.md) |
 | ⚠️ARC133 | Integrate BigQuery + Google Workspace via Apps Script — runbook manual (UI), belum diverifikasi (lihat docs/arc133.md) |
-| ⚠️GSP327 | Engineer Data for Predictive Modeling with BigQuery ML — script `gsp327.sh` ditulis, belum diuji di lab (nilai per-instance ditanya di awal) |
+| ✅GSP327 | Engineer Data for Predictive Modeling with BigQuery ML — script `gsp327.sh` terverifikasi 100/100 di lab sungguhan (2026-09-09), nilai per-instance ditanya di awal |
 
 ## Badge yang sudah tertutup penuh
 

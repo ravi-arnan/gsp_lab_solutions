@@ -165,7 +165,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | ARC126 | Develop with Apps Script and AppSheet: Challenge Lab | - | [docs/arc126.md](docs/arc126.md) | Tidak bisa di-script (AppSheet + Apps Script + Chat, semuanya UI); runbook terverifikasi 100/100 | 2026-08-08 |
 | ARC133 | Integrate BigQuery Data and Google Workspace using Apps Script: Challenge Lab | - | [docs/arc133.md](docs/arc133.md) | Tidak bisa di-script (Apps Script + Sheets + Connected Sheets, semuanya UI); runbook turunan solusi komunitas, belum diverifikasi | - |
 | GSP1146 | Develop No-Code Chat Apps with AppSheet | - | [docs/gsp1146.md](docs/gsp1146.md) | Tidak bisa di-script (UI AppSheet + Google Chat); runbook belum diuji langsung, tapi alurnya sama dengan ARC126 | - |
-| GSP327 | Engineer Data for Predictive Modeling with BigQuery ML: Challenge Lab | [gsp327.sh](gsp327.sh) | [docs/gsp327.md](docs/gsp327.md) | Belum diuji; nilai per-instance ditanya di awal (nama tabel, kolom target, threshold); semua task jalan di BigQuery via REST API `curl` | - |
+| GSP327 | Engineer Data for Predictive Modeling with BigQuery ML: Challenge Lab | [gsp327.sh](gsp327.sh) | [docs/gsp327.md](docs/gsp327.md) | Terverifikasi, skor 100/100; nilai per-instance ditanya di awal (nama tabel, kolom target, threshold); semua task jalan di BigQuery via REST API `curl` | 2026-09-09 |
 
 Tiap lab punya runbook di `docs/` berisi urutan perintah, nilai yang harus muncul sebagai sanity check, dan troubleshooting. **Baca runbook-nya dulu sebelum jalan**, terutama GSP340 (parameter acak) dan GSP1143 (dua fase).
 
