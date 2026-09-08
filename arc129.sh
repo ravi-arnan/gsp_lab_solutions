@@ -4,9 +4,13 @@
 #   bash arc129.sh
 #
 # Checkpoint:
-#   Task 1 (33 pts)  - Create Lakehouse table using Cloud Resource connection
-#   Task 2 (33 pts)  - Create, apply, and verify aspect on sensitive columns
-#   Task 3 (34 pts)  - Remove IAM permissions to Cloud Storage for user 2
+#   Task 1 (auto) - Dataset online_shop, koneksi BigLake, IAM Storage Object Viewer,
+#                   external table user_online_sessions dari CSV di GCS
+#   Task 2 (auto) - Schema + policy tag (fine-grained access) di kolom sensitif
+#   Task 3 (auto) - Hapus IAM binding storage.objectViewer milik USER 2
+#
+# USER 2 diisi dari email yang muncul di halaman lab (tokenizer user kedua),
+# lewat env var atau jawaban di prompt.
 
 set -euo pipefail
 
@@ -26,191 +30,107 @@ ask() {
   echo "$1 = ${!1}"
 }
 
-step() {
-  echo
-  echo "=== $1 ==="
-}
+ask USER_2 "" "Email USER 2 dari panel lab (yang IAM-nya harus dicabut)"
 
-# Enable required APIs
-step "Enable required APIs"
-gcloud services enable bigquery.googleapis.com dataplex.googleapis.com datacatalog.googleapis.com --project="$PROJECT_ID" --quiet
+step() { printf '\n\033[1;34m>> %s\033[0m\n' "$*"; }
 
-MULTI_REGION="US"
-DATASET="online_shop"
-CONNECTION="user_data_connection"
-TABLE="user_online_sessions"
-GCS_URI="gs://qwiklabs-gcp-01-1b647f7bcbc7-bucket/user-online-sessions.csv"
-ASPECT_NAME="Sensitive Data Aspect"
-SENSITIVE_COLUMNS=("zip" "latitude" "ip_address" "longitude")
-USER_TO_REMOVE="student-03-f1879f24a800@qwiklabs.net"
-
-step "Task 1: Create BigQuery dataset, connection, and Lakehouse table"
-
-# Create BigQuery dataset
-if bq --project_id="$PROJECT_ID" show --format=prettyjson "$DATASET" >/dev/null 2>&1; then
-  echo "Dataset $DATASET sudah ada, lewati create"
-else
-  bq --project_id="$PROJECT_ID" mk --location="$MULTI_REGION" "$DATASET"
-  echo "Dataset $DATASET dibuat di $MULTI_REGION"
+step "Task 1/3. Dataset online_shop, koneksi BigLake, IAM, external table"
+if ! bq show online_shop >/dev/null 2>&1; then
+  bq --location=US mk -d online_shop
 fi
 
-# Create Cloud Resource connection
-if bq --project_id="$PROJECT_ID" show --connection --format=prettyjson --location="$MULTI_REGION" "$CONNECTION" >/dev/null 2>&1; then
-  echo "Connection $CONNECTION sudah ada, lewati create"
-else
-  bq --project_id="$PROJECT_ID" mk --connection --connection_type=CLOUD_RESOURCE \
-    --location="$MULTI_REGION" \
-    --project_id="$PROJECT_ID" \
-    "$CONNECTION"
-  echo "Connection $CONNECTION dibuat"
+if ! bq show --connection "$PROJECT_ID.US.user_data_connection" >/dev/null 2>&1; then
+  bq mk --connection --location=US --project_id="$PROJECT_ID" \
+    --connection_type=CLOUD_RESOURCE user_data_connection
 fi
 
-# Get connection service account
-CONN_SA=$(bq --project_id="$PROJECT_ID" show --connection --format=json --location="$MULTI_REGION" "$CONNECTION" | jq -r '.cloudResource.serviceAccountId')
-echo "Connection service account: $CONN_SA"
-
-# Grant Storage Object Viewer to connection SA
+SERVICE_ACCOUNT=$(bq show --format=json --connection "$PROJECT_ID.US.user_data_connection" \
+  | jq -r '.cloudResource.serviceAccountId')
+[[ -n "$SERVICE_ACCOUNT" ]] || { echo "Service account koneksi tidak ketemu."; exit 1; }
 gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-  --member="serviceAccount:$CONN_SA" \
-  --role="roles/storage.objectViewer" \
-  --condition=None \
-  --quiet >/dev/null 2>&1 || true
-echo "IAM binding untuk $CONN_SA diberikan"
+  --member="serviceAccount:$SERVICE_ACCOUNT" \
+  --role=roles/storage.objectViewer
 
-# Create Lakehouse table (external table with Cloud Resource connection)
-if bq --project_id="$PROJECT_ID" show --format=prettyjson "$DATASET.$TABLE" >/dev/null 2>&1; then
-  echo "Table $DATASET.$TABLE sudah ada, lewati create"
-else
-  cat > /tmp/table_def.json <<EOF
-{
-  "sourceFormat": "CSV",
-  "sourceUris": ["$GCS_URI"],
-  "autodetect": true,
-  "connectionId": "$PROJECT_ID.$MULTI_REGION.$CONNECTION"
-}
-EOF
-  bq --project_id="$PROJECT_ID" mk --external_table_definition=/tmp/table_def.json "$DATASET.$TABLE"
-  echo "Lakehouse table $DATASET.$TABLE dibuat"
+bq mkdef --autodetect \
+  --connection_id="$PROJECT_ID.US.user_data_connection" \
+  --source_format=CSV \
+  "gs://$PROJECT_ID-bucket/user-online-sessions.csv" > /tmp/arc129_tabledef.json
+
+if ! bq show online_shop.user_online_sessions >/dev/null 2>&1; then
+  bq mk --external_table_definition=/tmp/arc129_tabledef.json \
+    --project_id="$PROJECT_ID" online_shop.user_online_sessions
 fi
 
-step "Task 2: Create aspect and apply to sensitive columns"
+step "Task 2/3. Schema + policy tag ke kolom sensitif"
+TAXONOMY_NAME=$(gcloud data-catalog taxonomies list \
+  --location=us --project="$PROJECT_ID" \
+  --format="value(displayName)" --limit=1)
+TAXONOMY_ID=$(gcloud data-catalog taxonomies list \
+  --location=us --project="$PROJECT_ID" \
+  --format="value(name)" \
+  --filter="displayName=$TAXONOMY_NAME" | awk -F'/' '{print $6}')
+POLICY_TAG=$(gcloud data-catalog taxonomies policy-tags list \
+  --location=us --taxonomy="$TAXONOMY_ID" \
+  --format="value(name)" --limit=1)
 
-# Check if Dataplex aspect type exists, create if not
-ASPECT_TYPE_ID=$(echo "$ASPECT_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+cat > /tmp/arc129_schema.json << EOM
+[
+  { "mode": "NULLABLE", "name": "ad_event_id", "type": "INTEGER" },
+  { "mode": "NULLABLE", "name": "user_id", "type": "INTEGER" },
+  { "mode": "NULLABLE", "name": "uri", "type": "STRING" },
+  { "mode": "NULLABLE", "name": "traffic_source", "type": "STRING" },
+  {
+    "mode": "NULLABLE",
+    "name": "zip",
+    "policyTags": { "names": ["$POLICY_TAG"] },
+    "type": "STRING"
+  },
+  { "mode": "NULLABLE", "name": "event_type", "type": "STRING" },
+  { "mode": "NULLABLE", "name": "state", "type": "STRING" },
+  { "mode": "NULLABLE", "name": "country", "type": "STRING" },
+  { "mode": "NULLABLE", "name": "city", "type": "STRING" },
+  {
+    "mode": "NULLABLE",
+    "name": "latitude",
+    "policyTags": { "names": ["$POLICY_TAG"] },
+    "type": "FLOAT"
+  },
+  { "mode": "NULLABLE", "name": "created_at", "type": "TIMESTAMP" },
+  {
+    "mode": "NULLABLE",
+    "name": "ip_address",
+    "policyTags": { "names": ["$POLICY_TAG"] },
+    "type": "STRING"
+  },
+  { "mode": "NULLABLE", "name": "session_id", "type": "STRING" },
+  {
+    "mode": "NULLABLE",
+    "name": "longitude",
+    "policyTags": { "names": ["$POLICY_TAG"] },
+    "type": "FLOAT"
+  },
+  { "mode": "NULLABLE", "name": "id", "type": "INTEGER" }
+]
+EOM
 
-if gcloud dataplex aspect-types describe "$ASPECT_TYPE_ID" --location="$MULTI_REGION" --project="$PROJECT_ID" >/dev/null 2>&1; then
-  echo "Aspect type $ASPECT_TYPE_ID sudah ada, lewati create"
-else
-  cat > /tmp/metadata_template.json <<EOF
-{
-  "type": "object",
-  "properties": {
-    "has_sensitive_data": {
-      "type": "boolean",
-      "description": "Has Sensitive Data"
-    }
-  }
-}
-EOF
-  gcloud dataplex aspect-types create "$ASPECT_TYPE_ID" \
-    --location="$MULTI_REGION" \
-    --project="$PROJECT_ID" \
-    --display-name="$ASPECT_NAME" \
-    --metadata-template-file-name=/tmp/metadata_template.json
-  echo "Aspect type $ASPECT_TYPE_ID dibuat"
-fi
+bq update --schema /tmp/arc129_schema.json "$PROJECT_ID:online_shop.user_online_sessions"
 
-# Apply aspect to each sensitive column via Dataplex entries
-# Need to get the entry name for the BigQuery table in Data Catalog
-ENTRY_NAME=$(gcloud data-catalog entries lookup \
-  --project="$PROJECT_ID" \
-  --linked-resource="//bigquery.googleapis.com/projects/$PROJECT_ID/datasets/$DATASET/tables/$TABLE" \
-  --format="value(name)" 2>/dev/null || echo "")
+step "Verifikasi: query tanpa kolom sensitif"
+bq query --use_legacy_sql=false --format=csv \
+  "SELECT * EXCEPT(zip, latitude, ip_address, longitude) FROM \`$PROJECT_ID.online_shop.user_online_sessions\`"
 
-if [[ -n "$ENTRY_NAME" ]]; then
-  echo "Table entry ditemukan: $ENTRY_NAME"
-  
-  # For each sensitive column, we need to apply aspect at column level
-  # Dataplex entries can have child entries for columns
-  for col in "${SENSITIVE_COLUMNS[@]}"; do
-    # Look up column entry
-    COL_ENTRY=$(gcloud data-catalog entries lookup \
-      --project="$PROJECT_ID" \
-      --linked-resource="//bigquery.googleapis.com/projects/$PROJECT_ID/datasets/$DATASET/tables/$TABLE/columns/$col" \
-      --format="value(name)" 2>/dev/null || echo "")
-    
-    if [[ -n "$COL_ENTRY" ]]; then
-      echo "Column entry ditemukan untuk $col: $COL_ENTRY"
-      
-      cat > /tmp/aspect_data.json <<EOF
-{
-  "aspects": {
-    "$ASPECT_TYPE_ID": {
-      "has_sensitive_data": true
-    }
-  }
-}
-EOF
-      gcloud dataplex entries update "$COL_ENTRY" \
-        --project="$PROJECT_ID" \
-        --location="$MULTI_REGION" \
-        --aspects-file=/tmp/aspect_data.json \
-        --quiet
-      echo "Aspect diterapkan ke kolom $col"
-    else
-      echo "WARNING: Column entry untuk $col tidak ditemukan"
-    fi
-  done
-else
-  echo "WARNING: Table entry tidak ditemukan"
-fi
-
-step "Task 3: Remove IAM permissions to Cloud Storage for user 2"
-
-# Get current IAM bindings for the user on storage roles
-echo "Mencari IAM bindings untuk $USER_TO_REMOVE..."
-
-# List all storage-related roles for this user
-STORAGE_ROLES=(
-  "roles/storage.admin"
-  "roles/storage.objectAdmin"
-  "roles/storage.objectCreator"
-  "roles/storage.objectViewer"
-  "roles/storage.legacyBucketReader"
-  "roles/storage.legacyBucketWriter"
-  "roles/storage.legacyObjectReader"
-  "roles/storage.legacyObjectOwner"
-)
-
-for role in "${STORAGE_ROLES[@]}"; do
-  echo "Checking $role..."
+step "Task 3/3. Cabut IAM binding USER 2"
+if [[ -n "$USER_2" ]]; then
   gcloud projects remove-iam-policy-binding "$PROJECT_ID" \
-    --member="user:$USER_TO_REMOVE" \
-    --role="$role" \
-    --condition=None \
-    --quiet 2>/dev/null && echo "Removed $role dari $USER_TO_REMOVE" || echo "$role tidak ada atau sudah dihapus"
-done
-
-echo "Project Viewer role (roles/viewer) tidak dihapus sesuai instruksi"
-
-step "Verifikasi"
-echo "Dataset: $DATASET"
-bq --project_id="$PROJECT_ID" show "$DATASET" 2>/dev/null | head -10
-
-echo
-echo "Connection: $CONNECTION"
-bq --project_id="$PROJECT_ID" show --connection --location="$MULTI_REGION" "$CONNECTION" 2>/dev/null | head -10
-
-echo
-echo "Table: $DATASET.$TABLE"
-bq --project_id="$PROJECT_ID" show "$DATASET.$TABLE" 2>/dev/null | head -15
-
-echo
-echo "Aspect type: $ASPECT_TYPE_ID"
-gcloud dataplex aspect-types describe "$ASPECT_TYPE_ID" --location="$MULTI_REGION" --project="$PROJECT_ID" 2>/dev/null | head -15
+    --member="user:$USER_2" \
+    --role=roles/storage.objectViewer \
+    || echo "Binding untuk $USER_2 sudah tidak ada, lanjut."
+else
+  echo "USER_2 kosong, lewati. Cek manual: IAM user kedua di lab sudah tidak punya storage.objectViewer?"
+fi
 
 echo
 echo "SELESAI! Klik Check my progress untuk verifikasi:"
-echo "  Task 1 - Create a Lakehouse table using a Cloud Resource connection"
-echo "  Task 2 - Create, apply, and verify an aspect on columns containing sensitive data"
-echo "  Task 3 - Remove IAM permissions to Cloud Storage for other users"
+echo "  Task 1 - Create a BigQuery dataset, connection, dan external table (BigLake)"
+echo "  Task 2 - Terapkan fine-grained access (policy tag) ke kolom sensitif"
+echo "  Task 3 - Hapus akses storage.objectViewer milik USER 2"
