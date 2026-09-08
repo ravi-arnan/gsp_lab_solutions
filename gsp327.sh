@@ -58,7 +58,7 @@ wait_job() {
 # menangani pengembalian hasil, run_bq cukup menjamin selesai.
 run_bq() {
   local label=$1 query=$2 r jid
-  r=$(post "projects/${PROJECT_ID}/queries" "$(jq -n --arg q "$query" '{query:$q, useLegacySql:false, timeoutMs:10000}')")
+  r=$(post "${API}/projects/${PROJECT_ID}/queries" "$(jq -n --arg q "$query" '{query:$q, useLegacySql:false, timeoutMs:10000}')")
   if [[ "$(echo "$r" | jq -r '.jobComplete // false')" == "true" ]]; then
     return 0
   fi
@@ -71,7 +71,7 @@ run_bq() {
 # Hasil sync ada di response POST; hasil async diambil dari endpoint queries.get.
 bq_value() {
   local label=$1 query=$2 r jid
-  r=$(post "projects/${PROJECT_ID}/queries" "$(jq -n --arg q "$query" '{query:$q, useLegacySql:false, timeoutMs:10000}')")
+  r=$(post "${API}/projects/${PROJECT_ID}/queries" "$(jq -n --arg q "$query" '{query:$q, useLegacySql:false, timeoutMs:10000}')")
   if [[ "$(echo "$r" | jq -r '.jobComplete // false')" == "true" ]]; then
     echo "$r" | jq -r '.rows[0].f[0].v // empty' 2>/dev/null || true
     return 0
