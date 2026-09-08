@@ -66,7 +66,14 @@ terverifikasi 100/100 kecuali yang ditandai:
 | ✅GSP328 | Challenge Cloud Run serverless |
 | ✅GSP523 | Challenge multimodal vector search BigQuery |
 | ✅ARC119 | Challenge secure data lake Cloud Storage + Knowledge Catalog |
-| ⚠️ARC114 | Challenge Speech + Language — maks 75/100, checkpoint Task 4 rusak |
+| ⚠️ARC114 | Challenge Speech + Language — script maks 75/100; jalur manual 100/100 (lihat docs/arc114.md) |
+
+Sesi 2026-09-08 menambah dua lab:
+
+| Lab | Tema |
+|-----|------|
+| ✅ARC106 | Challenge streaming Pub/Sub → BigQuery (badge 752, Stream Analytics) |
+| ✅ARC129 | Challenge BigLake: dataset, koneksi, IAM, external table, policy tag, revoke (badge 751, Secure Lakehouse Data) |
 
 ## Badge yang sudah tertutup penuh
 
