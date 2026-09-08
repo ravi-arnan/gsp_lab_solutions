@@ -68,12 +68,15 @@ terverifikasi 100/100 kecuali yang ditandai:
 | ✅ARC119 | Challenge secure data lake Cloud Storage + Knowledge Catalog |
 | ⚠️ARC114 | Challenge Speech + Language — script maks 75/100; jalur manual 100/100 (lihat docs/arc114.md) |
 
-Sesi 2026-09-08 menambah dua lab:
+Sesi 2026-09-08 menambah lab:
 
 | Lab | Tema |
 |-----|------|
 | ✅ARC106 | Challenge streaming Pub/Sub → BigQuery (badge 752, Stream Analytics) |
 | ✅ARC129 | Challenge BigLake: dataset, koneksi, IAM, external table, policy tag, revoke (badge 751, Secure Lakehouse Data) |
+| ⚠️GSP338 | Monitor and Log with Google Cloud Observability: Challenge Lab — fix task 3+4 terpakai di lab sungguhan; script penuh belum diuji (lihat docs/gsp338.md) |
+| ⚠️ARC133 | Integrate BigQuery + Google Workspace via Apps Script — runbook manual (UI), belum diverifikasi (lihat docs/arc133.md) |
+| ⚠️GSP327 | Engineer Data for Predictive Modeling with BigQuery ML — script `gsp327.sh` ditulis, belum diuji di lab (nilai per-instance ditanya di awal) |
 
 ## Badge yang sudah tertutup penuh
 

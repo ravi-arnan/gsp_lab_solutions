@@ -39,6 +39,13 @@ gcloud)
     printf 'defaultAdmissionRule:\n  evaluationMode: ALWAYS_ALLOW\n  enforcementMode: ENFORCED_BLOCK_AND_AUDIT_LOG\n'
   elif has 'dataplex entries lookup'       ; then
     echo '{"entry":{"aspects":{"dryrun":{"data":{"protected-data-flag":"Yes"}}}}}'
+  elif has 'logging metrics list'          ; then echo "big_video_upload_rate"
+  elif has 'logging metrics describe'      ; then echo 'textPayload=~"file_format\: ([4,8]K).*"'
+  elif has 'monitoring dashboards list'    ; then echo "projects/dryrun-project/dashboards/media"
+  elif has 'monitoring dashboards describe'; then
+    echo '{"etag":"dryrun","name":"projects/dryrun-project/dashboards/media","displayName":"Media_Dashboard","mosaicLayout":{"tiles":[]}}'
+  elif has 'monitoring metrics-descriptors list' ; then
+    echo "custom.googleapis.com/opencensus/my.videoservice.org/measure/input_queue_size"
   elif has 'config get-value'              ; then echo "us-central1"
   elif has '--format=json'                 ; then echo '[]'   # jangan bikin `| python3 -c json.load` meledak
   fi

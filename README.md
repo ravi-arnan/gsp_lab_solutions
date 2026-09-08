@@ -112,6 +112,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | ARC106 | Streaming Analytics into BigQuery: Challenge Lab | [arc106.sh](arc106.sh) | [docs/arc106.md](docs/arc106.md) | Belum diuji sendiri; turunan solusi yang terbukti 100/100, dua template Dataflow (Flex + klasik) | 2026-09-08 |
 | ARC129 | Secure Lakehouse Data: Challenge Lab | [arc129.sh](arc129.sh) | [docs/arc129.md](docs/arc129.md) | Lolos via <a href="https://www.youtube.com/watch?v=-DoX-x7bgNA"><img src="https://cdn.simpleicons.org/youtube/FF0000" width="14" alt="YouTube"/></a> (2026-09-08); script CLI turunan solusi terbukti, belum diuji sendiri | 2026-09-08 |
 | ARC134 | Configure Service Accounts and IAM Roles for Google Cloud: Challenge Lab | [arc134.sh](arc134.sh) | [docs/arc134.md](docs/arc134.md) | Terverifikasi 100/100 | - |
+| GSP338 | Monitor and Log with Google Cloud Observability: Challenge Lab | [gsp338.sh](gsp338.sh) | [docs/gsp338.md](docs/gsp338.md) | Fix (gsp338_fix.sh) terpakai di lab sungguhan: Task 3 filter regex + Task 4 /0 → hijau; gsp338.sh penuh belum diuji sekali jalan | 2026-09-08 |
 | ARC131 | Using the Google Cloud Speech API: Challenge Lab | [arc131.sh](arc131.sh) | [docs/arc131.md](docs/arc131.md) | Terverifikasi 100/100, tapi checkpoint API key butuh key ber-restriction (lihat runbook); Task 2-3 otomatis penuh | 2026-08-21 |
 | ARC112 | Deploy and Manage Applications on Google App Engine: Challenge Lab | [arc112.sh](arc112.sh) | [docs/arc112.md](docs/arc112.md) | Terverifikasi, skor 100/100 (us-east4), dua fase; kerjanya di VM lab-setup lewat SSH | 2026-08-21 |
 | GSP095 | Pub/Sub: Qwik Start - Command Line | [gsp095.sh](gsp095.sh) | - | Terverifikasi, skor 100/100 sekali jalan | 2026-08-21 |
@@ -162,7 +163,9 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP1063 | Finding Data in Google Sheets | - | [docs/gsp1063.md](docs/gsp1063.md) | Tidak bisa di-script (100% Google Sheets); runbook terverifikasi 100/100 sekali jalan | 2026-08-07 |
 | GSP1062 | Validate Data in Google Sheets | - | [docs/gsp1062.md](docs/gsp1062.md) | Tidak bisa di-script (100% Google Sheets); runbook terverifikasi 100/100 — Task 1 wajib hijau penuh sebelum Task 3 | 2026-08-08 |
 | ARC126 | Develop with Apps Script and AppSheet: Challenge Lab | - | [docs/arc126.md](docs/arc126.md) | Tidak bisa di-script (AppSheet + Apps Script + Chat, semuanya UI); runbook terverifikasi 100/100 | 2026-08-08 |
+| ARC133 | Integrate BigQuery Data and Google Workspace using Apps Script: Challenge Lab | - | [docs/arc133.md](docs/arc133.md) | Tidak bisa di-script (Apps Script + Sheets + Connected Sheets, semuanya UI); runbook turunan solusi komunitas, belum diverifikasi | - |
 | GSP1146 | Develop No-Code Chat Apps with AppSheet | - | [docs/gsp1146.md](docs/gsp1146.md) | Tidak bisa di-script (UI AppSheet + Google Chat); runbook belum diuji langsung, tapi alurnya sama dengan ARC126 | - |
+| GSP327 | Engineer Data for Predictive Modeling with BigQuery ML: Challenge Lab | [gsp327.sh](gsp327.sh) | [docs/gsp327.md](docs/gsp327.md) | Belum diuji; nilai per-instance ditanya di awal (nama tabel, kolom target, threshold); semua task jalan di BigQuery via REST API `curl` | - |
 
 Tiap lab punya runbook di `docs/` berisi urutan perintah, nilai yang harus muncul sebagai sanity check, dan troubleshooting. **Baca runbook-nya dulu sebelum jalan**, terutama GSP340 (parameter acak) dan GSP1143 (dua fase).
 
