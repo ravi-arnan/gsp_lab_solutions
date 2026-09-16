@@ -182,7 +182,7 @@ fi
 # TASK 1 - Secure internal transaction processor (regional internal proxy NLB)
 # ════════════════════════════════════════════════════════════════
 step "Task 1: Deploy internal backends (regional MIG mig-proxy-internal)"
-ensure_template template-proxy-internal "" "$SUBNET_B" "tag-proxy-internal,allow-ssh" "$NGINX_TVS"
+ensure_template template-proxy-internal "$REGION_B" "$SUBNET_B" "tag-proxy-internal,allow-ssh" "$NGINX_TVS"
 ensure_mig mig-proxy-internal "$REGION_B" template-proxy-internal "tcp80:80" \
   "$SUBNET_B" "tag-proxy-internal,allow-ssh" "$NGINX_TVS"
 ensure_tag_on_instances mig-proxy-internal "$REGION_B" tag-proxy-internal
@@ -251,7 +251,7 @@ fi
 # TASK 2 - Global external market data feed (global external ALB, HTTPS)
 # ════════════════════════════════════════════════════════════════
 step "Task 2: Deploy global backends (mig-alb-api-a + mig-alb-api-b)"
-ensure_template template-alb-api "" "$SUBNET_A" "allow-health-check" "$NGINX_ALB"
+ensure_template template-alb-api "$REGION_A" "$SUBNET_A" "allow-health-check" "$NGINX_ALB"
 ensure_mig mig-alb-api-a "$REGION_A" template-alb-api "http80:80" \
   "$SUBNET_A" "allow-health-check" "$NGINX_ALB"
 ensure_mig mig-alb-api-b "$REGION_B" template-alb-api "http80:80" \
