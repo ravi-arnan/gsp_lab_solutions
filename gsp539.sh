@@ -181,15 +181,20 @@ fi
 # ════════════════════════════════════════════════════════════════
 # TASK 1 - Secure internal transaction processor (regional internal proxy NLB)
 # ════════════════════════════════════════════════════════════════
-step "Task 1: Deploy internal backends (regional MIG mig-proxy-internal)"
+step "Task 1: Deploy internal backends (MIG mig-proxy-internal, zonal)"
 ensure_template template-proxy-internal "$REGION_B" "$SUBNET_B" "tag-proxy-internal,allow-ssh" "$NGINX_TVS"
-ensure_mig mig-proxy-internal "$REGION_B" template-proxy-internal "tcp80:80" \
-  "$SUBNET_B" "tag-proxy-internal,allow-ssh" "$NGINX_TVS"
-ensure_tag_on_instances mig-proxy-internal "$REGION_B" tag-proxy-internal
+if ! gcloud compute instance-groups managed describe mig-proxy-internal --zone="$ZONE_B" >/dev/null 2>&1; then
+  gcloud compute instance-groups managed create mig-proxy-internal \
+    --zone="$ZONE_B" --size=1 --template=template-proxy-internal
+fi
+gcloud compute instance-groups managed set-named-ports mig-proxy-internal \
+  --zone="$ZONE_B" --named-ports=tcp80:80
+gcloud compute instance-groups managed wait-until-stable mig-proxy-internal \
+  --zone="$ZONE_B" --timeout=240 || true
 
 step "Task 1: Firewall rules untuk tag tag-proxy-internal"
-ensure_fw fw-allow-health-check-internal "$NETWORK" "35.191.0.0/16" tag-proxy-internal tcp:80
-ensure_fw fw-allow-proxy-only-internal  "$NETWORK" "$PROXY_CIDR" tag-proxy-internal tcp:80
+ensure_fw fw-allow-hc-proxy-internal "$NETWORK" "130.211.0.0/22,35.191.0.0/16" tag-proxy-internal tcp:80
+ensure_fw fw-allow-proxy-subnet-internal "$NETWORK" "$PROXY_CIDR" tag-proxy-internal tcp:80
 ensure_fw fw-allow-ssh "$NETWORK" "0.0.0.0/0" allow-ssh tcp:22
 
 step "Task 1: Reserve VIP + regional internal proxy NLB"
@@ -212,8 +217,7 @@ fi
 if ! gcloud compute backend-services describe bs-internal-proxy --region="$REGION_B" \
      --format="value(backends.group)" 2>/dev/null | grep -q mig-proxy-internal; then
   gcloud compute backend-services add-backend bs-internal-proxy --region="$REGION_B" \
-    --instance-group=mig-proxy-internal --instance-group-region="$REGION_B" \
-    --balancing-mode=UTILIZATION --max-utilization=0.8
+    --instance-group=mig-proxy-internal --instance-group-zone="$ZONE_B"
 fi
 
 if ! gcloud compute target-tcp-proxies describe tgt-internal-proxy --region="$REGION_B" >/dev/null 2>&1; then
@@ -273,7 +277,7 @@ for pair in "mig-alb-api-a $REGION_A" "mig-alb-api-b $REGION_B"; do
        --format="value(backends.group)" 2>/dev/null | grep -q "$1"; then
     gcloud compute backend-services add-backend service-alb-global --global \
       --instance-group="$1" --instance-group-region="$2" \
-      --balancing-mode=RATE --max-rate=1
+      --balancing-mode=RATE --max-rate-per-instance=1
   fi
 done
 
@@ -301,7 +305,7 @@ if ! gcloud compute forwarding-rules describe fr-alb-https --global >/dev/null 2
     --load-balancing-scheme=EXTERNAL_MANAGED --network-tier=PREMIUM \
     --address=ip-alb-global --target-https-proxy=target-proxy-alb --ports=443
 fi
-ensure_fw fw-allow-health-check-and-proxy "$NETWORK" "130.211.0.0/22,35.191.0.0/16" "" tcp:80
+ensure_fw fw-allow-health-check-and-proxy "$NETWORK" "130.211.0.0/22,35.191.0.0/16" tag-alb-api tcp:80
 echo "  ALB IP: https://$ALB_IP"
 
 # ════════════════════════════════════════════════════════════════
