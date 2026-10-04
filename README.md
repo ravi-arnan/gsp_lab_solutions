@@ -98,6 +98,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP092 | Monitoring and Logging for Cloud Run Functions | [gsp092.sh](gsp092.sh) | [docs/gsp092.md](docs/gsp092.md) | Terverifikasi, skor 100/100; grader menuntut resource Cloud Functions v2, kebalikan GSP081 | 2026-08-04 |
 | GSP1108 | Monitor an Apache Web Server using Ops Agent | [gsp1108.sh](gsp1108.sh) | [docs/gsp1108.md](docs/gsp1108.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-08-04 |
 | GSP736 | Debug Apps on Google Kubernetes Engine | [gsp736.sh](gsp736.sh) | [docs/gsp736.md](docs/gsp736.md) | Terverifikasi, skor 100/100; grader mencocokkan teks filter alerting policy (`resource.type` dulu) | 2026-08-04 |
+| GSP1024 | Using Prometheus for Monitoring on Google Cloud: Qwik Start | [gsp1024.sh](gsp1024.sh) | [docs/gsp1024.md](docs/gsp1024.md) | Belum diuji; manifest Flask ditulis sendiri (bukan `unzip` + nano), dashboard dicek dulu agar tidak dobel | - |
 | GSP1026 | Collect Metrics from Exporters using the Managed Service for Prometheus | [gsp1026.sh](gsp1026.sh) | - | Belum diuji | - |
 | GSP053 | Managing Deployments Using Kubernetes Engine | [gsp053.sh](gsp053.sh) | - | Belum diuji | - |
 | GSP1041 | Data Publishing on BigQuery using Authorized Views | [gsp1041.sh](gsp1041.sh) | [docs/gsp1041.md](docs/gsp1041.md) | Terverifikasi, skor 100/100; tiga project berbeda, wajib tiga fase (`partner`/`a`/`b`) | 2026-08-05 |
