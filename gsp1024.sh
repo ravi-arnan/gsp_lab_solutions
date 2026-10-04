@@ -219,6 +219,32 @@ else
   echo "Dilewati: IP LoadBalancer tidak tersedia."
 fi
 
+# Checkpoint Task 4 bergantung pada metrik yang sudah ter-ingest ke Cloud
+# Monitoring, bukan cuma PodMonitoring ada. Ingest-nya butuh beberapa menit;
+# tunggu sampai benar-benar muncul supaya klik Check my progress tidak terlalu dini.
+step "Tunggu metrik flask_http_request_total ter-ingest (~1-5 menit)"
+TOKEN="$(gcloud auth print-access-token 2>/dev/null || true)"
+IF_START="$(date -u -d '30 minutes ago' +%Y-%m-%dT%H:%M:%SZ)"
+METRIC="prometheus.googleapis.com/flask_http_request_total/counter"
+INGESTED=""
+for i in $(seq 1 10); do
+  IF_END="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  HIT="$(curl -s -G "https://monitoring.googleapis.com/v3/projects/$PROJECT/timeSeries" \
+    -H "Authorization: Bearer $TOKEN" \
+    --data-urlencode "filter=metric.type=\"$METRIC\"" \
+    --data-urlencode "interval.startTime=$IF_START" \
+    --data-urlencode "interval.endTime=$IF_END" 2>/dev/null \
+    | grep -c '"timeSeries"' || true)"
+  if [[ "${HIT:-0}" -gt 0 ]]; then
+    echo "Metrik sudah ter-ingest ke Cloud Monitoring."
+    INGESTED=1
+    break
+  fi
+  echo "  belum terlihat (percobaan $i/10), tunggu 30 detik..."
+  sleep 30
+done
+[[ -n "$INGESTED" ]] || echo "PERINGATAN: metrik belum terlihat; klik Task 4 mungkin perlu ditunggu lagi."
+
 # ══════════════════════════════════════════════════════════════
 # Task 5 - Dashboard Cloud Monitoring
 # ══════════════════════════════════════════════════════════════
@@ -305,6 +331,12 @@ SELESAI! Klik Check my progress untuk keempat checkpoint:
   Task 3 - Check if Prometheus has been deployed
   Task 4 - Check if the Flask application has been deployed
   Task 5 - Check if the dashboard is created
+
+PENTING - Task 4 & 5 memeriksa state di Cloud Monitoring, bukan di cluster.
+Kalau masih 0/25 padahal resource benar:
+  1. JANGAN End Lab dulu.
+  2. Tunggu ~5-10 menit, lalu klik Check my progress LAGI.
+  3. Hard refresh halaman lab (Ctrl+Shift+R) kalau status tetap 0.
 
 Dashboard "Prometheus Dashboard Example" ada di Console:
   Search "Monitoring" -> Dashboards -> Prometheus Dashboard Example
