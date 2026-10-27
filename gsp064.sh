@@ -81,6 +81,7 @@ step "Task 4: Grant Storage Object Viewer role untuk $USER_2"
 gcloud projects add-iam-policy-binding "$PROJECT_ID" \
   --member="user:$USER_2" \
   --role="roles/storage.objectViewer" \
+  --condition=None \
   --quiet
 echo "Role roles/storage.objectViewer berhasil diberikan ke $USER_2"
 
