@@ -1,7 +1,49 @@
-# Handoff — terakhir diperbarui 2026-08-22
+# Handoff (terakhir diperbarui 2026-10-27)
 
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
+
+## Sesi 2026-10-27: Borongan 6 Lab (GSP1024, GSP096, GSP401, GSP192, ARC113, GSP064)
+
+Sesi otomasi dan verifikasi 6 lab (5 lab 100/100, 1 lab 75/100):
+
+### 1. GSP064: Manage Access Control with IAM (100/100)
+- [`gsp064.sh`](gsp064.sh) + [runbook](docs/gsp064.md). Dikerjakan 100% otomatis dari terminal Cloud Shell milik Username 1 (Owner).
+- **Temuan krusial**: Policy IAM project lab ini memiliki *condition* (pembatasan kurikulum). Perintah `gcloud projects add-iam-policy-binding` dan `remove-iam-policy-binding` secara non-interaktif **wajib menyertakan `--condition=None`**, jika tidak gcloud akan menolak atau gagal diam-diam, menyebabkan log pencopotan akses tidak terbentuk di grader.
+
+### 2. GSP192: Dataflow: Qwik Start - Templates (100/100)
+- [`gsp192.sh`](gsp192.sh) + [runbook](docs/gsp192.md). Otomasi BigQuery dataset `taxirides`, table `realtime` partitioned, bucket GCS, dan streaming job Dataflow `iotflow` template `PubSub_to_BigQuery`.
+- **Temuan krusial**: Ketika Dataflow API di-disable dan di-enable kembali di Task 1, izin role `roles/dataflow.worker` pada default compute service account (`<project_number>-compute@developer.gserviceaccount.com`) lepas, menyebabkan job gagal (`Workflow failed: There was a problem refreshing your credentials`). Script otomatis mengikat ulang role `roles/dataflow.worker` dan `roles/dataflow.serviceAgent` sebelum job dijalankan.
+
+### 3. GSP401: Cloud Scheduler: Qwik Start (100/100)
+- [`gsp401.sh`](gsp401.sh) + [runbook](docs/gsp401.md). Otomasi Pub/Sub topic `cron-topic`, subscription `cron-sub`, dan Cloud Scheduler job `cron-job` dengan target Pub/Sub di region `us-east4`. Selesai dalam < 1 menit.
+
+### 4. GSP096: Pub/Sub: Qwik Start - Console (100/100)
+- [`gsp096.sh`](gsp096.sh) + [runbook](docs/gsp096.md). Otomasi pembuatan topic `MyTopic`, subscription `MySub`, publish pesan `Hello World`, dan pull message. Penanganan bypass error kuota 429 pada API enable serviceusage. Selesai dalam < 10 detik.
+
+### 5. ARC113: Implement Event-Driven Messaging and Automation Workflows (100/100)
+- [`arc113.sh`](arc113.sh) + [runbook](docs/arc113.md). Uji ulang varian schema + topic + Cloud Run function gen2.
+- Penyesuaian: Menambahkan toleransi `2>/dev/null || true` pada langkah `gcloud services enable` dan `add-iam-policy-binding` karena akun student pada challenge lab tidak memiliki wewenang admin serviceusage/IAM.
+
+### 6. GSP1024: Using Prometheus for Monitoring on Google Cloud (75/100)
+- [`gsp1024.sh`](gsp1024.sh) + [runbook](docs/gsp1024.md). Update default zone `us-east1-d` dan region `us-east1`, penambahan pengecekan kesiapan `/metrics` sebelum traffic generator, dan pembuatan dashboard dari file JSON.
+- Skor meningkat dari 50/100 menjadi 75/100 (Task 1, 3, dan 5 hijau). Task 4 (Verify application deployed) masih merah walau pod 1/1 Running, service memiliki public IP, merespons 200, dan metrik terbukti ter-ingest ke Cloud Monitoring.
+
+- **Status Terakhir**: 4 script baru ditambahkan (`gsp064`, `gsp096`, `gsp401`, `gsp192`) beserta runbook masing-masing. Script `arc113` dan `gsp1024` disempurnakan.
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
+
+## Sesi 2026-10-23: Review PR GitHub dan Status Proyek
+
+- **Review dan Close PR #2**: PR #2 oleh `@rulshrm` (patch `gsp1049.sh`) ditinjau dan ditutup (`closed`). Alasan: breaking change berupa penghapusan fungsi `row_count()` yang esensial untuk gating checkpoint Dataflow Task 3/4, serta ketiadaan aktivitas author selama lebih dari 1.5 bulan sejak review pertama. Saat ini 0 PR terbuka di repository.
+- **Daftar File Diubah (git status -s)**:
+  - `M README.md`: update status lab GSP095, GSP048, dan GEAR Mini-Project.
+  - `M docs/arc102.md`: dokumentasi deploy function gen1 dengan trigger bucket.
+  - `M docs/gear-bonus.md`: update status verifikasi GEAR Mini-Project per 2026-09-18.
+  - `M arc102.sh`: update penyesuaian trigger Cloud Functions gen1.
+  - `M gsp095.sh`: penyesuaian idempotensi Pub/Sub.
+  - `?? docs/gsp095.md`: runbook baru untuk GSP095.
+- **Status Terakhir**: PR #2 ditutup. Perubahan lokal pada berkas docs dan script siap diuji sebelum commit manual.
+- **Next Action**: Lakukan uji coba lokal atau verifikasi `bash -n` untuk script yang diubah sebelum Ravi melakukan git commit manual.
 
 ## Sesi 2026-08-22 — GSP328, GSP523, ARC119 (semua 100/100)
 
