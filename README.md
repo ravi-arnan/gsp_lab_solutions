@@ -167,7 +167,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP393 | Implement CI/CD Pipelines on Google Cloud: Challenge Lab | [gsp393.sh](gsp393.sh) | [docs/gsp393.md](docs/gsp393.md) | Terverifikasi, skor 100/100; dua fase, rollback tidak boleh diberi `--rollout-id` kustom | 2026-08-08 |
 | GSP1079 | Continuous Delivery with Google Cloud Deploy | [gsp1079.sh](gsp1079.sh) | [docs/gsp1079.md](docs/gsp1079.md) | Belum diuji; satu fase, 18-25 menit (tiga cluster GKE) | - |
 | GSP319 | Build a Website on Google Cloud: Challenge Lab | [gsp319.sh](gsp319.sh) | [docs/gsp319.md](docs/gsp319.md) | Terverifikasi, skor 100/100 sekali jalan; nama image dan cluster diacak per instance | 2026-08-10 |
-| GSP321 | Develop your Google Cloud Network: Challenge Lab | [gsp321.sh](gsp321.sh) | [docs/gsp321.md](docs/gsp321.md) | Belum diuji di lab sungguhan; 100% checkpoint otomatis | 2026-10-27 |
+| GSP321 | Develop your Google Cloud Network: Challenge Lab | [gsp321.sh](gsp321.sh) | [docs/gsp321.md](docs/gsp321.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-10-27 |
 | GSP330 | Implement DevOps Workflows in Google Cloud: Challenge Lab | [gsp330.sh](gsp330.sh) | - | Belum diuji; lima fase, Task 3 (dua Cloud Build trigger) dan `gh auth login` wajib manual | - |
 | GSP527 | Kickstarting Application Development with Gemini Code Assist: Challenge Lab | [gsp527.sh](gsp527.sh) | - | Dijalankan di lab sungguhan 2026-08-10 (dari situ ketahuan lab tidak men-deploy backend ke Cloud Run), skor akhir belum tercatat | 2026-08-10 |
 | GSP1063 | Finding Data in Google Sheets | - | [docs/gsp1063.md](docs/gsp1063.md) | Tidak bisa di-script (100% Google Sheets); runbook terverifikasi 100/100 sekali jalan | 2026-08-07 |
