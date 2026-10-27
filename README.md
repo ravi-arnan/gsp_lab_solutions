@@ -118,6 +118,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | ARC112 | Deploy and Manage Applications on Google App Engine: Challenge Lab | [arc112.sh](arc112.sh) | [docs/arc112.md](docs/arc112.md) | Terverifikasi, skor 100/100 (us-east4), dua fase; kerjanya di VM lab-setup lewat SSH | 2026-08-21 |
 | GSP095 | Pub/Sub: Qwik Start - Command Line | [gsp095.sh](gsp095.sh) | [docs/gsp095.md](docs/gsp095.md) | Terverifikasi, skor 100/100 sekali jalan; revisi idempotensi belum diuji ulang | 2026-08-21 |
 | GSP096 | Pub/Sub: Qwik Start - Console | [gsp096.sh](gsp096.sh) | [docs/gsp096.md](docs/gsp096.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-10-27 |
+| GSP401 | Cloud Scheduler: Qwik Start | [gsp401.sh](gsp401.sh) | [docs/gsp401.md](docs/gsp401.md) | Belum diuji | - |
 | GSP1089 | Cloud Run Functions: Qwik Start | [gsp1089.sh](gsp1089.sh) | - | Terverifikasi, skor 100/100; min-instances dan concurrency wajib lewat `gcloud run services update` (CPU `1000m`) | 2026-07-31 |
 | ARC104 | Build Serverless Applications with Cloud Run Functions: Challenge Lab | [arc104.sh](arc104.sh) | - | Terverifikasi, skor 100/100 sekali jalan | 2026-07-31 |
 | GSP659 | Deploy Your Website on Cloud Run | [gsp659.sh](gsp659.sh) | [docs/gsp659.md](docs/gsp659.md) | Terverifikasi, skor 100/100 (us-west1), dua fase | 2026-08-21 |
