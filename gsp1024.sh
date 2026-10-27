@@ -30,8 +30,14 @@ ask() {
   echo "$1 = ${!1}"
 }
 
-ask REGION "europe-west1"   "Region Artifact Registry (cocokkan panel lab)"
-ask ZONE   "europe-west1-b" "Zone cluster GKE (cocokkan panel lab)"
+# Prioritas: ENV var -> gcloud config -> default lab (us-east1-d / us-east1)
+DEFAULT_ZONE="$(gcloud config get-value compute/zone 2>/dev/null || true)"
+[[ -z "$DEFAULT_ZONE" ]] && DEFAULT_ZONE="us-east1-d"
+ask ZONE "$DEFAULT_ZONE" "Zone cluster GKE (cocokkan panel lab)"
+
+DEFAULT_REGION="$(gcloud config get-value compute/region 2>/dev/null || true)"
+[[ -z "$DEFAULT_REGION" ]] && DEFAULT_REGION="${ZONE%-*}"
+ask REGION "$DEFAULT_REGION" "Region Artifact Registry (cocokkan panel lab)"
 
 PROJECT="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
 [[ -n "$PROJECT" ]] || { echo "Project belum di-set. Jalankan: gcloud config set project <ID>"; exit 1; }
@@ -50,7 +56,7 @@ IMAGE="${REGION}-docker.pkg.dev/${PROJECT}/${REPO}/flask-telemetry:v1"
 # Loop pembebanan: ~40 x 2 detik, cukup mengisi dashboard dengan data.
 LOAD_ITER="${LOAD_ITER:-40}"
 
-mkdir -p "$MANIFEST_DIR"
+mkdir -p "$MANIFEST_DIR" "$HOME/gmp_prom_setup"
 
 echo "Project: $PROJECT"
 echo "Image  : $IMAGE"
@@ -182,6 +188,8 @@ spec:
     interval: 30s
 EOF
 
+cp "$MANIFEST_DIR"/* "$HOME/gmp_prom_setup/" 2>/dev/null || true
+
 kubectl -n "$NS" apply -f "$MANIFEST_DIR/flask_deployment.yaml"
 kubectl -n "$NS" apply -f "$MANIFEST_DIR/flask_service.yaml"
 kubectl -n "$NS" rollout status deployment/helloworld-gke --timeout=300s || true
@@ -198,8 +206,16 @@ done
 
 if [[ -n "$SVC_IP" ]]; then
   echo "IP LoadBalancer: $SVC_IP"
-  echo "Cek endpoint /metrics:"
-  curl -s "http://$SVC_IP/metrics" | head -5 || true
+  echo "Menunggu endpoint /metrics siap..."
+  for i in $(seq 1 30); do
+    if curl -s "http://$SVC_IP/metrics" | grep -q "flask_exporter_info"; then
+      echo "Endpoint /metrics aktif dan merespons!"
+      curl -s "http://$SVC_IP/metrics" | head -5 || true
+      break
+    fi
+    echo "  percobaan $i/30: menunggu service merespons..."
+    sleep 5
+  done
 else
   echo "PERINGATAN: IP LoadBalancer belum keluar, lanjut saja."
 fi
@@ -212,7 +228,7 @@ step "Membebani aplikasi ($LOAD_ITER iterasi) supaya dashboard ada isinya"
 if [[ -n "$SVC_IP" ]]; then
   for (( i = 1; i <= LOAD_ITER; i++ )); do
     curl -s "http://$SVC_IP/" >/dev/null 2>&1 || true
-    sleep 2
+    sleep 1
   done
   echo "Selesai membebani aplikasi."
 else
@@ -317,8 +333,9 @@ EXISTING_DASH="$(gcloud monitoring dashboards list \
 if [[ -n "$EXISTING_DASH" ]]; then
   echo "Dashboard sudah ada: $EXISTING_DASH (lewati, agar tidak dobel)."
 else
+  printf '%s\n' "$DASHBOARD_JSON" > "$WORKDIR/dashboard.json"
   gcloud monitoring dashboards create \
-    --config="$DASHBOARD_JSON" --project="$PROJECT"
+    --config-from-file="$WORKDIR/dashboard.json" --project="$PROJECT"
   echo "Dashboard dibuat."
 fi
 
