@@ -116,13 +116,15 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP338 | Monitor and Log with Google Cloud Observability: Challenge Lab | [gsp338.sh](gsp338.sh) | [docs/gsp338.md](docs/gsp338.md) | Fix (gsp338_fix.sh) terpakai di lab sungguhan: Task 3 filter regex + Task 4 /0 → hijau; gsp338.sh penuh belum diuji sekali jalan | 2026-09-08 |
 | ARC131 | Using the Google Cloud Speech API: Challenge Lab | [arc131.sh](arc131.sh) | [docs/arc131.md](docs/arc131.md) | Terverifikasi 100/100, tapi checkpoint API key butuh key ber-restriction (lihat runbook); Task 2-3 otomatis penuh | 2026-08-21 |
 | ARC112 | Deploy and Manage Applications on Google App Engine: Challenge Lab | [arc112.sh](arc112.sh) | [docs/arc112.md](docs/arc112.md) | Terverifikasi, skor 100/100 (us-east4), dua fase; kerjanya di VM lab-setup lewat SSH | 2026-08-21 |
-| GSP095 | Pub/Sub: Qwik Start - Command Line | [gsp095.sh](gsp095.sh) | - | Terverifikasi, skor 100/100 sekali jalan | 2026-08-21 |
+| GSP095 | Pub/Sub: Qwik Start - Command Line | [gsp095.sh](gsp095.sh) | [docs/gsp095.md](docs/gsp095.md) | Terverifikasi, skor 100/100 sekali jalan; revisi idempotensi belum diuji ulang | 2026-08-21 |
+| GSP096 | Pub/Sub: Qwik Start - Console | [gsp096.sh](gsp096.sh) | [docs/gsp096.md](docs/gsp096.md) | Belum diuji | - |
 | GSP1089 | Cloud Run Functions: Qwik Start | [gsp1089.sh](gsp1089.sh) | - | Terverifikasi, skor 100/100; min-instances dan concurrency wajib lewat `gcloud run services update` (CPU `1000m`) | 2026-07-31 |
 | ARC104 | Build Serverless Applications with Cloud Run Functions: Challenge Lab | [arc104.sh](arc104.sh) | - | Terverifikasi, skor 100/100 sekali jalan | 2026-07-31 |
 | GSP659 | Deploy Your Website on Cloud Run | [gsp659.sh](gsp659.sh) | [docs/gsp659.md](docs/gsp659.md) | Terverifikasi, skor 100/100 (us-west1), dua fase | 2026-08-21 |
 | GSP156 | Terraform Fundamentals | [gsp156.sh](gsp156.sh) | [docs/gsp156.md](docs/gsp156.md) | Belum diuji | - |
 | GSP413 | Creating a Data Warehouse Through Joins and Unions | [gsp413.sh](gsp413.sh) | [docs/gsp413.md](docs/gsp413.md) | Belum diuji | - |
 | GSP1158 | Assessing Data Quality with Knowledge Catalog | [gsp1158.sh](gsp1158.sh) | [docs/gsp1158.md](docs/gsp1158.md) | Belum diuji, maks 60/100 (Task 2 & 5 wajib manual) | - |
+| GSP048 | Transkripsi Speech-to-Text dengan Speech-to-Text API | [gsp048.sh](gsp048.sh) | [docs/gsp048.md](docs/gsp048.md) | Belum diuji; API key wajib dibuat manual di console | - |
 | GSP1282 | Enabling Sensitive Data Protection Discovery for BigQuery | [gsp1282.sh](gsp1282.sh) | [docs/gsp1282.md](docs/gsp1282.md) | Manual 100/100; script 80/100 (Task 4 ditolak) — tag dataset kini lewat `bq update --add_tags`, belum diverifikasi | 2026-07-31 |
 | GSP297 | Cloud Storage: Bucket Lock | [gsp297.sh](gsp297.sh) | [docs/gsp297.md](docs/gsp297.md) | Terverifikasi, skor 100/100, Task 6 (hapus bucket) sengaja manual | 2026-07-31 |
 | GENAI129 | Deploy an Agent with ADK: Challenge Lab | [genai129.sh](genai129.sh) | [docs/genai129.md](docs/genai129.md) | Terverifikasi, skor 100/100, enam fase, Task 6 (chat di UI) manual | 2026-08-01 |
@@ -202,9 +204,9 @@ Status `NEED-NET` berarti script mati karena stub tidak benar-benar mengunduh ap
 Cakupan repo ini terhadap katalog Arcade ada di [docs/coverage.md](docs/coverage.md).
 
 Selain lab, program Arcade kadang menawarkan tugas bonus yang dikerjakan di akun Google Cloud
-pribadi. Yang pernah ditelusuri: [docs/gear-bonus.md](docs/gear-bonus.md) — GEAR Mini-Project
-(bangun AI agent + submit form). **Tidak diselesaikan**: billing pribadi dengan kartu debit
-Indonesia mewajibkan prabayar Rp 500rb.
+pribadi. Status [GEAR Mini-Project](docs/gear-bonus.md) per 2026-09-18: **agent berhasil
+merespons dan form terkirim, menunggu verifikasi**. Billing sudah aktif setelah prabayar
+Rp 500rb; API dan izin verifier sudah aktif. Hasil verifikasi dan poin belum dikonfirmasi.
 
 ### Lab yang tidak cocok diotomasi
 
