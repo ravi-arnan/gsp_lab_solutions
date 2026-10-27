@@ -109,7 +109,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP510 | Manage Kubernetes in Google Cloud: Challenge Lab | [gsp510.sh](gsp510.sh) | [docs/gsp510.md](docs/gsp510.md) | Terverifikasi, skor 100/100 (dua perbaikan terakhir belum diuji ulang sekali jalan); nama diacak per instance | 2026-08-05 |
 | GSP207 | Dataflow: Qwik Start - Python | [gsp207.sh](gsp207.sh) | [docs/gsp207.md](docs/gsp207.md) | Terverifikasi, skor 100/100 (asia-southeast1); jalannya lama, 10-15 menit | 2026-08-21 |
 | GSP211 | Create and Configure Multiple VPC Networks | [gsp211.sh](gsp211.sh) | [docs/gsp211.md](docs/gsp211.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-10-27 |
-| GSP281 | Introduction to SQL for BigQuery and Cloud SQL | [gsp281.sh](gsp281.sh) | [docs/gsp281.md](docs/gsp281.md) | Belum diuji di lab sungguhan; 100% checkpoint otomatis | 2026-10-27 |
+| GSP281 | Introduction to SQL for BigQuery and Cloud SQL | [gsp281.sh](gsp281.sh) | [docs/gsp281.md](docs/gsp281.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-10-27 |
 | GSP351 | Migrate MySQL Data to Cloud SQL Using DMS: Challenge Lab | [gsp351.sh](gsp351.sh) | [docs/gsp351.md](docs/gsp351.md) | Terverifikasi, skor 100/100 (us-central1), dua fase; destination existing wajib `demote-destination` dulu | 2026-08-22 |
 | GSP903 | Stream Processing with Cloud Pub/Sub and Dataflow: Qwik Start | [gsp903.sh](gsp903.sh) | [docs/gsp903.md](docs/gsp903.md) | Terverifikasi, skor 100/100 (us-central1), dua fase | 2026-08-21 |
 | ARC110 | Create a Streaming Data Lake on Cloud Storage: Challenge Lab | [arc110.sh](arc110.sh) | [docs/gsp903.md](docs/gsp903.md) | Terverifikasi, skor 100/100 (us-central1); turunan gsp903.sh, runbooknya dipakai bersama | 2026-08-21 |
@@ -167,6 +167,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP393 | Implement CI/CD Pipelines on Google Cloud: Challenge Lab | [gsp393.sh](gsp393.sh) | [docs/gsp393.md](docs/gsp393.md) | Terverifikasi, skor 100/100; dua fase, rollback tidak boleh diberi `--rollout-id` kustom | 2026-08-08 |
 | GSP1079 | Continuous Delivery with Google Cloud Deploy | [gsp1079.sh](gsp1079.sh) | [docs/gsp1079.md](docs/gsp1079.md) | Belum diuji; satu fase, 18-25 menit (tiga cluster GKE) | - |
 | GSP319 | Build a Website on Google Cloud: Challenge Lab | [gsp319.sh](gsp319.sh) | [docs/gsp319.md](docs/gsp319.md) | Terverifikasi, skor 100/100 sekali jalan; nama image dan cluster diacak per instance | 2026-08-10 |
+| GSP321 | Develop your Google Cloud Network: Challenge Lab | [gsp321.sh](gsp321.sh) | [docs/gsp321.md](docs/gsp321.md) | Belum diuji di lab sungguhan; 100% checkpoint otomatis | 2026-10-27 |
 | GSP330 | Implement DevOps Workflows in Google Cloud: Challenge Lab | [gsp330.sh](gsp330.sh) | - | Belum diuji; lima fase, Task 3 (dua Cloud Build trigger) dan `gh auth login` wajib manual | - |
 | GSP527 | Kickstarting Application Development with Gemini Code Assist: Challenge Lab | [gsp527.sh](gsp527.sh) | - | Dijalankan di lab sungguhan 2026-08-10 (dari situ ketahuan lab tidak men-deploy backend ke Cloud Run), skor akhir belum tercatat | 2026-08-10 |
 | GSP1063 | Finding Data in Google Sheets | - | [docs/gsp1063.md](docs/gsp1063.md) | Tidak bisa di-script (100% Google Sheets); runbook terverifikasi 100/100 sekali jalan | 2026-08-07 |
