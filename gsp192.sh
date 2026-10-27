@@ -78,6 +78,18 @@ else
   echo "Bucket $BUCKET berhasil dibuat."
 fi
 
+# Pastikan service account worker & service agent memiliki izin setelah API di-reset
+PROJECT_NUMBER="$(gcloud projects describe "$PROJECT_ID" --format="value(projectNumber)" 2>/dev/null || true)"
+if [[ -n "$PROJECT_NUMBER" ]]; then
+  echo "Memberikan izin IAM untuk service account Dataflow..."
+  gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+    --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
+    --role="roles/dataflow.worker" --quiet 2>/dev/null || true
+  gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+    --member="serviceAccount:service-${PROJECT_NUMBER}@dataflow-service-producer-prod.iam.gserviceaccount.com" \
+    --role="roles/dataflow.serviceAgent" --quiet 2>/dev/null || true
+fi
+
 # Task 4: Run the pipeline
 step "Task 4: Run Dataflow Pipeline (iotflow di $REGION)"
 EXISTING_JOB="$("${GCLOUD[@]}" dataflow jobs list --region="$REGION" --filter="name:iotflow AND state:Running" --format="value(id)" 2>/dev/null | head -1 || true)"
