@@ -202,8 +202,8 @@ step "Ringkasan Resource"
 echo "--- VPC Networks ---"
 gcloud compute networks list --project="$PROJECT_ID"
 echo
-echo "--- Subnets (managementnet, privatenet, mynetwork) ---"
-gcloud compute networks subnets list --project="$PROJECT_ID" --filter="network ~ (managementnet|privatenet|mynetwork)" --sort-by=NETWORK
+echo "--- Subnets (sorted by network) ---"
+gcloud compute networks subnets list --project="$PROJECT_ID" --sort-by=NETWORK
 echo
 echo "--- VM Instances ---"
 gcloud compute instances list --project="$PROJECT_ID" --sort-by=ZONE
