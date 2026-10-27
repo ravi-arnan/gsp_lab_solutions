@@ -33,7 +33,9 @@ ask() {
   echo "$1 = ${!1}"
 }
 
-ask REGION "us-central1" "Region untuk Cloud Run function (cocokkan dengan panel lab)"
+DEFAULT_REGION="$(gcloud config get-value compute/region 2>/dev/null || true)"
+[[ -z "$DEFAULT_REGION" ]] && DEFAULT_REGION="us-central1"
+ask REGION "$DEFAULT_REGION" "Region untuk Cloud Run function (cocokkan dengan panel lab)"
 
 SCHEMA_NEW="${SCHEMA_NEW:-city-temp-schema}"
 SCHEMA_EXISTING="${SCHEMA_EXISTING:-temperature-schema}"
