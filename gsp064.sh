@@ -73,7 +73,8 @@ step "Task 3: Remove Project Viewer role untuk $USER_2"
 gcloud projects remove-iam-policy-binding "$PROJECT_ID" \
   --member="user:$USER_2" \
   --role="roles/viewer" \
-  --quiet 2>/dev/null || true
+  --condition=None \
+  --quiet
 echo "Role roles/viewer berhasil dihapus dari $USER_2"
 
 # Task 4: Tambahkan Storage Object Viewer role untuk Username 2
