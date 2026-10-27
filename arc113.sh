@@ -50,7 +50,7 @@ step() { echo; echo "===========================================================
 
 AVRO_DEF='{"type":"record","name":"Avro","fields":[{"name":"city","type":"string"},{"name":"temperature","type":"double"},{"name":"pressure","type":"int"},{"name":"time_position","type":"string"}]}'
 
-step "Enable API"
+step "Enable API (abaikan bila sudah aktif / non-admin)"
 gcloud services enable \
   pubsub.googleapis.com \
   cloudfunctions.googleapis.com \
@@ -59,7 +59,7 @@ gcloud services enable \
   artifactregistry.googleapis.com \
   eventarc.googleapis.com \
   logging.googleapis.com \
-  --project="$PROJECT"
+  --project="$PROJECT" 2>/dev/null || true
 
 # ----------------------------------------------------------------- Task 1
 step "Task 1: schema $SCHEMA_NEW"
@@ -111,7 +111,7 @@ COMPUTE_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
 for ROLE in roles/eventarc.eventReceiver roles/run.invoker roles/artifactregistry.reader; do
   gcloud projects add-iam-policy-binding "$PROJECT" \
     --member="serviceAccount:$COMPUTE_SA" --role="$ROLE" \
-    --condition=None >/dev/null
+    --condition=None >/dev/null 2>&1 || true
 done
 gcloud projects add-iam-policy-binding "$PROJECT" \
   --member="serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-pubsub.iam.gserviceaccount.com" \
