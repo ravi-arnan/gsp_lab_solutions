@@ -155,7 +155,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP1164 | Analyze Findings with Security Command Center | [gsp1164.sh](gsp1164.sh) | - | Belum diuji | - |
 | GSP1077 | Google Kubernetes Engine Pipeline using Cloud Build | [gsp1077.sh](gsp1077.sh) | [docs/gsp1077.md](docs/gsp1077.md) | Belum diuji; tiga fase, `gh auth login` + install Cloud Build GitHub App wajib manual | - |
 | GSP190 | IAM Custom Roles | [gsp190.sh](gsp190.sh) | [docs/gsp190.md](docs/gsp190.md) | Terverifikasi, skor 100/100; keenam checkpoint diklik sekaligus di akhir | 2026-08-07 |
-| GSP192 | Dataflow: Qwik Start - Templates | [gsp192.sh](gsp192.sh) | [docs/gsp192.md](docs/gsp192.md) | Belum diuji | - |
+| GSP192 | Dataflow: Qwik Start - Templates | [gsp192.sh](gsp192.sh) | [docs/gsp192.md](docs/gsp192.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-10-27 |
 | GSP647 | Configuring IAM Permissions with gcloud | [gsp647.sh](gsp647.sh) | [docs/gsp647.md](docs/gsp647.md) | Terverifikasi, skor 100/100; dua fase, fase `vm` wajib (empat checkpoint dinilai dari dalam VM `centos-clean`) | 2026-08-07 |
 | GSP526 | Privileged Access with IAM: Challenge Lab | [gsp526.sh](gsp526.sh) | [docs/gsp526.md](docs/gsp526.md) | Terverifikasi, skor 100/100; empat fase, dua di antaranya di Cloud Shell milik user kedua | 2026-08-07 |
 | GSP499 | User Authentication: Identity-Aware Proxy | [gsp499.sh](gsp499.sh) | [docs/gsp499.md](docs/gsp499.md) | Belum diuji; nol langkah Console (IAP diatur lewat gcloud) | - |
