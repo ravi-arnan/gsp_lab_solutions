@@ -24,9 +24,8 @@ echo "Sub    : $SUB"
 
 step() { echo; echo "=============================================================="; echo ">> $1"; echo "=============================================================="; }
 
-# Enable Pub/Sub API jika belum aktif
-step "Enable Pub/Sub API"
-"${GCLOUD[@]}" services enable pubsub.googleapis.com --quiet
+# Enable Pub/Sub API jika belum aktif (abaikan bila rate-limited / sudah aktif)
+"${GCLOUD[@]}" services enable pubsub.googleapis.com --quiet 2>/dev/null || true
 
 # Task 1: Create Pub/Sub topic
 step "Task 1: Create a Pub/Sub topic ($TOPIC)"
