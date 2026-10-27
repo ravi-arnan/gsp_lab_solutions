@@ -87,7 +87,6 @@ else
     --edition=enterprise \
     --storage-size=100GB \
     --availability-type=REGIONAL \
-    --region="$REGION" \
     --zone="$ZONE" \
     --root-password="ChangeMe1!" \
     --quiet; then
@@ -96,7 +95,7 @@ else
         --project="$PROJECT_ID" \
         --database-version=MYSQL_8_0 \
         --tier=db-f1-micro \
-        --region="$REGION" \
+        --zone="$ZONE" \
         --root-password="ChangeMe1!" \
         --quiet
   fi
