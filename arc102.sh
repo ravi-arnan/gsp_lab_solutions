@@ -17,8 +17,8 @@
 # arc100. Dua alasan:
 #   1. Tanda tangan kodenya gaya lama: exports.thumbnail = (event, context).
 #      Gen2 memakai CloudEvent, jadi kode lab apa adanya akan gagal di gen2.
-#   2. imagemagick-stream butuh binary 'convert'. Runtime gen1 menyediakannya;
-#      buildpack gen2 tidak, jadi thumbnail tidak akan pernah terbentuk.
+#   2. Source ini memakai signature background function gen1. Gen2 mengubah
+#      payload menjadi CloudEvent, jadi sample lab tidak boleh dipaksa ke gen2.
 #
 # LAMA: 4-6 menit, hampir semuanya di deploy.
 
@@ -192,12 +192,12 @@ grep -n "topicName" "$WORKDIR/index.js"
 deploy() {
   gcloud functions deploy "$FUNC" \
     --no-gen2 \
-    --runtime=nodejs20 \
+    --runtime=nodejs22 \
     --region="$REGION" \
     --source="$WORKDIR" \
     --entry-point=thumbnail \
-    --trigger-resource="$BUCKET" \
-    --trigger-event=google.storage.object.finalize \
+    --trigger-bucket="$BUCKET" \
+    --max-instances=5 \
     --project="$PROJECT" \
     --quiet
 }
@@ -237,8 +237,8 @@ Kalau thumbnail belum muncul di daftar di atas, cek log function:
 
   gcloud functions logs read $FUNC --region=$REGION --limit=20
 
-Error 'convert: not found' berarti fungsi ter-deploy sebagai gen2.
-Hapus lalu deploy ulang dengan --no-gen2:
+Error 'convert: not found' berarti runtime atau build function tidak
+menyediakan binary ImageMagick. Pastikan deploy memakai gen1:
 
   gcloud functions delete $FUNC --region=$REGION --quiet
 ==============================================================

@@ -1,13 +1,17 @@
-# GEAR Mini-Project — Build Your First AI Agent (bonus, di luar lab)
+# GEAR Mini-Project: Build Your First AI Agent (bonus, di luar lab)
 
 Bukan lab Qwiklabs. Ini tugas bonus program Arcade/GEAR yang dikerjakan di **akun Google Cloud
 pribadi** dengan billing sendiri, bukan di project lab. Tidak ada Check my progress; verifikasinya
 lewat form.
 
-Status (2026-08-08): **form sudah disubmit, biaya Rp 0**. Hasil verifikasinya belum diketahui —
-prosesnya sampai 48 jam, poin (10) baru masuk di akhir program. `aiplatform.googleapis.com` sudah ENABLED dan binding verifier sudah terpasang di project
-`gear-agent-12083`, tapi billing account-nya masih `OPEN: False` karena prabayar Rp 500rb tidak
-dibayar — lihat [Blocker](#blocker-prabayar-rp-500rb-untuk-kartu-debit).
+Status (2026-09-18): **agent jalan dan form terkirim ulang** di project
+`gearminiproject-508106`, billing account `01C3E0-29ECF8-0623CA` sudah `OPEN: True`. Prabayar
+Rp 500rb sudah dibayar dan diterima sebagai saldo prepayment. Binding verifier
+`group:arcade-agent-verifier@google.com` role `serviceusage.serviceUsageViewer` sudah terpasang.
+Menunggu hasil verifikasi (maks 48 jam); poin (10) baru masuk di akhir program.
+
+Status sebelumnya (2026-08-08): form disubmit dengan billing `OPEN: False` di project
+`gear-agent-12083`.
 
 Sumber: dokumen program "GEAR Mini-Project: Build Your First AI Agent using Vertex AI (Agent
 Platform)". Deadline form: 14 Sep 2026.
@@ -75,6 +79,12 @@ tidak lagi memenuhi syarat trial gratis.
 Keputusan 2026-08-08: **prabayarnya dilewati, form tetap disubmit**. Tidak ada uang keluar; kalau
 ternyata verifikasi mereka juga menuntut billing aktif, ya tidak ada yang hilang.
 
+Update 2026-09-18: prabayarnya **dibayar** dan billing account jadi `OPEN: True`. Dana Rp 500rb
+ternyata masuk sebagai **deposit awal (prepayment)**, bukan tagihan pemakaian — saldo itu bisa
+dipakai untuk biaya Cloud dan refundable saat billing account ditutup. Detail pesannya perlu
+dibaca hati-hati: yang diminta saat submit adalah verifikasi metode pembayaran, bukan biaya
+bulanan.
+
 ## Langkah lengkap
 
 Di Cloud Shell akun pribadi:
@@ -114,6 +124,11 @@ Lalu isi form verifikasi (`forms.gle/MMfH5RKp83TfRtXj9`, 5 halaman) dengan:
 - Halaman Terms & Conditions: pilih **"Yes, I accept the terms"**. Menolak = agent tidak
   diverifikasi, poin bonus hangus. Isinya standar (kredit non-transferable, tidak boleh untuk
   mining kripto, larangan negara embargo, Google boleh melacak grade dan pembuatan agent).
+- Halaman terakhir: konfirmasi IAM verifier sudah dipasang. Pilih **"Ya"** — lalu pastikan
+  halaman konfirmasi menampilkan "Jawaban Anda telah direkam", bukan pesan penolakan. Kalau
+  pesan penolakan yang muncul padahal pilihannya benar, cek email konfirmasi Google Forms dan
+  pakai link "Edit respons Anda" di sana untuk submit ulang (kasus 2026-09-18: submit ulang
+  berhasil dan respons tercatat).
 
 Dokumen program minta IAM binding verifier itu **dipertahankan sampai program selesai + 2 minggu**.
 Hapus setelahnya:
@@ -139,3 +154,14 @@ python agent.py
 Kode contohnya pakai `vertexai.generative_models` + `vertexai.init(location="global")` + model
 `gemini-3.5-flash`. Kalau SDK atau nama modelnya sudah bergeser, abaikan — tidak ada hubungannya
 dengan poin.
+
+Dua jebakan saat menjalankannya (2026-09-18, semuanya teratasi):
+
+- **"Vertex AI (Agent Platform) API" tidak ketemu di API Library.** Nama di Console sudah
+  diganti jadi Gemini Enterprise Agent Platform pas rebranding. Aktifkan lewat CLI, API ID-nya
+  tetap `aiplatform.googleapis.com`:
+  `gcloud services enable aiplatform.googleapis.com`.
+- **`vertexai.init(location="global")` tanpa project menyebabkan PERMISSION_DENIED.** SDK
+  mencoba resolve project number lewat Cloud Resource Manager API, dan API itu belum enabled
+  di project baru. Fix akarnya: pass project ID eksplisit,
+  `vertexai.init(project="$PROJECT_ID", location="global")`, tidak perlu enable API tambahan.
