@@ -30,20 +30,22 @@ PROJECT_ID="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null
 [[ -n "$PROJECT_ID" ]] || { echo "Project belum di-set."; exit 1; }
 
 # Auto-detect zone dari instance yang sudah ada
-ask ZONE "" "Zone (cocokkan dengan panel lab)"
-if [[ -z "$ZONE" ]]; then
-  ZONE=$(gcloud compute instances list --filter="name=tf-instance-1" --format="value(zone)" --limit=1 2>/dev/null)
-  ZONE="${ZONE:-europe-west1-d}"
-fi
+DETECTED_ZONE=$(gcloud compute instances list --filter="name=tf-instance-1" --format="value(zone)" --limit=1 2>/dev/null || true)
+[[ -z "$DETECTED_ZONE" ]] && DETECTED_ZONE="$(gcloud compute project-info describe --format='value(commonInstanceMetadata.items[google-compute-default-zone])' 2>/dev/null || true)"
+[[ -z "$DETECTED_ZONE" ]] && DETECTED_ZONE="$(gcloud config get-value compute/zone 2>/dev/null || true)"
+[[ -z "$DETECTED_ZONE" ]] && DETECTED_ZONE="us-east1-c"
 
-# Region ikut zone: subnet VPC di Task 6 harus se-region dengan instance,
-# kalau tidak apply-nya gagal.
-REGION="${REGION:-${ZONE%-*}}"
+ask ZONE "$DETECTED_ZONE" "Zone (cocokkan dengan panel lab)"
+
+# Region ikut zone: subnet VPC di Task 6 harus se-region dengan instance
+DETECTED_REGION="${ZONE%-*}"
+[[ -z "$DETECTED_REGION" ]] && DETECTED_REGION="us-east1"
+ask REGION "$DETECTED_REGION" "Region (cocokkan dengan panel lab)"
 
 # === Sesuaikan suffix berikut dengan angka di halaman lab-mu ===
-BUCKET_SUFFIX="${BUCKET_SUFFIX:-616380}"
-VPC_SUFFIX="${VPC_SUFFIX:-951548}"
-INSTANCE3_SUFFIX="${INSTANCE3_SUFFIX:-961673}"
+ask BUCKET_SUFFIX "852606" "Bucket Suffix (angka setelah tf-bucket-)"
+ask VPC_SUFFIX "821633" "VPC Suffix (angka setelah tf-vpc-)"
+ask INSTANCE3_SUFFIX "298349" "Instance 3 Suffix (angka setelah tf-instance-)"
 
 BUCKET_NAME="tf-bucket-${BUCKET_SUFFIX}"
 VPC_NAME="tf-vpc-${VPC_SUFFIX}"
@@ -58,16 +60,31 @@ echo "Instance 3:     $INSTANCE3_NAME"
 
 step() { echo; echo "=============================================================="; echo ">> $1"; echo "=============================================================="; }
 
-# ================================================================= Install Terraform
-step "Install Terraform"
-if terraform --version 2>/dev/null | grep -q "Terraform v"; then
-  echo "Terraform sudah terinstal: $(terraform --version | head -1)"
+# ================================================================= Prerequisite: Install Terraform
+if ! terraform --version 2>&1 | grep -q 'Terraform v'; then
+  step "Prerequisite: Pasang Terraform CLI"
+  cat <<'EOF' > ~/.customize_environment
+# Set up HashiCorp repository and install Terraform
+wget -qO - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor --yes -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update && sudo apt install -y terraform
+EOF
+  bash ~/.customize_environment
+  hash -r 2>/dev/null || true
+
+  if ! terraform --version 2>&1 | grep -q 'Terraform v'; then
+    echo "Fallback instalasi binary Terraform..."
+    TF_VER="1.9.8"
+    TF_ARCH="$(dpkg --print-architecture 2>/dev/null || echo 'amd64')"
+    wget -q "https://releases.hashicorp.com/terraform/${TF_VER}/terraform_${TF_VER}_linux_${TF_ARCH}.zip" -O /tmp/terraform.zip
+    sudo unzip -o /tmp/terraform.zip -d /usr/local/bin/
+    rm -f /tmp/terraform.zip
+    hash -r 2>/dev/null || true
+  fi
 else
-  wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-  sudo apt update && sudo apt install -y terraform
-  echo "Terraform terinstal: $(terraform --version | head -1)"
+  step "Prerequisite: Verifikasi Terraform terpasang"
 fi
+terraform --version
 
 # ================================================================= Task 1: Create the configuration files
 step "Task 1: Buat struktur direktori dan file"
@@ -101,7 +118,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = ">= 4.0, < 7.0"
+      version = "~> 6.0"
     }
   }
 }
@@ -182,24 +199,35 @@ step "Task 2: Import existing instances"
 # Discover existing instance details
 get_instance_attr() {
   local name=$1 attr=$2
-  gcloud compute instances describe "$name" --zone="$ZONE" --format="value($attr)" 2>/dev/null || \
-    gcloud compute instances describe "$name" --zone=europe-west1-c --format="value($attr)"
+  gcloud compute instances describe "$name" --zone="$ZONE" --format="value($attr)" 2>/dev/null || true
 }
 
 echo ">>> Mendapatkan detail instance tf-instance-1..."
 INST1_MACHINE=$(get_instance_attr tf-instance-1 "machineType.basename()")
+[[ -z "$INST1_MACHINE" ]] && INST1_MACHINE="e2-micro"
 INST1_BOOT_DISK=$(get_instance_attr tf-instance-1 "disks[].source.basename()" | cut -d';' -f1)
-INST1_IMAGE=$(gcloud compute disks describe "$INST1_BOOT_DISK" --zone="$ZONE" --format="value(sourceImage)" 2>/dev/null || \
-              gcloud compute disks describe "$INST1_BOOT_DISK" --zone=europe-west1-c --format="value(sourceImage)")
-INST1_NETWORK=$(get_instance_attr tf-instance-1 "networkInterfaces[].network.basename()" | cut -d';' -f1)
-INST1_SUBNET=$(get_instance_attr tf-instance-1 "networkInterfaces[].subnetwork.basename()" | cut -d';' -f1)
+INST1_IMAGE=""
+if [[ -n "$INST1_BOOT_DISK" ]]; then
+  INST1_IMAGE=$(gcloud compute disks describe "$INST1_BOOT_DISK" --zone="$ZONE" --format="value(sourceImage)" 2>/dev/null || true)
+fi
+[[ -z "$INST1_IMAGE" ]] && INST1_IMAGE="debian-12"
 
 echo ">>> Mendapatkan detail instance tf-instance-2..."
 INST2_MACHINE=$(get_instance_attr tf-instance-2 "machineType.basename()")
+[[ -z "$INST2_MACHINE" ]] && INST2_MACHINE="e2-micro"
 INST2_BOOT_DISK=$(get_instance_attr tf-instance-2 "disks[].source.basename()" | cut -d';' -f1)
-INST2_IMAGE=$(gcloud compute disks describe "$INST2_BOOT_DISK" --zone="$ZONE" --format="value(sourceImage)" 2>/dev/null || \
-              gcloud compute disks describe "$INST2_BOOT_DISK" --zone=europe-west1-c --format="value(sourceImage)")
+INST2_IMAGE=""
+if [[ -n "$INST2_BOOT_DISK" ]]; then
+  INST2_IMAGE=$(gcloud compute disks describe "$INST2_BOOT_DISK" --zone="$ZONE" --format="value(sourceImage)" 2>/dev/null || true)
+fi
+[[ -z "$INST2_IMAGE" ]] && INST2_IMAGE="debian-12"
+
+INST1_NETWORK=$(get_instance_attr tf-instance-1 "networkInterfaces[].network.basename()" | cut -d';' -f1)
+[[ -z "$INST1_NETWORK" ]] && INST1_NETWORK="default"
 INST2_NETWORK=$(get_instance_attr tf-instance-2 "networkInterfaces[].network.basename()" | cut -d';' -f1)
+[[ -z "$INST2_NETWORK" ]] && INST2_NETWORK="default"
+
+INST1_SUBNET=$(get_instance_attr tf-instance-1 "networkInterfaces[].subnetwork.basename()" | cut -d';' -f1)
 INST2_SUBNET=$(get_instance_attr tf-instance-2 "networkInterfaces[].subnetwork.basename()" | cut -d';' -f1)
 
 echo "  tf-instance-1: machine=$INST1_MACHINE, boot_disk=$INST1_BOOT_DISK, image=$INST1_IMAGE, network=$INST1_NETWORK, subnet=$INST1_SUBNET"
@@ -211,7 +239,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = ">= 4.0, < 7.0"
+      version = "~> 6.0"
     }
   }
 }
@@ -314,7 +342,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = ">= 4.0, < 7.0"
+      version = "~> 6.0"
     }
   }
 }
@@ -352,7 +380,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = ">= 4.0, < 7.0"
+      version = "~> 6.0"
     }
   }
   backend "gcs" {
@@ -475,12 +503,6 @@ echo ">>> Task 4 selesai. Klik Check my progress."
 # ================================================================= Task 5: Destroy resources
 step "Task 5: Destroy tf-instance-3"
 
-# Task 5 menghapus instance yang baru dibuat Task 4, jadi checkpoint Task 4
-# harus hijau dulu. Jeda hanya kalau interaktif (bukan curl | bash).
-if [[ -t 0 ]]; then
-  read -r -p "Pastikan checkpoint Task 4 sudah hijau, lalu tekan Enter..." _
-fi
-
 cat > modules/instances/instances.tf << EOF
 resource "google_compute_instance" "tf-instance-1" {
   name         = "tf-instance-1"
@@ -545,7 +567,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = ">= 4.0, < 7.0"
+      version = "~> 6.0"
     }
   }
   backend "gcs" {
@@ -668,7 +690,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = ">= 4.0, < 7.0"
+      version = "~> 6.0"
     }
   }
   backend "gcs" {

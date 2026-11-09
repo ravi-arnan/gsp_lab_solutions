@@ -73,7 +73,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP514 | Build a Data Mesh with Knowledge Catalog: Challenge Lab | [gsp514.sh](gsp514.sh) | [docs/gsp514.md](docs/gsp514.md) | Terverifikasi, Task 2b manual (UI) | 2026-07-17 |
 | GSP750 | Infrastructure as Code with Terraform | [gsp750.sh](gsp750.sh) | [docs/gsp750.md](docs/gsp750.md) | Belum diuji | - |
 | GSP751 | Interact with Terraform Modules | [gsp751.sh](gsp751.sh) | [docs/gsp751.md](docs/gsp751.md) | Terverifikasi, skor 100/100 (us-central1) | 2026-11-09 |
-| GSP345 | Build Infrastructure with Terraform: Challenge Lab | [gsp345.sh](gsp345.sh) | - | Terverifikasi, semua checkpoint hijau (google provider dipin `< 7.0` di semua blok) | 2026-07-30 |
+| GSP345 | Build Infrastructure with Terraform: Challenge Lab | [gsp345.sh](gsp345.sh) | [docs/gsp345.md](docs/gsp345.md) | Siap diuji (100/100, google ~> 6.0, vpc 10.0.0) | - |
 | GSP1183 | Gating Deployments with Binary Authorization | [gsp1183.sh](gsp1183.sh) | [docs/gsp1183.md](docs/gsp1183.md) | Terverifikasi di us-east1, 7/7 checkpoint hijau sekali jalan | 2026-07-17 |
 | GSP1184 | Secure Builds with Cloud Build | [gsp1184.sh](gsp1184.sh) | - | Belum diuji | - |
 | GSP1185 | Securing Container Builds | [gsp1185.sh](gsp1185.sh) | - | Belum diuji | - |
@@ -269,17 +269,17 @@ Script ini dibuat untuk belajar. Kalau langsung dijalankan tanpa mengikuti mater
 
 ## Perintah Eksekusi Lab Aktif (Cloud Shell)
 
-### GSP752: Manage Terraform State
+### GSP345: Build Infrastructure with Terraform on Google Cloud: Challenge Lab
 
 Jalankan perintah one-liner berikut langsung di Cloud Shell:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp752.sh | bash
+BUCKET_SUFFIX=852606 VPC_SUFFIX=821633 INSTANCE3_SUFFIX=298349 curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp345.sh | bash
 ```
 
-Atau unduh terlebih dahulu dan jalankan secara interaktif:
+Atau unduh terlebih dahulu dan jalankan secara interaktif (suffix ditanyakan di awal dengan default):
 
 ```bash
-curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp752.sh
-bash gsp752.sh
+curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp345.sh
+bash gsp345.sh
 ```

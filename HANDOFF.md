@@ -3,6 +3,17 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-09: GSP345 - Build Infrastructure with Terraform on Google Cloud: Challenge Lab
+
+- [`gsp345.sh`](gsp345.sh) + [runbook](docs/gsp345.md):
+  - Memperbarui Google Provider ke `~> 6.0` dan VPC module ke `10.0.0` sesuai materi lab terbaru.
+  - Memperbarui default suffix dinamis: `BUCKET_SUFFIX=852606`, `VPC_SUFFIX=821633`, `INSTANCE3_SUFFIX=298349`.
+  - Memperbaiki deteksi dummy wrapper Terraform Cloud Shell dan instalasi otomatis jika belum ada.
+  - Menghapus pause interaktif `read -r` pada Task 5 agar eksekusi seluruh 7 task berjalan mulus tanpa jeda.
+  - Menambahkan runbook dokumentasi di `docs/gsp345.md`.
+- **Status Terakhir**: Lolos uji `bash -n`, `shellcheck`, dan dry-run (`bash test/run.sh gsp345.sh`).
+- **Next Action**: Jalankan script di Cloud Shell dan konfirmasi skor 100/100 di portal lab.
+
 ## Sesi 2026-11-09: GSP752 - Manage Terraform State
 
 - [`gsp752.sh`](gsp752.sh) + [runbook](docs/gsp752.md):
