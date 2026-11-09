@@ -125,7 +125,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP1089 | Cloud Run Functions: Qwik Start | [gsp1089.sh](gsp1089.sh) | - | Terverifikasi, skor 100/100; min-instances dan concurrency wajib lewat `gcloud run services update` (CPU `1000m`) | 2026-07-31 |
 | ARC104 | Build Serverless Applications with Cloud Run Functions: Challenge Lab | [arc104.sh](arc104.sh) | - | Terverifikasi, skor 100/100 sekali jalan | 2026-07-31 |
 | GSP659 | Deploy Your Website on Cloud Run | [gsp659.sh](gsp659.sh) | [docs/gsp659.md](docs/gsp659.md) | Terverifikasi, skor 100/100 (us-west1), dua fase | 2026-08-21 |
-| GSP156 | Terraform Fundamentals | [gsp156.sh](gsp156.sh) | [docs/gsp156.md](docs/gsp156.md) | Belum diuji | - |
+| GSP156 | Terraform Fundamentals | [gsp156.sh](gsp156.sh) | [docs/gsp156.md](docs/gsp156.md) | Terverifikasi, skor 100/100 (debian-12, us-east1-c) | 2026-11-09 |
 | GSP413 | Creating a Data Warehouse Through Joins and Unions | [gsp413.sh](gsp413.sh) | [docs/gsp413.md](docs/gsp413.md) | Belum diuji | - |
 | GSP1158 | Assessing Data Quality with Knowledge Catalog | [gsp1158.sh](gsp1158.sh) | [docs/gsp1158.md](docs/gsp1158.md) | Belum diuji, maks 60/100 (Task 2 & 5 wajib manual) | - |
 | GSP048 | Transkripsi Speech-to-Text dengan Speech-to-Text API | [gsp048.sh](gsp048.sh) | [docs/gsp048.md](docs/gsp048.md) | Belum diuji; API key wajib dibuat manual di console | - |
@@ -264,3 +264,22 @@ Script ini mengerjakan bagian yang di-score lewat **Check my progress**, yaitu p
 Pola `curl ... | bash` menjalankan kode dari internet tanpa kamu baca dulu. Untuk repo ini kodenya milik sendiri, tapi biasakan tetap baca isinya, apalagi kalau kamu fork atau ada orang lain yang punya akses tulis ke repo ini.
 
 Script ini dibuat untuk belajar. Kalau langsung dijalankan tanpa mengikuti materinya, kamu dapat centang hijau tapi tidak dapat ilmunya.
+
+---
+
+## Perintah Eksekusi Lab Aktif (Cloud Shell)
+
+### GSP156: Terraform Fundamentals
+
+Jalankan perintah one-liner berikut langsung di Cloud Shell:
+
+```bash
+ZONE=us-east1-c curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp156.sh | bash
+```
+
+Atau unduh terlebih dahulu dan jalankan secara interaktif:
+
+```bash
+curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp156.sh
+bash gsp156.sh
+```

@@ -3,64 +3,76 @@
 #
 #   bash gsp156.sh
 #
-# ZONE diisi dinamis per instance. Script mencoba membacanya dari metadata project;
-# kalau gagal, cocokkan dengan panel Lab Details lalu override:
-#   ZONE=europe-west1-b bash gsp156.sh
+# Checkpoint:
+#   Task 2 (100 pts) - Create a VM instance in the <zone> zone with Terraform
+#   Task 3 (0 pts)   - Test your understanding (pilihan ganda, manual: keduanya True)
 #
-# Checkpoint: cuma SATU, di akhir Task 2 — "Create a VM instance in the <region>
-# zone with Terraform" (100 poin). Task 1 (jalankan `terraform`) dan Task 3
-# (dua soal pilihan ganda, jawabannya True dan True) tidak di-score.
+# LAMA: ~1-2 menit.
 
 set -euo pipefail
 
 PROJECT="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
 [[ -n "$PROJECT" ]] || { echo "Project belum di-set. Jalankan: gcloud config set project <ID>"; exit 1; }
 
-# Lab menyetel default zone di metadata project, jadi biasanya tidak perlu diisi manual.
-ZONE="${ZONE:-$(gcloud compute project-info describe \
-  --format='value(commonInstanceMetadata.items[google-compute-default-zone])' 2>/dev/null)}"
+# Helper tanya nilai jika belum di-set via env var
+ask() {
+  local _cur="${!1:-}"
+  if [[ -n "$_cur" ]]; then echo "$1 = $_cur (dari env)"; return; fi
+  if [[ -t 0 ]]; then
+    local _v
+    read -rp "$3 [$2]: " _v
+    printf -v "$1" '%s' "${_v:-$2}"
+  else
+    printf -v "$1" '%s' "$2"
+  fi
+  echo "$1 = ${!1}"
+}
 
-if [[ -z "$ZONE" ]]; then
-  echo "ZONE tidak terbaca dari metadata project."
-  echo "Ambil zone dari panel Lab Details, lalu:"
-  echo "  ZONE=<zone> bash gsp156.sh"
-  exit 1
-fi
+# Deteksi default zone dari metadata project atau gcloud config
+DEFAULT_ZONE="$(gcloud compute project-info describe \
+  --format='value(commonInstanceMetadata.items[google-compute-default-zone])' 2>/dev/null || true)"
+[[ -z "$DEFAULT_ZONE" ]] && DEFAULT_ZONE="$(gcloud config get-value compute/zone 2>/dev/null || true)"
+[[ -z "$DEFAULT_ZONE" ]] && DEFAULT_ZONE="us-east1-c"
+
+ask ZONE "$DEFAULT_ZONE" "Zone Compute Engine (cocokkan dengan panel lab)"
 
 echo "Project: $PROJECT"
 echo "Zone   : $ZONE"
 
 step() { echo; echo "=============================================================="; echo ">> $1"; echo "=============================================================="; }
 
-# Terraform init menolak jalan kalau ada *.tf lain di direktori yang sama, dan
-# lab memang menyuruh `ls` untuk memastikan itu. Pakai direktori sendiri.
+# Task 1: Terraform installation
+if ! command -v terraform &>/dev/null; then
+  step "Task 1: Pasang Terraform CLI"
+  cat <<'EOF' > ~/.customize_environment
+# Set up HashiCorp repository and install Terraform
+wget -qO - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor --yes -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update && sudo apt install -y terraform
+EOF
+  bash ~/.customize_environment
+else
+  step "Task 1: Verifikasi Terraform terpasang"
+fi
+terraform --version
+
+# Task 2: Build the infrastructure
+step "Task 2a: Siapkan direktori kerja dan instance.tf"
 WORK="$HOME/gsp156"
 mkdir -p "$WORK"
 cd "$WORK"
 
-# ----------------------------------------------------------------- Task 1
-step "Task 1: verifikasi Terraform terpasang"
-terraform version
-
-# ----------------------------------------------------------------- Task 2
-step "Task 2a: tulis instance.tf"
-
-# Lab sengaja TIDAK memakai blok provider maupun required_providers — `terraform
-# init` mengambil provider google versi terbaru sendiri. Jangan di-pin, teks lab
-# eksplisit bilang "Your version number may be higher".
 cat > instance.tf <<EOF
-resource "google_compute_instance" "terraform" {
+resource "google_compute_instance" "default" {
   project      = "$PROJECT"
+  zone         = "$ZONE"
   name         = "terraform"
   machine_type = "e2-medium"
-  zone         = "$ZONE"
-
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-11"
+      image = "debian-12"
     }
   }
-
   network_interface {
     network = "default"
     access_config {
@@ -74,6 +86,14 @@ cat instance.tf
 step "Task 2b: terraform init"
 terraform init -input=false
 
+# Idempoten: jika instance sudah ada di GCP tetapi belum ada di state lokal
+if ! terraform state list 2>/dev/null | grep -q 'google_compute_instance\.default'; then
+  if gcloud compute instances describe terraform --zone="$ZONE" --project="$PROJECT" &>/dev/null; then
+    echo "Instance 'terraform' sudah ada di GCP, mengimpor ke Terraform state..."
+    terraform import -input=false google_compute_instance.default "projects/$PROJECT/zones/$ZONE/instances/terraform" || true
+  fi
+fi
+
 step "Task 2c: terraform plan"
 terraform plan -input=false
 
@@ -86,12 +106,12 @@ terraform show
 step "Selesai"
 cat <<EOF
 Klik "Check my progress" untuk checkpoint tunggal lab ini (100 poin):
-  "Create a VM instance in the <region> zone with Terraform."
+  Task 2: "Create a VM instance in the $ZONE zone with Terraform."
 
-Task 3 dua soal pilihan ganda, jawab manual — keduanya True:
-  - "Terraform enables you to safely and predictably create, change, and
-     improve infrastructure."                                        -> True
-  - "With Terraform, you can create your own custom provider plugins." -> True
+Task 3 adalah dua soal pilihan ganda (manual di UI lab), keduanya True:
+  1. "Terraform enables you to safely and predictably create, change, and
+      improve infrastructure."                                        -> True
+  2. "With Terraform, you can create your own custom provider plugins." -> True
 
-State ada di $WORK. Jangan hapus direktori itu sebelum checkpoint hijau.
+State ada di $WORK. Jangan hapus direktori tersebut sebelum verifikasi selesai.
 EOF

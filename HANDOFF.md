@@ -1,7 +1,18 @@
-# Handoff (terakhir diperbarui 2026-10-27)
+# Handoff (terakhir diperbarui 2026-11-09)
 
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
+
+## Sesi 2026-11-09: GSP156 - Terraform Fundamentals
+
+- [`gsp156.sh`](gsp156.sh) + [runbook](docs/gsp156.md). Diperbarui sesuai materi lab edisi terbaru (update 4 hari lalu):
+  - Penambahan instalasi otomatis Terraform via HashiCorp repository jika belum terpasang (`cat <<'EOF' > ~/.customize_environment`).
+  - Pembaruan nama resource ke `google_compute_instance.default` dan OS image ke `debian-12`.
+  - Penambahan helper `ask` dengan deteksi default zone otomatis dari metadata project (`google-compute-default-zone`) / config, fallback ke `us-east1-c`.
+  - Idempotensi: pemeriksaan dan `terraform import` jika instance `terraform` sudah ada di GCP.
+  - Perintah eksekusi Cloud Shell ditambahkan di akhir [`README.md`](README.md).
+- **Status Terakhir**: Lolos uji `bash -n`, `shellcheck`, dan dry-run (`bash test/run.sh gsp156.sh`).
+- **Next Action**: Jalankan script di Cloud Shell dan konfirmasi skor 100/100 di portal lab.
 
 ## Sesi 2026-10-27: Borongan 6 Lab (GSP1024, GSP096, GSP401, GSP192, ARC113, GSP064)
 
