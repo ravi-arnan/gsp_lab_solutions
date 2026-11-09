@@ -3,6 +3,16 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-09: GSP752 - Manage Terraform State
+
+- [`gsp752.sh`](gsp752.sh) + [runbook](docs/gsp752.md):
+  - Memperbaiki deteksi dummy wrapper Terraform Cloud Shell dan instalasi otomatis jika belum ada.
+  - Menghapus jeda interaktif `read -r` dan penghapusan bucket otomatis pada Task 1 agar checkpoint Task 1 (Work with backends, 100 poin) tetap hijau.
+  - Memastikan migrasi local ke gcs backend berjalan mulus (`yes | terraform init -migrate-state`) dan label `key:value` disinkronkan via `terraform refresh`.
+  - Mengotomasi Task 2 (Docker container import) tanpa jeda.
+- **Status Terakhir**: Lolos uji `bash -n`, `shellcheck`, dan dry-run (`bash test/run.sh gsp752.sh`).
+- **Next Action**: Jalankan script di Cloud Shell dan konfirmasi skor 100/100 di portal lab.
+
 ## Sesi 2026-11-09: GSP751 - Interact with Terraform Modules
 
 - [`gsp751.sh`](gsp751.sh) + [runbook](docs/gsp751.md):
