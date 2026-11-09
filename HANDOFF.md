@@ -3,6 +3,18 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-09: GSP213 - Control Access to VPC Networks Using Firewall Rules and IAM
+
+- [`gsp213.sh`](gsp213.sh) + [runbook](docs/gsp213.md):
+  - Membuat script baru untuk otomasi provisioning VM `blue` (dengan tag `web-server` dan startup script Nginx) serta VM `green` (tanpa tag, kontrol).
+  - Membuat tagged firewall rule `allow-http-web-server` untuk ingress port 80 dan icmp dengan target tag `web-server`.
+  - Membuat VM `test-vm` di default VPC subnet untuk pengujian konektivitas internal.
+  - Memastikan service account `network-admin` terdaftar dan mengikat role `roles/compute.networkAdmin` dan `roles/compute.securityAdmin` (`--condition=None`).
+  - Menjaga firewall rule tetap aktif agar seluruh 6 checkpoint evaluasi di grader tetap bernilai hijau.
+  - Menyertakan polling kesiapan startup script Nginx.
+- **Status Terakhir**: Siap diuji di live lab Cloud Shell. Lolos uji syntax `bash -n` dan dry-run test (71 panggilan stub).
+- **Next Action**: Jalankan one-liner di Cloud Shell, klik 6 Check my progress, dan catat skor 100/100.
+
 ## Sesi 2026-11-09: GSP211 - Create and Configure Multiple VPC Networks
 
 - [`gsp211.sh`](gsp211.sh) + [runbook](docs/gsp211.md):

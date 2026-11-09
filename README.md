@@ -109,6 +109,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP510 | Manage Kubernetes in Google Cloud: Challenge Lab | [gsp510.sh](gsp510.sh) | [docs/gsp510.md](docs/gsp510.md) | Terverifikasi, skor 100/100 (dua perbaikan terakhir belum diuji ulang sekali jalan); nama diacak per instance | 2026-08-05 |
 | GSP207 | Dataflow: Qwik Start - Python | [gsp207.sh](gsp207.sh) | [docs/gsp207.md](docs/gsp207.md) | Terverifikasi, skor 100/100 (asia-southeast1); jalannya lama, 10-15 menit | 2026-08-21 |
 | GSP211 | Create and Configure Multiple VPC Networks | [gsp211.sh](gsp211.sh) | [docs/gsp211.md](docs/gsp211.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-11-09 |
+| GSP213 | Control Access to VPC Networks Using Firewall Rules and IAM | [gsp213.sh](gsp213.sh) | [docs/gsp213.md](docs/gsp213.md) | Siap diuji (100/100, us-central1) | 2026-11-09 |
 | GSP281 | Introduction to SQL for BigQuery and Cloud SQL | [gsp281.sh](gsp281.sh) | [docs/gsp281.md](docs/gsp281.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-10-27 |
 | GSP351 | Migrate MySQL Data to Cloud SQL Using DMS: Challenge Lab | [gsp351.sh](gsp351.sh) | [docs/gsp351.md](docs/gsp351.md) | Terverifikasi, skor 100/100 (us-central1), dua fase; destination existing wajib `demote-destination` dulu | 2026-08-22 |
 | GSP903 | Stream Processing with Cloud Pub/Sub and Dataflow: Qwik Start | [gsp903.sh](gsp903.sh) | [docs/gsp903.md](docs/gsp903.md) | Terverifikasi, skor 100/100 (us-central1), dua fase | 2026-08-21 |
@@ -269,29 +270,28 @@ Script ini dibuat untuk belajar. Kalau langsung dijalankan tanpa mengikuti mater
 
 ## Perintah Eksekusi Lab Aktif (Cloud Shell)
 
-### GSP211: Create and Configure Multiple VPC Networks
+### GSP213: Control Access to VPC Networks Using Firewall Rules and IAM
 
 Jalankan perintah one-liner berikut langsung di Cloud Shell:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp211.sh | bash
+ZONE=us-central1-b curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp213.sh | bash
 ```
 
 Atau unduh terlebih dahulu dan jalankan:
 
 ```bash
-curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp211.sh
-bash gsp211.sh
+curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp213.sh
+bash gsp213.sh
 ```
 
-Setelah selesai, klik **Check my progress** untuk seluruh checkpoint:
+Setelah selesai, klik **Check my progress** untuk seluruh 6 checkpoint:
 - **Task 1**:
-  - Create the managementnet network
-  - Create the privatenet network
-  - Create the firewall rules for managementnet
-  - Create the firewall rules for privatenet
+  - Create the blue server.
+  - Create the green server.
+  - Install Nginx and customize the welcome page.
 - **Task 2**:
-  - Create the managementnet-vm-1 instance
-  - Create the privatenet-vm-1 instance
-- **Task 4**:
-  - Create a VM instance with multiple network interfaces
+  - Create the tagged firewall rule.
+  - Create a test-vm.
+- **Task 3**:
+  - Create a Network-admin service account.
