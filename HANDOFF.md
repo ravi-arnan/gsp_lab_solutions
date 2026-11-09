@@ -3,6 +3,17 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-09: GSP750 - Infrastructure as Code with Terraform
+
+- [`gsp750.sh`](gsp750.sh) + [runbook](docs/gsp750.md):
+  - Memperbaiki deteksi dummy wrapper Terraform Cloud Shell dan instalasi otomatis jika belum ada (HashiCorp apt repo + zip fallback).
+  - Menambahkan pembacaan default zone (`us-east1-c`) dan region (`us-east1`) dari metadata/config lewat helper `ask`.
+  - Mempertahankan `google_storage_bucket.example_bucket` dan `another_instance` di konfigurasi Task 4 agar Checkpoint 5 (Create a bucket dependent instance) di grader tidak hilang.
+  - Memperbarui header konvensi checkpoint dan echo ringkasan verifikasi 5 task (masing-masing 20 pts).
+  - Menulis runbook di `docs/gsp750.md` dan memperbarui tabel serta panduan one-liner di `README.md`.
+- **Status Terakhir**: Siap diuji di live lab Cloud Shell (us-east1-c, debian-12 / cos-stable). Lolos pengujian syntax `bash -n` dan dry-run stub.
+- **Next Action**: Jalankan perintah one-liner di Cloud Shell lab, klik 5 Check my progress, dan catat skor 100/100.
+
 ## Sesi 2026-11-09: GSP345 - Build Infrastructure with Terraform on Google Cloud: Challenge Lab
 
 - [`gsp345.sh`](gsp345.sh) + [runbook](docs/gsp345.md):
