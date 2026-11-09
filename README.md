@@ -269,24 +269,29 @@ Script ini dibuat untuk belajar. Kalau langsung dijalankan tanpa mengikuti mater
 
 ## Perintah Eksekusi Lab Aktif (Cloud Shell)
 
-### GSP750: Infrastructure as Code with Terraform
+### GSP211: Create and Configure Multiple VPC Networks
 
 Jalankan perintah one-liner berikut langsung di Cloud Shell:
 
 ```bash
-ZONE=us-east1-c REGION=us-east1 curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp750.sh | bash
+curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp211.sh | bash
 ```
 
 Atau unduh terlebih dahulu dan jalankan:
 
 ```bash
-curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp750.sh
-bash gsp750.sh
+curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp211.sh
+bash gsp211.sh
 ```
 
-Setelah selesai, klik **Check my progress** untuk kelima task:
-1. Create resources in Terraform (20 pts)
-2. Change the infrastructure (20 pts)
-3. Make destructive changes (20 pts)
-4. Create resource dependencies (20 pts)
-5. Create a bucket dependent instance (20 pts)
+Setelah selesai, klik **Check my progress** untuk seluruh checkpoint:
+- **Task 1**:
+  - Create the managementnet network
+  - Create the privatenet network
+  - Create the firewall rules for managementnet
+  - Create the firewall rules for privatenet
+- **Task 2**:
+  - Create the managementnet-vm-1 instance
+  - Create the privatenet-vm-1 instance
+- **Task 4**:
+  - Create a VM instance with multiple network interfaces

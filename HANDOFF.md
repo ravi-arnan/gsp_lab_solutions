@@ -3,6 +3,16 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-09: GSP211 - Create and Configure Multiple VPC Networks
+
+- [`gsp211.sh`](gsp211.sh) + [runbook](docs/gsp211.md):
+  - Memastikan otomasi pembuatan VPC custom mode (`managementnet` dan `privatenet`), subnets (`managementsubnet-1`, `privatesubnet-1`, `privatesubnet-2`), dan firewall rules (`managementnet-allow-icmp-ssh-rdp`, `privatenet-allow-icmp-ssh-rdp`).
+  - Memastikan pembuatan VM instances `managementnet-vm-1` dan `privatenet-vm-1` di zone utama (`us-central1-f`).
+  - Memastikan pembuatan VM multi-NIC `vm-appliance` (`e2-standard-4`) dengan 3 network interfaces (`privatesubnet-1`, `managementsubnet-1`, `mynetwork`).
+  - Auto-detection zone dan region dari instance default lab (`mynet-vm-1` dan `mynet-vm-2`).
+- **Status Terakhir**: Siap diuji di live lab Cloud Shell. Lolos uji syntax `bash -n` dan dry-run test (15 panggilan stub).
+- **Next Action**: Jalankan one-liner di Cloud Shell, klik 7 Check my progress, dan catat skor 100/100.
+
 ## Sesi 2026-11-09: GSP750 - Infrastructure as Code with Terraform
 
 - [`gsp750.sh`](gsp750.sh) + [runbook](docs/gsp750.md):
