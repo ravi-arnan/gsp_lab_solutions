@@ -11,8 +11,8 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
   - Menghapus pause interaktif `read -r` pada Task 2 agar eksekusi 100% otomatis tanpa prompt di tengah jalan.
   - Membiarkan Cloud Storage bucket `gs://$PROJECT_ID` aktif dengan file `index.html` dan `error.html` terunggah agar verifikasi Task 2 (Build a module) lolos 100%.
   - Menambahkan idempotensi `terraform import` untuk storage bucket.
-- **Status Terakhir**: Lolos uji `bash -n`, `shellcheck`, dan dry-run (`bash test/run.sh gsp751.sh`).
-- **Next Action**: Jalankan script di Cloud Shell dan konfirmasi skor 100/100 di portal lab.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (us-central1).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-09: GSP156 - Terraform Fundamentals
 
