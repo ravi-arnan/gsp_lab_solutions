@@ -140,8 +140,9 @@ sudo systemctl status google-cloud-ops-agent"*" --no-pager | head -15 || true
 
 echo
 echo "== Task 4: Generate traffic (120 detik) =="
-timeout 120 bash -c -- 'while true; do curl -s -o /dev/null localhost; sleep $((RANDOM % 4)); done'
+timeout 120 bash -c -- 'while true; do curl -s -o /dev/null localhost; sleep $((RANDOM % 4)); done' || true
 echo "  selesai."
+exit 0
 REMOTE_EOF
 
 n=1
@@ -153,17 +154,33 @@ until gcloud compute scp "$REMOTE" "$VM":~/gsp1108_remote.sh \
 done
 
 gcloud compute ssh "$VM" --zone="$ZONE" --project="$PROJECT" --quiet \
-  --command="bash ~/gsp1108_remote.sh"
+  --command="bash ~/gsp1108_remote.sh" || echo "Peringatan: SSH selesai, lanjut ke Task 5."
 
 # ----------------------------------------------------------------- Task 5
 step "Task 5: Alerting policy '$ALERT_NAME'"
 TOKEN="$(gcloud auth print-access-token)"
+
+STUDENT_EMAIL="$(gcloud config get-value account 2>/dev/null || echo 'student@example.com')"
+echo "Menyiapkan notification channel untuk $STUDENT_EMAIL..."
+CHANNEL_NAME=""
+CHANNEL_RESP="$(curl -s -X POST -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{\"type\":\"email\",\"displayName\":\"Lab Alert Email\",\"labels\":{\"email_address\":\"$STUDENT_EMAIL\"}}" \
+  "$API/notificationChannels" || true)"
+CHANNEL_NAME="$(echo "$CHANNEL_RESP" | grep -o '"name": "[^"]*"' | head -1 | cut -d'"' -f4 || true)"
+
+CHANNELS_JSON="[]"
+if [[ -n "$CHANNEL_NAME" ]]; then
+  echo "Notification channel dibuat: $CHANNEL_NAME"
+  CHANNELS_JSON="[\"$CHANNEL_NAME\"]"
+fi
+
 if curl -s -H "Authorization: Bearer $TOKEN" "$API/alertPolicies" | grep -q "$ALERT_NAME"; then
-  echo "Alerting policy sudah ada, lewati."
+  echo "Alerting policy '$ALERT_NAME' sudah ada, lewati."
 else
-  cat > /tmp/gsp1108_alert.json << 'EOF'
+  cat > /tmp/gsp1108_alert.json << EOF
 {
-  "displayName": "Apache traffic above threshold",
+  "displayName": "$ALERT_NAME",
   "combiner": "OR",
   "conditions": [
     {
@@ -181,12 +198,15 @@ else
     }
   ],
   "alertStrategy": { "autoClose": "1800s" },
+  "notificationChannels": $CHANNELS_JSON,
   "enabled": true
 }
 EOF
-  curl -s -X POST -H "Authorization: Bearer $TOKEN" \
+  CREATE_RESP="$(curl -s -X POST -H "Authorization: Bearer $TOKEN" \
     -H "Content-Type: application/json" \
-    --data-binary @/tmp/gsp1108_alert.json "$API/alertPolicies" | head -c 400; echo
+    --data-binary @/tmp/gsp1108_alert.json "$API/alertPolicies")"
+  echo "Respon pembuatan alert policy:"
+  echo "$CREATE_RESP" | head -n 20
 fi
 
 step "Verifikasi"
