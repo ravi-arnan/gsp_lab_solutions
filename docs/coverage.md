@@ -21,23 +21,23 @@ Tanda ✅ berarti scriptnya sudah ada di repo ini.
 
 | Badge | Lab |
 |-------|-----|
-| 636 Build Infrastructure with Terraform | ✅GSP156, ✅GSP750, ✅GSP751, ✅GSP752, ✅GSP345 — **lengkap** |
+| 636 Build Infrastructure with Terraform | ✅GSP156, ✅GSP750, ✅GSP751, ✅GSP752, ✅GSP345 — **lengkap**, seluruh 5 lab terverifikasi 100/100 (2026-11-09) |
 | 655 Optimize Costs for GKE | ✅GSP766, ✅GSP767, GSP768, GSP769, ✅GSP343 |
 | 624 Build a Data Warehouse with BigQuery | ✅GSP413, ✅GSP414, ✅GSP412, ✅GSP416, ✅GSP340 — **lengkap** |
-| 623 Derive Insights from BigQuery Data | GSP281, GSP072/GSP071, GSP407, GSP408, GSP409, GSP787 |
+| 623 Derive Insights from BigQuery Data | ✅GSP281, GSP072/GSP071, GSP407, GSP408, GSP409, GSP787 |
 | 681 Build a Data Mesh with Dataplex | ✅GSP1143, ✅GSP1145, ✅GSP1157, ✅GSP1158, ✅GSP514 — **lengkap** |
 | 726 Get Started with Dataplex | ✅GSP1143, ✅GSP1144, ✅GSP1145, ✅ARC117 — **lengkap** |
-| 1164 Secure Software Delivery | ✅GSP1183, ✅GSP1184, ✅GSP1185, ✅GSP521 |
+| 1164 Secure Software Delivery | ✅GSP1183, ✅GSP1184, ✅GSP1185, ✅GSP521 — GSP1183 dan GSP521 terverifikasi 100/100 |
 | 783 Manage Kubernetes in Google Cloud | ✅GSP053, ✅GSP736, ✅GSP1026, ✅GSP510 — **lengkap** |
 | 663 Deploy Kubernetes Applications | GSP055, GSP100, GSP021, GSP318 |
 | 750 Get Started with Sensitive Data Protection | GSP107, GSP864, GSP1073, ARC116 |
 | 1177 Discover and Protect Sensitive Data | ✅GSP1281, ✅GSP1282, GSP1283, ✅GSP522 |
-| 728 Get Started with Pub/Sub | GSP096, GSP401, GSP832, ✅ARC113 |
+| 728 Get Started with Pub/Sub | ✅GSP096, ✅GSP401, GSP832, ✅ARC113 |
 | 725 Get Started with Cloud Storage | ✅GSP421, ✅GSP074, ✅GSP297, ✅ARC111 — **lengkap**, keempatnya sudah terverifikasi 100/100 |
 | 727 Get Started with Eventarc | ✅GSP095, ✅GSP1089, GSP773, ARC118 |
 | 641 Set Up a Google Cloud Network | ✅GSP647, GSP662, GSP021, GSP016, GSP617, GSP918, GSP314 |
-| 654 Build a Secure Google Cloud Network | GSP1036, GSP211, GSP213, GSP215, GSP216, GSP322 |
-| 625 Develop Your Google Cloud Network | GSP064, GSP281, GSP211, ✅GSP089, ✅GSP053, GSP321 |
+| 654 Build a Secure Google Cloud Network | GSP1036, ✅GSP211, ✅GSP213, GSP215, GSP216, GSP322 |
+| 625 Develop Your Google Cloud Network | ✅GSP064, ✅GSP281, ✅GSP211, ✅GSP089, ✅GSP053, GSP321 |
 | 648 Implement Load Balancing on Compute Engine | GSP001/GSP093, GSP002, GSP007, GSP313 |
 | 716 Implement DevOps Workflows | GSP121, ✅GSP053, ✅GSP1077, ✅GSP330 |
 | 691 Implement CI/CD Pipelines | GSP1076, ✅GSP1077, ✅GSP1079, ✅GSP393 |
@@ -78,20 +78,33 @@ Sesi 2026-09-08 menambah lab:
 | ⚠️ARC133 | Integrate BigQuery + Google Workspace via Apps Script — runbook manual (UI), belum diverifikasi (lihat docs/arc133.md) |
 | ✅GSP327 | Engineer Data for Predictive Modeling with BigQuery ML — script `gsp327.sh` terverifikasi 100/100 di lab sungguhan (2026-09-09), nilai per-instance ditanya di awal |
 
+Sesi 2026-11-09 menambah dan memverifikasi sembilan lab (seluruhnya 100/100):
+
+| Lab | Tema | Status |
+|-----|------|--------|
+| ✅GSP156 | Terraform Fundamentals | Terverifikasi 100/100 (us-east1-c) |
+| ✅GSP751 | Interact with Terraform Modules | Terverifikasi 100/100 (us-central1) |
+| ✅GSP752 | Manage Terraform State | Terverifikasi 100/100 (us-west1) |
+| ✅GSP345 | Build Infrastructure with Terraform: Challenge Lab | Terverifikasi 100/100 (us-east1) |
+| ✅GSP750 | Infrastructure as Code with Terraform | Terverifikasi 100/100 (us-east1) |
+| ✅GSP211 | Create and Configure Multiple VPC Networks | Terverifikasi 100/100 (us-central1-f) |
+| ✅GSP213 | Control Access to VPC Networks Using Firewall Rules and IAM | Terverifikasi 100/100 (us-central1-b) |
+| ✅GSP521 | Secure Software Delivery: Challenge Lab | Terverifikasi 100/100 (us-west1) |
+| ✅GSP761 | Developing a REST API with Go and Cloud Run | Terverifikasi 100/100 (europe-west4) |
+
 ## Badge yang sudah tertutup penuh
 
-- **636 Build Infrastructure with Terraform** — GSP156 + 750 + 751 + 752 + 345.
+- **636 Build Infrastructure with Terraform** — GSP156 + 750 + 751 + 752 + 345 (LENGKAP 100/100 TERVERIFIKASI SEMUA).
 - **624 Build a Data Warehouse with BigQuery** — GSP413 + 414 + 412 + 416 + 340.
 - **681 Build a Data Mesh with Dataplex** — GSP1143 + 1145 + 1157 + 1158 + 514.
 - **726 Get Started with Dataplex** — GSP1143 + 1144 + 1145 + ARC117.
-- **1164 Secure Software Delivery** — GSP1183 + 1184 + 1185 + 521.
-- **725 Get Started with Cloud Storage** — GSP421 + 074 + 297 + ARC111.
+- **1164 Secure Software Delivery** — GSP1183 + 1184 + 1185 + 521 (GSP1183 dan GSP521 terverifikasi 100/100).
+- **725 Get Started with Cloud Storage** — GSP421 + 074 + 297 + ARC111 (LENGKAP 100/100 TERVERIFIKASI SEMUA).
 - **783 Manage Kubernetes in Google Cloud** — GSP053 + 736 + 1026 + 510.
 
 "Lengkap" berarti scriptnya ada untuk tiap lab, **bukan** berarti sudah terbukti
-100 poin. Yang masih berstatus belum diuji: GSP156, GSP413,
-GSP053, GSP510, GSP1026, GSP1158, GSP1184, GSP1185, GSP521. GSP1158 malah memang hanya bisa mencapai
-60/100 lewat script.
+100 poin. Yang masih berstatus belum diuji: GSP413, GSP053, GSP510, GSP1026, GSP1158, GSP1184, GSP1185.
+GSP1158 memang hanya bisa mencapai 60/100 lewat script.
 
 ## Badge berikutnya yang paling dekat
 
