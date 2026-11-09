@@ -12,8 +12,8 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
   - Penambahan helper `ask` dengan deteksi default zone otomatis dari metadata project (`google-compute-default-zone`) / config, fallback ke `us-east1-c`.
   - Idempotensi: pemeriksaan dan `terraform import` jika instance `terraform` sudah ada di GCP.
   - Perintah eksekusi Cloud Shell ditambahkan di akhir [`README.md`](README.md).
-- **Status Terakhir**: Lolos uji `bash -n`, `shellcheck`, dan dry-run (`bash test/run.sh gsp156.sh`).
-- **Next Action**: Jalankan script di Cloud Shell dan konfirmasi skor 100/100 di portal lab.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (us-east1-c, debian-12).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-10-27: Borongan 6 Lab (GSP1024, GSP096, GSP401, GSP192, ARC113, GSP064)
 

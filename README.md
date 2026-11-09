@@ -274,7 +274,7 @@ Script ini dibuat untuk belajar. Kalau langsung dijalankan tanpa mengikuti mater
 Jalankan perintah one-liner berikut langsung di Cloud Shell (menggunakan commit SHA agar bebas cache):
 
 ```bash
-ZONE=us-east1-c curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/551a6d01398f0aa7f2f428ed6b2131b432578d6c/gsp156.sh | bash
+ZONE=us-east1-c curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp156.sh | bash
 ```
 
 Atau unduh terlebih dahulu dan jalankan secara interaktif:
