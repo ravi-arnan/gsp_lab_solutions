@@ -89,7 +89,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP766 | Managing a GKE Multi-tenant Cluster with Namespaces | [gsp766.sh](gsp766.sh) | - | Terverifikasi, skor 100/100, Looker Studio manual (tidak di-score) | 2026-07-24 |
 | GSP761 | Developing a REST API with Go and Cloud Run | [gsp761.sh](gsp761.sh) | [docs/gsp761.md](docs/gsp761.md) | Terverifikasi, skor 100/100 (europe-west4) | 2026-11-09 |
 | GSP762 | Create PDFs with Go and Cloud Run | [gsp762.sh](gsp762.sh) | [docs/gsp762.md](docs/gsp762.md) | Terverifikasi, skor 100/100 (us-central1) | 2026-11-09 |
-| GSP651 | Setting Up Cost Control with Quota | [gsp651.sh](gsp651.sh) | [docs/gsp651.md](docs/gsp651.md) | Siap diuji (100/100, global US) | - |
+| GSP651 | Setting Up Cost Control with Quota | [gsp651.sh](gsp651.sh) | [docs/gsp651.md](docs/gsp651.md) | Terverifikasi, skor 100/100 (global US) | 2026-11-09 |
 | GSP343 | Optimize Costs for GKE: Challenge Lab | [gsp343.sh](gsp343.sh) | - | Diuji, jalan tanpa error | 2026-07-24 |
 | GSP767 | Exploring Cost-optimization for GKE Virtual Machines | [gsp767.sh](gsp767.sh) | - | Terverifikasi, skor 100/100 | 2026-07-24 |
 | GSP414 | Creating Date-Partitioned Tables in BigQuery | [gsp414.sh](gsp414.sh) | - | Belum diuji | - |

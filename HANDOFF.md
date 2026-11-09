@@ -11,8 +11,8 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
   - Memperbarui kuota harian query per pengguna menjadi 262144 MiB (0.25 TiB) menggunakan `gcloud alpha services quota update`.
   - Menguji eksekusi ulang kueri dengan `--nouse_cache` untuk memverifikasi penolakan kueri `Custom quota exceeded` (Checkpoint 2).
   - Menyediakan dokumentasi jawaban kuis pilihan ganda (1.36 TB dan Caching).
-- **Status Terakhir**: Script siap diuji, lolos syntax check, shellcheck, dan dry-run test suite (33 panggilan ok).
-- **Next Action**: Jalankan di Cloud Shell lab GSP651 dan verifikasi 100/100 (2/2 checkpoint).
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (global US, 2/2 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-09: GSP762 - Create PDFs with Go and Cloud Run
 
