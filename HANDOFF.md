@@ -10,8 +10,8 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
   - Melakukan polling serial port output hingga pesan `Instance setup finished. instance is ready to use.` muncul menandakan sysprep Windows selesai.
   - Menyetel password acak untuk user `admin` via `gcloud compute reset-windows-password` secara non-interaktif (Checkpoint 2).
   - Menambahkan stub `instances get-serial-port-output` pada test runner `test/stubs.sh`.
-- **Status Terakhir**: Script siap diuji, lolos syntax check, shellcheck, dan dry-run test suite (8 panggilan ok).
-- **Next Action**: Jalankan di Cloud Shell lab GSP093 dan verifikasi 100/100 (2/2 checkpoint).
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (us-central1-f, 2/2 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-09: GSP1108 - Monitor an Apache Web Server using Ops Agent
 
