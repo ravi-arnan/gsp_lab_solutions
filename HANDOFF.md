@@ -12,8 +12,8 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
   - Membuat database Firestore mode Native (`europe-west4`) secara idempoten dan mengimpor dataset pelanggan dari Cloud Storage.
   - Menghubungkan endpoint REST API `/v1/customer/{id}` ke Firestore client dan CORS middleware.
   - Menambahkan stub `go` pada test suite `test/stubs.sh` dan `test/run.sh`.
-- **Status Terakhir**: Siap diuji di live lab Cloud Shell (europe-west4). Lolos uji syntax `bash -n` dan dry-run test (19 panggilan stub).
-- **Next Action**: Jalankan one-liner di Cloud Shell, klik 4 Check my progress, dan catat skor 100/100.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (europe-west4, 4/4 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-09: GSP521 - Secure Software Delivery: Challenge Lab
 

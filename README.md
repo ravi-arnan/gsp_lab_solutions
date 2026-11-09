@@ -87,7 +87,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP073 | Cloud Storage: Qwik Start - Google Cloud Console | [gsp073.sh](gsp073.sh) | [docs/gsp073.md](docs/gsp073.md) | Terverifikasi, skor 100/100 sekali jalan (europe-west1) | 2026-08-21 |
 | GSP522 | Discover and Protect Sensitive Data Across Your Ecosystem: Challenge Lab | [gsp522.sh](gsp522.sh) | - | Dikerjakan manual 100/100 (petunjuk Task 3 di script sudah dikoreksi ke SDK google-genai); script sendiri belum diuji | 2026-07-31 |
 | GSP766 | Managing a GKE Multi-tenant Cluster with Namespaces | [gsp766.sh](gsp766.sh) | - | Terverifikasi, skor 100/100, Looker Studio manual (tidak di-score) | 2026-07-24 |
-| GSP761 | Developing a REST API with Go and Cloud Run | [gsp761.sh](gsp761.sh) | [docs/gsp761.md](docs/gsp761.md) | Siap diuji (100/100, europe-west4) | 2026-11-09 |
+| GSP761 | Developing a REST API with Go and Cloud Run | [gsp761.sh](gsp761.sh) | [docs/gsp761.md](docs/gsp761.md) | Terverifikasi, skor 100/100 (europe-west4) | 2026-11-09 |
 | GSP343 | Optimize Costs for GKE: Challenge Lab | [gsp343.sh](gsp343.sh) | - | Diuji, jalan tanpa error | 2026-07-24 |
 | GSP767 | Exploring Cost-optimization for GKE Virtual Machines | [gsp767.sh](gsp767.sh) | - | Terverifikasi, skor 100/100 | 2026-07-24 |
 | GSP414 | Creating Date-Partitioned Tables in BigQuery | [gsp414.sh](gsp414.sh) | - | Belum diuji | - |
