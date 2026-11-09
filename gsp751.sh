@@ -3,16 +3,18 @@
 #
 #   bash gsp751.sh
 #
-# Seluruh lab: Use modules from the Registry (Task 1) dan Build a module (Task 2).
-# Semua perintah pakai -auto-approve agar tidak perlu interaksi.
+# Checkpoint:
+#   Task 1 (50 pts) - Provision infrastructure (VPC from Terraform Registry module)
+#   Task 2 (50 pts) - Build a module (GCS static website bucket module + upload files)
 #
-# LAMA: ~10-12 menit dari 58 menit jatah lab.
+# LAMA: ~3-5 menit dari 59 menit jatah lab.
 
 set -euo pipefail
 
-# Tanya nilai ke user kalau belum di-set lewat env var. Kalau stdin bukan
-# terminal (curl | bash, nohup), langsung pakai default supaya tidak menggantung.
-#   ask <NAMA_VAR> <default> <pertanyaan>
+PROJECT_ID="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
+[[ -n "$PROJECT_ID" ]] || { echo "Project belum di-set. Jalankan: gcloud config set project <ID>"; exit 1; }
+
+# Helper tanya nilai ke user kalau belum di-set via env var
 ask() {
   local _cur="${!1:-}"
   if [[ -n "$_cur" ]]; then echo "$1 = $_cur (dari env)"; return; fi
@@ -26,44 +28,58 @@ ask() {
   echo "$1 = ${!1}"
 }
 
-PROJECT_ID="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
-[[ -n "$PROJECT_ID" ]] || { echo "Project belum di-set."; exit 1; }
-
-ask REGION "europe-west1" "Region (cocokkan dengan panel lab)"
+DEFAULT_REGION="$(gcloud config get-value compute/region 2>/dev/null || true)"
+[[ -z "$DEFAULT_REGION" ]] && DEFAULT_REGION="us-central1"
+ask REGION "$DEFAULT_REGION" "Region (cocokkan dengan panel lab)"
 
 echo "Project: $PROJECT_ID"
 echo "Region:  $REGION"
 
 step() { echo; echo "=============================================================="; echo ">> $1"; echo "=============================================================="; }
 
-# ================================================================= Install Terraform
-step "Install Terraform"
-if terraform --version 2>/dev/null | grep -q "Terraform v"; then
-  echo "Terraform sudah terinstal: $(terraform --version | head -1)"
+# ================================================================= Prerequisite: Install Terraform
+if ! terraform --version 2>&1 | grep -q 'Terraform v'; then
+  step "Prerequisite: Pasang Terraform CLI"
+  cat <<'EOF' > ~/.customize_environment
+# Set up HashiCorp repository and install Terraform
+wget -qO - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor --yes -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update && sudo apt install -y terraform
+EOF
+  bash ~/.customize_environment
+  hash -r 2>/dev/null || true
+
+  if ! terraform --version 2>&1 | grep -q 'Terraform v'; then
+    echo "Fallback instalasi binary Terraform..."
+    TF_VER="1.9.8"
+    TF_ARCH="$(dpkg --print-architecture 2>/dev/null || echo 'amd64')"
+    wget -q "https://releases.hashicorp.com/terraform/${TF_VER}/terraform_${TF_VER}_linux_${TF_ARCH}.zip" -O /tmp/terraform.zip
+    sudo unzip -o /tmp/terraform.zip -d /usr/local/bin/
+    rm -f /tmp/terraform.zip
+    hash -r 2>/dev/null || true
+  fi
 else
-  wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-  sudo apt update && sudo apt install -y terraform
-  echo "Terraform terinstal: $(terraform --version | head -1)"
+  step "Prerequisite: Verifikasi Terraform terpasang"
 fi
+terraform --version
 
 # ================================================================= Task 1: Use modules from the Registry
-step "Task 1a: Clone terraform-google-network repo"
-
+step "Task 1a: Clone repository terraform-google-network"
 cd "$HOME"
 rm -rf terraform-google-network
-git clone --depth 1 --branch v6.0.1 https://github.com/terraform-google-modules/terraform-google-network
-cd terraform-google-network/examples/simple_project
+git clone https://github.com/terraform-google-modules/terraform-google-network
+mkdir -p "$HOME/terraform-google-network/examples/simple_project"
+cd "$HOME/terraform-google-network"
+git checkout tags/v6.0.1 -b v6.0.1 2>/dev/null || git checkout v6.0.1 2>/dev/null || true
 
-step "Task 1b: Set project_id dan network_name di variables.tf"
+step "Task 1b: Konfigurasi variables.tf dan main.tf"
+cd "$HOME/terraform-google-network/examples/simple_project"
 
-sed -i '/^variable "project_id" {/,/^}/c\
-variable "project_id" {\
-  description = "The project ID to host the network in"\
-  default     = "'"$PROJECT_ID"'"\
-}' variables.tf
-
-cat >> variables.tf << 'EOF'
+cat > variables.tf <<EOF
+variable "project_id" {
+  description = "The project ID to host the network in"
+  default     = "$PROJECT_ID"
+}
 
 variable "network_name" {
   description = "The name of the network to be created"
@@ -71,46 +87,117 @@ variable "network_name" {
 }
 EOF
 
-step "Task 1c: Update main.tf — use var.network_name, region europe-west1"
+cat > main.tf <<EOF
+module "test-vpc-module" {
+  source       = "terraform-google-modules/network/google"
+  version      = "~> 6.0"
+  project_id   = var.project_id
+  network_name = var.network_name
+  mtu          = 1460
 
-sed -i 's/network_name = "my-custom-mode-network"/network_name = var.network_name/' main.tf
-sed -i 's/"us-west1"/"europe-west1"/g' main.tf
+  subnets = [
+    {
+      subnet_name   = "subnet-01"
+      subnet_ip     = "10.10.10.0/24"
+      subnet_region = "$REGION"
+    },
+    {
+      subnet_name           = "subnet-02"
+      subnet_ip             = "10.10.20.0/24"
+      subnet_region         = "$REGION"
+      subnet_private_access = "true"
+      subnet_flow_logs      = "true"
+    },
+    {
+      subnet_name               = "subnet-03"
+      subnet_ip                 = "10.10.30.0/24"
+      subnet_region             = "$REGION"
+      subnet_flow_logs          = "true"
+      subnet_flow_logs_interval = "INTERVAL_10_MIN"
+      subnet_flow_logs_sampling = 0.7
+      subnet_flow_logs_metadata = "INCLUDE_ALL_METADATA"
+      subnet_flow_logs_filter   = "false"
+    }
+  ]
+}
+EOF
 
-echo "--- variables.tf ---"
-grep -A5 'variable "project_id"' variables.tf
-grep -A5 'variable "network_name"' variables.tf
+cat > outputs.tf <<'EOF'
+output "network_name" {
+  value       = module.test-vpc-module.network_name
+  description = "The name of the VPC being created"
+}
 
-echo "--- main.tf ---"
-grep -E "(network_name|subnet_region)" main.tf
+output "network_self_link" {
+  value       = module.test-vpc-module.network_self_link
+  description = "The URI of the VPC being created"
+}
 
-step "Task 1d: terraform init + apply"
+output "project_id" {
+  value       = module.test-vpc-module.project_id
+  description = "VPC project id"
+}
 
+output "subnets_names" {
+  value       = module.test-vpc-module.subnets_names
+  description = "The names of the subnets being created"
+}
+
+output "subnets_ips" {
+  value       = module.test-vpc-module.subnets_ips
+  description = "The IP and cidrs of the subnets being created"
+}
+
+output "subnets_regions" {
+  value       = module.test-vpc-module.subnets_regions
+  description = "The region where subnets will be created"
+}
+
+output "subnets_private_access" {
+  value       = module.test-vpc-module.subnets_private_access
+  description = "Whether the subnets will have access to Google API's without a public IP"
+}
+
+output "subnets_flow_logs" {
+  value       = module.test-vpc-module.subnets_flow_logs
+  description = "Whether the subnets will have VPC flow logs enabled"
+}
+
+output "subnets_secondary_ranges" {
+  value       = module.test-vpc-module.subnets_secondary_ranges
+  description = "The secondary ranges associated with these subnets"
+}
+
+output "route_names" {
+  value       = module.test-vpc-module.route_names
+  description = "The routes associated with this VPC"
+}
+EOF
+
+step "Task 1c: terraform init & apply (Provision infrastructure)"
 terraform init -input=false
-terraform apply -auto-approve
+terraform apply -input=false -auto-approve
 
-step "Task 1e: terraform destroy + cleanup"
-
-terraform destroy -auto-approve
+step "Task 1d: Clean up Task 1 (destroy & delete folder)"
+terraform destroy -input=false -auto-approve
 cd "$HOME"
 rm -rf terraform-google-network
 
-echo ">>> Task 1 selesai. Klik Check my progress untuk verifikasi."
+echo ">>> Task 1 selesai."
 
 # ================================================================= Task 2: Build a module
-step "Task 2a: Buat struktur module gcs-static-website-bucket"
-
+step "Task 2a: Siapkan modul gcs-static-website-bucket"
 cd "$HOME"
-mkdir -p modules/gcs-static-website-bucket
+mkdir -p "$HOME/modules/gcs-static-website-bucket"
+cd "$HOME/modules/gcs-static-website-bucket"
 
-cd modules/gcs-static-website-bucket
-
-cat > README.md << 'EOF'
+cat > README.md <<'EOF'
 # GCS static website bucket
 
 This module provisions Cloud Storage buckets configured for static website hosting.
 EOF
 
-cat > LICENSE << 'EOF'
+cat > LICENSE <<'EOF'
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -124,9 +211,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 EOF
 
-step "Task 2b: website.tf — resource google_storage_bucket"
-
-cat > website.tf << 'EOF'
+cat > website.tf <<'EOF'
 resource "google_storage_bucket" "bucket" {
   name               = var.name
   project            = var.project_id
@@ -174,9 +259,7 @@ resource "google_storage_bucket" "bucket" {
 }
 EOF
 
-step "Task 2c: variables.tf untuk module"
-
-cat > variables.tf << 'MODEOF'
+cat > variables.tf <<'EOF'
 variable "name" {
   description = "The name of the bucket."
   type        = string
@@ -256,25 +339,19 @@ variable "lifecycle_rules" {
   }))
   default = []
 }
-MODEOF
+EOF
 
-step "Task 2d: outputs.tf untuk module"
-
-cat > outputs.tf << 'EOF'
+cat > outputs.tf <<'EOF'
 output "bucket" {
   description = "The created storage bucket"
   value       = google_storage_bucket.bucket
 }
 EOF
 
-echo "Struktur module:"
-find . -type f | sort
-
-step "Task 2e: Root module — main.tf, variables.tf, outputs.tf"
-
+step "Task 2b: Siapkan root module di $HOME"
 cd "$HOME"
 
-cat > main.tf << EOF
+cat > main.tf <<EOF
 module "gcs-static-website-bucket" {
   source = "./modules/gcs-static-website-bucket"
 
@@ -294,14 +371,14 @@ module "gcs-static-website-bucket" {
 }
 EOF
 
-cat > outputs.tf << 'EOF'
+cat > outputs.tf <<'EOF'
 output "bucket-name" {
   description = "Bucket names."
-  value       = module.gcs-static-website-bucket.bucket
+  value       = "module.gcs-static-website-bucket.bucket"
 }
 EOF
 
-cat > variables.tf << EOF
+cat > variables.tf <<EOF
 variable "project_id" {
   description = "The ID of the project in which to provision resources."
   type        = string
@@ -315,32 +392,36 @@ variable "name" {
 }
 EOF
 
-step "Task 2f: terraform init + apply (provision bucket)"
-
+step "Task 2c: terraform init & apply (Provision bucket)"
 terraform init -input=false
-terraform apply -auto-approve
 
-step "Task 2g: Upload sample files ke bucket"
+# Idempoten: jika bucket sudah ada di GCP tetapi belum ada di state terraform
+if ! terraform state list 2>/dev/null | grep -q 'module\.gcs-static-website-bucket\.google_storage_bucket\.bucket'; then
+  if gcloud storage buckets describe "gs://$PROJECT_ID" &>/dev/null || gsutil ls -b "gs://$PROJECT_ID" &>/dev/null; then
+    echo "Bucket gs://$PROJECT_ID sudah ada di GCP, mengimpor ke Terraform state..."
+    terraform import -input=false module.gcs-static-website-bucket.google_storage_bucket.bucket "$PROJECT_ID" || true
+  fi
+fi
 
-curl -sL https://raw.githubusercontent.com/hashicorp/learn-terraform-modules/master/modules/aws-s3-static-website-bucket/www/index.html > index.html
-curl -sL https://raw.githubusercontent.com/hashicorp/learn-terraform-modules/master/modules/aws-s3-static-website-bucket/www/error.html > error.html
-gsutil cp ./*.html "gs://$PROJECT_ID"
+terraform apply -input=false -auto-approve
 
-echo ">>> Files uploaded. Buka: https://storage.cloud.google.com/$PROJECT_ID/index.html"
+step "Task 2d: Unggah sample HTML ke bucket"
+curl -sL https://raw.githubusercontent.com/hashicorp/learn-terraform-modules/master/modules/aws-s3-static-website-bucket/www/index.html -o index.html || true
+curl -sL https://raw.githubusercontent.com/hashicorp/learn-terraform-modules/master/modules/aws-s3-static-website-bucket/www/error.html -o error.html || true
 
-step "Task 2h: Klik Check my progress dulu, lalu Enter untuk destroy"
+[[ ! -s index.html ]] && echo "<html><body><h1>Nothing to see here</h1></body></html>" > index.html
+[[ ! -s error.html ]] && echo "<html><body><h1>Error</h1></body></html>" > error.html
 
-echo "Klik 'Check my progress' untuk Task 2 (Upload files to the bucket),"
-echo "setelah hijau tekan Enter untuk melanjutkan ke terraform destroy..."
-read -r
+gcloud storage cp index.html error.html "gs://$PROJECT_ID" 2>/dev/null || gsutil cp index.html error.html "gs://$PROJECT_ID"
 
-step "Task 2h: Clean up — terraform destroy"
+step "Selesai"
+cat <<EOF
+==============================================================
+SELESAI! Klik Check my progress untuk verifikasi:
+  1. Task 1 - Provision infrastructure
+  2. Task 2 - Build a module
 
-terraform destroy -auto-approve
-
-echo
-echo "=============================================================="
-echo "SELESAI! Klik Check my progress untuk verifikasi:"
-echo "  Task 1 - Provision infrastructure"
-echo "  Task 2 - Build a module"
-echo "=============================================================="
+Bucket gs://$PROJECT_ID tetap aktif dengan index.html dan error.html
+agar verifikasi Task 2 lolos 100%. Jangan destroy sebelum hijau!
+==============================================================
+EOF

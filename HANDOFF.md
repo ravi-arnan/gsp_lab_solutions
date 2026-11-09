@@ -3,6 +3,17 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-09: GSP751 - Interact with Terraform Modules
+
+- [`gsp751.sh`](gsp751.sh) + [runbook](docs/gsp751.md):
+  - Memperbaiki deteksi dummy wrapper Terraform Cloud Shell dan instalasi otomatis jika belum ada.
+  - Memperbarui konfigurasi subnet region dan location bucket ke `us-central1` (default lab) via helper `ask`.
+  - Menghapus pause interaktif `read -r` pada Task 2 agar eksekusi 100% otomatis tanpa prompt di tengah jalan.
+  - Membiarkan Cloud Storage bucket `gs://$PROJECT_ID` aktif dengan file `index.html` dan `error.html` terunggah agar verifikasi Task 2 (Build a module) lolos 100%.
+  - Menambahkan idempotensi `terraform import` untuk storage bucket.
+- **Status Terakhir**: Lolos uji `bash -n`, `shellcheck`, dan dry-run (`bash test/run.sh gsp751.sh`).
+- **Next Action**: Jalankan script di Cloud Shell dan konfirmasi skor 100/100 di portal lab.
+
 ## Sesi 2026-11-09: GSP156 - Terraform Fundamentals
 
 - [`gsp156.sh`](gsp156.sh) + [runbook](docs/gsp156.md). Diperbarui sesuai materi lab edisi terbaru (update 4 hari lalu):
