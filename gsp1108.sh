@@ -17,6 +17,7 @@
 # LAMA: ~6 menit, paling lama install ops agent + jeda 60 detik.
 
 set -euo pipefail
+export CLOUDSDK_CORE_DISABLE_PROMPTS=1
 
 # Tanya nilai ke user kalau belum di-set lewat env var. Kalau stdin bukan
 # terminal (curl | bash, nohup), langsung pakai default supaya tidak menggantung.
@@ -34,7 +35,10 @@ ask() {
   echo "$1 = ${!1}"
 }
 
-ask ZONE "us-east4-a" "Zone (cocokkan dengan panel lab)"
+DEFAULT_ZONE="$(gcloud config get-value compute/zone 2>/dev/null || true)"
+[[ -z "$DEFAULT_ZONE" ]] && DEFAULT_ZONE="us-east1-c"
+
+ask ZONE "$DEFAULT_ZONE" "Zone (cocokkan dengan panel lab)"
 REGION="${REGION:-${ZONE%-*}}"
 PROJECT="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
 [[ -n "$PROJECT" ]] || { echo "Project belum di-set. Jalankan: gcloud config set project <ID>"; exit 1; }
@@ -50,7 +54,7 @@ step() { echo; echo "===========================================================
 
 step "Enable API"
 gcloud services enable compute.googleapis.com monitoring.googleapis.com \
-  logging.googleapis.com --project="$PROJECT"
+  logging.googleapis.com --project="$PROJECT" || echo "Enable API gagal/kena rate limit, lanjut saja."
 
 gcloud config set compute/zone "$ZONE" >/dev/null 2>&1 || true
 gcloud config set compute/region "$REGION" >/dev/null 2>&1 || true
@@ -66,7 +70,8 @@ else
     --image-family=debian-12 \
     --image-project=debian-cloud \
     --tags=http-server,https-server \
-    --project="$PROJECT"
+    --project="$PROJECT" \
+    --quiet
 fi
 
 # Checkbox "Allow HTTP/HTTPS traffic" di console = tag + firewall rule.
@@ -74,7 +79,7 @@ for rule in "default-allow-http tcp:80 http-server" "default-allow-https tcp:443
   set -- $rule
   if ! gcloud compute firewall-rules describe "$1" --project="$PROJECT" >/dev/null 2>&1; then
     gcloud compute firewall-rules create "$1" \
-      --allow="$2" --target-tags="$3" --project="$PROJECT"
+      --allow="$2" --target-tags="$3" --project="$PROJECT" --quiet
   else
     echo "Firewall $1 sudah ada."
   fi

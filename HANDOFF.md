@@ -3,6 +3,16 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-09: GSP1108 - Monitor an Apache Web Server using Ops Agent
+
+- [`gsp1108.sh`](gsp1108.sh) + [runbook](docs/gsp1108.md):
+  - Memperbarui default zone ke `us-east1-c` (mengikuti edisi terbaru lab).
+  - Menambahkan `export CLOUDSDK_CORE_DISABLE_PROMPTS=1` dan flag `--quiet` pada instance dan firewall rule creation.
+  - Menambahkan toleransi kegagalan enable service pada akun dengan permission terbatas.
+  - Mempertahankan instalasi Apache2, paket `php` pengganti `php7.0`, konfigurasi Ops Agent `config.yaml`, dan alerting policy via REST API.
+- **Status Terakhir**: Script siap diuji ulang pada lab instance aktif (us-east1-c, 4/4 checkpoint).
+- **Next Action**: Jalankan di Cloud Shell lab GSP1108 dan verifikasi 100/100.
+
 ## Sesi 2026-11-09: GSP092 - Monitoring and Logging for Cloud Run Functions
 
 - [`gsp092.sh`](gsp092.sh) + [runbook](docs/gsp092.md):

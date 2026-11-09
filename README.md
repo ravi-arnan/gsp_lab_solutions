@@ -273,26 +273,23 @@ Script ini dibuat untuk belajar. Kalau langsung dijalankan tanpa mengikuti mater
 
 ## Perintah Eksekusi Lab Aktif (Cloud Shell)
 
-### GSP092: Monitoring and Logging for Cloud Run Functions
+### GSP1108: Monitor an Apache Web Server using Ops Agent
 
 Jalankan perintah one-liner berikut langsung di Cloud Shell:
 
 ```bash
-REGION=us-central1 curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp092.sh | bash
+ZONE=us-east1-c curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp1108.sh | bash
 ```
 
 Atau unduh terlebih dahulu dan jalankan:
 
 ```bash
-curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp092.sh
-bash gsp092.sh
+curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp1108.sh
+bash gsp1108.sh
 ```
 
-Setelah selesai, klik **Check my progress** untuk kedua checkpoint:
-- **Task 1**: Creating a Cloud Run function (50 pts)
-- **Task 2**: Create logs-based metric (50 pts)
-
-Kuis pilihan ganda di halaman modul lab:
-- **Task 5 (Dua tipe log-based metrics)**: Pilih `User-defined logs-based metrics` dan `System logs-based metrics`
-- **Task 5 (Vegeta is a versatile HTTP load testing tool...)**: Pilih `True`
-- **Task 5 (Logs-based metrics are Cloud Monitoring metrics...)**: Pilih `True`
+Setelah selesai, klik **Check my progress** untuk seluruh 4 checkpoint:
+- **Task 1**: Create a Compute Engine VM instance
+- **Task 2**: Install an Apache Web Server
+- **Task 3**: Install the Ops Agent
+- **Task 5**: Create an alerting policy
