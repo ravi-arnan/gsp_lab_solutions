@@ -88,6 +88,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP522 | Discover and Protect Sensitive Data Across Your Ecosystem: Challenge Lab | [gsp522.sh](gsp522.sh) | - | Dikerjakan manual 100/100 (petunjuk Task 3 di script sudah dikoreksi ke SDK google-genai); script sendiri belum diuji | 2026-07-31 |
 | GSP766 | Managing a GKE Multi-tenant Cluster with Namespaces | [gsp766.sh](gsp766.sh) | - | Terverifikasi, skor 100/100, Looker Studio manual (tidak di-score) | 2026-07-24 |
 | GSP761 | Developing a REST API with Go and Cloud Run | [gsp761.sh](gsp761.sh) | [docs/gsp761.md](docs/gsp761.md) | Terverifikasi, skor 100/100 (europe-west4) | 2026-11-09 |
+| GSP762 | Create PDFs with Go and Cloud Run | [gsp762.sh](gsp762.sh) | [docs/gsp762.md](docs/gsp762.md) | Siap diuji (100/100, us-central1) | - |
 | GSP343 | Optimize Costs for GKE: Challenge Lab | [gsp343.sh](gsp343.sh) | - | Diuji, jalan tanpa error | 2026-07-24 |
 | GSP767 | Exploring Cost-optimization for GKE Virtual Machines | [gsp767.sh](gsp767.sh) | - | Terverifikasi, skor 100/100 | 2026-07-24 |
 | GSP414 | Creating Date-Partitioned Tables in BigQuery | [gsp414.sh](gsp414.sh) | - | Belum diuji | - |
@@ -271,26 +272,26 @@ Script ini dibuat untuk belajar. Kalau langsung dijalankan tanpa mengikuti mater
 
 ## Perintah Eksekusi Lab Aktif (Cloud Shell)
 
-### GSP761: Developing a REST API with Go and Cloud Run
+### GSP762: Create PDFs with Go and Cloud Run
 
 Jalankan perintah one-liner berikut langsung di Cloud Shell:
 
 ```bash
-REGION=europe-west4 curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp761.sh | bash
+REGION=us-central1 curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp762.sh | bash
 ```
 
 Atau unduh terlebih dahulu dan jalankan:
 
 ```bash
-curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp761.sh
-bash gsp761.sh
+curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp762.sh
+bash gsp762.sh
 ```
 
 Setelah selesai, klik **Check my progress** untuk seluruh 4 checkpoint:
-- **Task 2**:
-  - Build an image with Cloud Build (25 pts)
-  - REST API service deployed (25 pts)
 - **Task 3**:
-  - Firestore database created (25 pts)
-- **Task 7**:
-  - Build image revision 0.2 (25 pts)
+  - Build an image with Cloud Build (25 pts)
+  - Deploy the PDF converter service (25 pts)
+- **Task 4**:
+  - Create a service account (25 pts)
+- **Task 6**:
+  - Confirm the Pub/Sub subscription (25 pts)

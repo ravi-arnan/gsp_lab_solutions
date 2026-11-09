@@ -3,6 +3,19 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-09: GSP762 - Create PDFs with Go and Cloud Run
+
+- [`gsp762.sh`](gsp762.sh) + [runbook](docs/gsp762.md):
+  - Membuat script baru untuk otomasi microservice invoice konversi PDF menggunakan LibreOffice headless dan Go di Cloud Run.
+  - Mengompilasi binary secara statis (`CGO_ENABLED=0 GOOS=linux go build -o server`) dan membungkusnya dalam container image Debian dengan instalasi package `libreoffice`.
+  - Membangun container image ke Artifact Registry `pdf-converter` via Cloud Build dan men-deploy ke Cloud Run dengan alokasi memori 2Gi.
+  - Mengonfigurasi Cloud Storage notification pada bucket `gs://$PROJECT_ID-upload` ke Pub/Sub topic `new-doc`.
+  - Membuat Service Account `pubsub-cloud-run-invoker` dengan role `roles/run.invoker` pada Cloud Run service, serta grant `roles/iam.serviceAccountTokenCreator` pada Pub/Sub Service Agent.
+  - Membuat push subscription `pdf-conv-sub` ke endpoint Cloud Run dengan otentikasi Service Account.
+  - Memperbarui stub test `test/stubs.sh` untuk mendukung `run services describe` URL.
+- **Status Terakhir**: Script siap diuji, lolos syntax check, shellcheck, dan dry-run test suite (24 panggilan ok).
+- **Next Action**: Jalankan di Cloud Shell lab GSP762 dan verifikasi 100/100 (4/4 checkpoint).
+
 ## Sesi 2026-11-09: GSP761 - Developing a REST API with Go and Cloud Run
 
 - [`gsp761.sh`](gsp761.sh) + [runbook](docs/gsp761.md):

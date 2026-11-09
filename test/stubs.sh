@@ -46,6 +46,7 @@ gcloud)
     echo '{"etag":"dryrun","name":"projects/dryrun-project/dashboards/media","displayName":"Media_Dashboard","mosaicLayout":{"tiles":[]}}'
   elif has 'monitoring metrics-descriptors list' ; then
     echo "custom.googleapis.com/opencensus/my.videoservice.org/measure/input_queue_size"
+  elif has 'run services describe' || has 'value(status.url)' ; then echo "https://pdf-converter-dryrun.a.run.app"
   elif has 'config get-value'              ; then echo "us-central1"
   elif has '--format=json'                 ; then echo '[]'   # jangan bikin `| python3 -c json.load` meledak
   fi
