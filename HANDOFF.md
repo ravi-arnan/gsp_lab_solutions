@@ -6,6 +6,7 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 ## Sesi 2026-11-09: GSP156 - Terraform Fundamentals
 
 - [`gsp156.sh`](gsp156.sh) + [runbook](docs/gsp156.md). Diperbarui sesuai materi lab edisi terbaru (update 4 hari lalu):
+  - **Temuan krusial**: Di Cloud Shell terdapat dummy wrapper script bawaan untuk `terraform` yang keluar dengan exit code 0 dan hanya mencetak pesan "Follow the instructions...". Pengecekan `command -v terraform` keliru mendeteksinya sebagai terpasang. Diperbaiki dengan memeriksa `terraform --version | grep 'Terraform v'` serta fallback unzip binary jika apt lambat/gagal.
   - Penambahan instalasi otomatis Terraform via HashiCorp repository jika belum terpasang (`cat <<'EOF' > ~/.customize_environment`).
   - Pembaruan nama resource ke `google_compute_instance.default` dan OS image ke `debian-12`.
   - Penambahan helper `ask` dengan deteksi default zone otomatis dari metadata project (`google-compute-default-zone`) / config, fallback ke `us-east1-c`.

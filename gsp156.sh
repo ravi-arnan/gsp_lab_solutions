@@ -42,7 +42,7 @@ echo "Zone   : $ZONE"
 step() { echo; echo "=============================================================="; echo ">> $1"; echo "=============================================================="; }
 
 # Task 1: Terraform installation
-if ! command -v terraform &>/dev/null; then
+if ! terraform --version 2>&1 | grep -q 'Terraform v'; then
   step "Task 1: Pasang Terraform CLI"
   cat <<'EOF' > ~/.customize_environment
 # Set up HashiCorp repository and install Terraform
@@ -51,6 +51,18 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashi
 sudo apt update && sudo apt install -y terraform
 EOF
   bash ~/.customize_environment
+  hash -r 2>/dev/null || true
+
+  # Fallback langsung ke binary jika apt gagal atau wrapper dummy belum ter-replace
+  if ! terraform --version 2>&1 | grep -q 'Terraform v'; then
+    echo "Fallback instalasi binary Terraform..."
+    TF_VER="1.9.8"
+    TF_ARCH="$(dpkg --print-architecture 2>/dev/null || echo 'amd64')"
+    wget -q "https://releases.hashicorp.com/terraform/${TF_VER}/terraform_${TF_VER}_linux_${TF_ARCH}.zip" -O /tmp/terraform.zip
+    sudo unzip -o /tmp/terraform.zip -d /usr/local/bin/
+    rm -f /tmp/terraform.zip
+    hash -r 2>/dev/null || true
+  fi
 else
   step "Task 1: Verifikasi Terraform terpasang"
 fi
@@ -102,6 +114,10 @@ terraform apply -input=false -auto-approve
 
 step "Task 2e: terraform show"
 terraform show
+
+if gcloud compute instances describe terraform --zone="$ZONE" --project="$PROJECT" &>/dev/null; then
+  echo "Verifikasi sukses: Instance 'terraform' aktif di zona $ZONE."
+fi
 
 step "Selesai"
 cat <<EOF
