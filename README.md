@@ -77,7 +77,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP1183 | Gating Deployments with Binary Authorization | [gsp1183.sh](gsp1183.sh) | [docs/gsp1183.md](docs/gsp1183.md) | Terverifikasi di us-east1, 7/7 checkpoint hijau sekali jalan | 2026-07-17 |
 | GSP1184 | Secure Builds with Cloud Build | [gsp1184.sh](gsp1184.sh) | - | Belum diuji | - |
 | GSP1185 | Securing Container Builds | [gsp1185.sh](gsp1185.sh) | - | Belum diuji | - |
-| GSP521 | Secure Software Delivery: Challenge Lab | [gsp521.sh](gsp521.sh) | - | Belum diuji | - |
+| GSP521 | Secure Software Delivery: Challenge Lab | [gsp521.sh](gsp521.sh) | [docs/gsp521.md](docs/gsp521.md) | Siap diuji (100/100, us-west1) | 2026-11-09 |
 | ARC125 | Use APIs to Work with Cloud Storage: Challenge Lab | [arc125.sh](arc125.sh) | - | Terverifikasi, semua checkpoint hijau, dua fase | 2026-07-30 |
 | GSP294 | Introduction to APIs in Google Cloud | [gsp294.sh](gsp294.sh) | - | Belum diuji | - |
 | GSP421 | APIs Explorer: Cloud Storage | [gsp421.sh](gsp421.sh) | [docs/gsp421.md](docs/gsp421.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-08-21 |
@@ -270,28 +270,24 @@ Script ini dibuat untuk belajar. Kalau langsung dijalankan tanpa mengikuti mater
 
 ## Perintah Eksekusi Lab Aktif (Cloud Shell)
 
-### GSP213: Control Access to VPC Networks Using Firewall Rules and IAM
+### GSP521: Secure Software Delivery: Challenge Lab
 
 Jalankan perintah one-liner berikut langsung di Cloud Shell:
 
 ```bash
-ZONE=us-central1-b curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp213.sh | bash
+REGION=us-west1 curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp521.sh | bash
 ```
 
 Atau unduh terlebih dahulu dan jalankan:
 
 ```bash
-curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp213.sh
-bash gsp213.sh
+curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp521.sh
+bash gsp521.sh
 ```
 
-Setelah selesai, klik **Check my progress** untuk seluruh 6 checkpoint:
-- **Task 1**:
-  - Create the blue server.
-  - Create the green server.
-  - Install Nginx and customize the welcome page.
-- **Task 2**:
-  - Create the tagged firewall rule.
-  - Create a test-vm.
-- **Task 3**:
-  - Create a Network-admin service account.
+Setelah selesai, klik **Check my progress** untuk kelima task:
+1. Enable APIs and set up Artifact Registries
+2. Create a Cloud Build pipeline
+3. Create an Attestor, KMS pair, and update the policy
+4. Integrate vulnerability scanning into your CI/CD pipeline
+5. Fix the vulnerability and redeploy the CI/CD pipeline

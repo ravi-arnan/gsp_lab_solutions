@@ -3,6 +3,17 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-09: GSP521 - Secure Software Delivery: Challenge Lab
+
+- [`gsp521.sh`](gsp521.sh) + [runbook](docs/gsp521.md):
+  - Memperbarui default region ke `us-west1` (sesuai instruksi Task 2 edisi terbaru).
+  - Memperbarui Dockerfile Task 5 dari `python:3.8-alpine` ke `python:3.12-slim` dengan versi dependensi terbaru (Flask 3.0.3, Gunicorn 23.0.0, Werkzeug 3.0.4).
+  - Menambahkan grant IAM ke Compute SA di samping Cloud Build SA untuk mendukung Cloud Build modern.
+  - Mempertahankan flow di mana build Task 4 sengaja gagal di step `severity check` untuk memicu centang Checkpoint 4.
+  - Menulis runbook di `docs/gsp521.md` dan memperbarui tabel serta instruksi one-liner di `README.md`.
+- **Status Terakhir**: Siap diuji di live lab Cloud Shell (us-west1). Lolos uji syntax `bash -n` dan dry-run test (42 panggilan stub).
+- **Next Action**: Jalankan one-liner di Cloud Shell, klik 5 Check my progress, dan catat skor 100/100.
+
 ## Sesi 2026-11-09: GSP213 - Control Access to VPC Networks Using Firewall Rules and IAM
 
 - [`gsp213.sh`](gsp213.sh) + [runbook](docs/gsp213.md):

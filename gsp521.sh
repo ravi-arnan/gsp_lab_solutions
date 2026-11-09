@@ -4,11 +4,11 @@
 #   REGION=<region> bash gsp521.sh
 #
 # Checkpoint:
-#   1. Enable APIs and set up Artifact Registries
-#   2. Create a Cloud Build pipeline
-#   3. Create an Attestor, KMS pair, and update the policy
-#   4. Integrate vulnerability scanning into your CI/CD pipeline (build HARUS gagal)
-#   5. Fix the vulnerability and redeploy the CI/CD pipeline
+#   Task 1 - Enable APIs and set up Artifact Registries
+#   Task 2 - Create a Cloud Build pipeline
+#   Task 3 - Create an Attestor, KMS pair, and update the policy
+#   Task 4 - Integrate vulnerability scanning into your CI/CD pipeline
+#   Task 5 - Fix the vulnerability and redeploy the CI/CD pipeline
 #
 # Gabungan GSP1183 (Binary Authorization) + GSP1184 (scanning di Cloud Build),
 # ditutup deploy ke Cloud Run.
@@ -33,8 +33,11 @@ ask() {
   echo "$1 = ${!1}"
 }
 
-# Teks lab menyebut us-east4. Cocokkan kalau instance-mu beda.
-ask REGION "us-east4" "Region (cocokkan dengan panel lab)"
+DEFAULT_REGION="$(gcloud config get-value compute/region 2>/dev/null || true)"
+[[ -z "$DEFAULT_REGION" ]] && DEFAULT_REGION="$(gcloud config get-value run/region 2>/dev/null || true)"
+[[ -z "$DEFAULT_REGION" ]] && DEFAULT_REGION="us-west1"
+
+ask REGION "$DEFAULT_REGION" "Region (cocokkan dengan panel lab)"
 # On-demand scanning cuma punya multi-region: us / europe / asia
 SCAN_LOCATION="${REGION%%-*}"
 
@@ -119,9 +122,11 @@ for ROLE in \
   roles/binaryauthorization.attestorsViewer \
   roles/cloudkms.signerVerifier \
   roles/containeranalysis.notes.attacher \
-  roles/run.admin
+  roles/run.admin \
+  roles/artifactregistry.writer
 do
   grant "$CB_SA" "$ROLE"
+  grant "$COMPUTE_SA" "$ROLE"
 done
 grant "$COMPUTE_SA" roles/cloudkms.signerVerifier
 echo "Selesai."
@@ -358,7 +363,7 @@ fi
 step "Task 5: Perbaiki Dockerfile lalu build ulang (checkpoint 5)"
 
 cat > ./Dockerfile << 'EOF'
-FROM python:3.8-alpine
+FROM python:3.12-slim
 
 # App
 WORKDIR /app
