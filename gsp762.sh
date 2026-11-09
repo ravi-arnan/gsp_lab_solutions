@@ -52,18 +52,8 @@ gcloud config set run/platform managed >/dev/null 2>&1
 echo "Project ID: $PROJECT_ID"
 echo "Region    : $REGION"
 
-# ----------------------------------------------------------------- Task 1: Enable APIs
-step "Task 1: Enable Google APIs"
-gcloud services enable \
-  cloudbuild.googleapis.com \
-  storage-component.googleapis.com \
-  run.googleapis.com \
-  artifactregistry.googleapis.com \
-  pubsub.googleapis.com \
-  --project="$PROJECT_ID"
-
-# ----------------------------------------------------------------- Task 1.1: Source Code
-step "Task 1.1: Siapkan source code pet-theory lab03"
+# ----------------------------------------------------------------- Task 1: Source Code
+step "Task 1: Siapkan source code pet-theory lab03"
 WORKDIR="$HOME/pet-theory/lab03"
 if [[ -d "$HOME/pet-theory" ]]; then
   echo "Direktori pet-theory sudah ada, memperbarui..."
@@ -259,16 +249,6 @@ gcloud run deploy pdf-converter \
 
 # ----------------------------------------------------------------- Task 4: Storage Notification & Service Account
 step "Task 4.1: Konfigurasi Cloud Storage Notification ke topic new-doc"
-# Pastikan bucket upload dan processed ada jika lab belum membuatnya
-if ! gcloud storage buckets describe "gs://${PROJECT_ID}-upload" >/dev/null 2>&1; then
-  echo "Membuat bucket upload gs://${PROJECT_ID}-upload..."
-  gcloud storage buckets create "gs://${PROJECT_ID}-upload" --location="$REGION" --project="$PROJECT_ID" --quiet || true
-fi
-if ! gcloud storage buckets describe "gs://${PROJECT_ID}-processed" >/dev/null 2>&1; then
-  echo "Membuat bucket processed gs://${PROJECT_ID}-processed..."
-  gcloud storage buckets create "gs://${PROJECT_ID}-processed" --location="$REGION" --project="$PROJECT_ID" --quiet || true
-fi
-
 # Cek apakah notifikasi untuk new-doc sudah dibuat
 if ! gcloud storage buckets notifications list "gs://${PROJECT_ID}-upload" 2>/dev/null | grep -q "new-doc"; then
   gcloud storage buckets notifications create \
@@ -286,7 +266,7 @@ if ! gcloud iam service-accounts describe "$SA_EMAIL" --project="$PROJECT_ID" >/
   gcloud iam service-accounts create pubsub-cloud-run-invoker \
     --display-name="PubSub Cloud Run Invoker" \
     --project="$PROJECT_ID" \
-    --quiet
+    --quiet || true
 else
   echo "Service account $SA_EMAIL sudah ada."
 fi
@@ -298,15 +278,6 @@ gcloud run services add-iam-policy-binding pdf-converter \
   --region="$REGION" \
   --project="$PROJECT_ID" \
   --quiet
-
-# Berikan hak Service Account Token Creator ke Pub/Sub Service Agent jika belum ada
-PROJECT_NUMBER="$(gcloud projects describe "$PROJECT_ID" --format='value(projectNumber)' 2>/dev/null || true)"
-if [[ -n "$PROJECT_NUMBER" ]]; then
-  gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-    --member="serviceAccount:service-${PROJECT_NUMBER}@gcp-sa-pubsub.iam.gserviceaccount.com" \
-    --role="roles/iam.serviceAccountTokenCreator" \
-    --quiet 2>/dev/null || true
-fi
 
 # ----------------------------------------------------------------- Task 5: Validasi Endpoint Cloud Run
 step "Task 5: Validasi akses Cloud Run service"
