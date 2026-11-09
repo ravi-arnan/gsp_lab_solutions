@@ -3,6 +3,16 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-09: GSP093 - Compute Engine: Qwik Start - Windows
+
+- [`gsp093.sh`](gsp093.sh) + [runbook](docs/gsp093.md):
+  - Membuat script baru untuk otomasi peluncuran VM Windows Server 2022 Datacenter `instance-1` di Compute Engine (Checkpoint 1).
+  - Melakukan polling serial port output hingga pesan `Instance setup finished. instance is ready to use.` muncul menandakan sysprep Windows selesai.
+  - Menyetel password acak untuk user `admin` via `gcloud compute reset-windows-password` secara non-interaktif (Checkpoint 2).
+  - Menambahkan stub `instances get-serial-port-output` pada test runner `test/stubs.sh`.
+- **Status Terakhir**: Script siap diuji, lolos syntax check, shellcheck, dan dry-run test suite (8 panggilan ok).
+- **Next Action**: Jalankan di Cloud Shell lab GSP093 dan verifikasi 100/100 (2/2 checkpoint).
+
 ## Sesi 2026-11-09: GSP1108 - Monitor an Apache Web Server using Ops Agent
 
 - [`gsp1108.sh`](gsp1108.sh) + [runbook](docs/gsp1108.md):

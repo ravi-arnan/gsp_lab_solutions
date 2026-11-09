@@ -100,6 +100,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP080 | Cloud Run Functions: Qwik Start - Command Line | [gsp080.sh](gsp080.sh) | - | Terverifikasi, skor 100/100 di dua region (us-west4 2026-07-31, us-east1 2026-08-21) | 2026-08-21 |
 | GSP089 | Cloud Monitoring: Qwik Start | [gsp089.sh](gsp089.sh) | [docs/gsp089.md](docs/gsp089.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-08-04 |
 | GSP092 | Monitoring and Logging for Cloud Run Functions | [gsp092.sh](gsp092.sh) | [docs/gsp092.md](docs/gsp092.md) | Terverifikasi, skor 100/100 (us-central1); Cloud Functions v2 deployment | 2026-11-09 |
+| GSP093 | Compute Engine: Qwik Start - Windows | [gsp093.sh](gsp093.sh) | [docs/gsp093.md](docs/gsp093.md) | Siap diuji (100/100, us-central1-f) | - |
 | GSP1108 | Monitor an Apache Web Server using Ops Agent | [gsp1108.sh](gsp1108.sh) | [docs/gsp1108.md](docs/gsp1108.md) | Terverifikasi, skor 100/100 (us-east1-c) | 2026-11-09 |
 | GSP736 | Debug Apps on Google Kubernetes Engine | [gsp736.sh](gsp736.sh) | [docs/gsp736.md](docs/gsp736.md) | Terverifikasi, skor 100/100; grader mencocokkan teks filter alerting policy (`resource.type` dulu) | 2026-08-04 |
 | GSP1024 | Using Prometheus for Monitoring on Google Cloud: Qwik Start | [gsp1024.sh](gsp1024.sh) | [docs/gsp1024.md](docs/gsp1024.md) | Diuji ulang 75/100 (Task 1, 3, dan 5 hijau; Task 4 merah walau deployment dan service aktif serta metrik ter-ingest) | 2026-10-27 |
@@ -273,23 +274,25 @@ Script ini dibuat untuk belajar. Kalau langsung dijalankan tanpa mengikuti mater
 
 ## Perintah Eksekusi Lab Aktif (Cloud Shell)
 
-### GSP1108: Monitor an Apache Web Server using Ops Agent
+### GSP093: Compute Engine: Qwik Start - Windows
 
 Jalankan perintah one-liner berikut langsung di Cloud Shell:
 
 ```bash
-ZONE=us-east1-c curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp1108.sh | bash
+ZONE=us-central1-f curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp093.sh | bash
 ```
 
 Atau unduh terlebih dahulu dan jalankan:
 
 ```bash
-curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp1108.sh
-bash gsp1108.sh
+curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp093.sh
+bash gsp093.sh
 ```
 
-Setelah selesai, klik **Check my progress** untuk seluruh 4 checkpoint:
-- **Task 1**: Create a Compute Engine VM instance
-- **Task 2**: Install an Apache Web Server
-- **Task 3**: Install the Ops Agent
-- **Task 5**: Create an alerting policy
+Setelah selesai, klik **Check my progress** untuk kedua checkpoint:
+- **Task 1**: Create a virtual machine instance (50 pts)
+- **Task 2**: RDP into the Windows Server (50 pts)
+
+Kuis pilihan ganda di halaman modul lab:
+- "We can create a Windows instance in Google Cloud by changing its ____ in the VM instance console." -> `Boot disk to Windows image`
+- "Which command is used to check whether the server is ready for an RDP connection?" -> `gcloud compute instances get-serial-port-output`
