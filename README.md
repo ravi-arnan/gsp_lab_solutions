@@ -89,6 +89,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP766 | Managing a GKE Multi-tenant Cluster with Namespaces | [gsp766.sh](gsp766.sh) | - | Terverifikasi, skor 100/100, Looker Studio manual (tidak di-score) | 2026-07-24 |
 | GSP761 | Developing a REST API with Go and Cloud Run | [gsp761.sh](gsp761.sh) | [docs/gsp761.md](docs/gsp761.md) | Terverifikasi, skor 100/100 (europe-west4) | 2026-11-09 |
 | GSP762 | Create PDFs with Go and Cloud Run | [gsp762.sh](gsp762.sh) | [docs/gsp762.md](docs/gsp762.md) | Terverifikasi, skor 100/100 (us-central1) | 2026-11-09 |
+| GSP651 | Setting Up Cost Control with Quota | [gsp651.sh](gsp651.sh) | [docs/gsp651.md](docs/gsp651.md) | Siap diuji (100/100, global US) | - |
 | GSP343 | Optimize Costs for GKE: Challenge Lab | [gsp343.sh](gsp343.sh) | - | Diuji, jalan tanpa error | 2026-07-24 |
 | GSP767 | Exploring Cost-optimization for GKE Virtual Machines | [gsp767.sh](gsp767.sh) | - | Terverifikasi, skor 100/100 | 2026-07-24 |
 | GSP414 | Creating Date-Partitioned Tables in BigQuery | [gsp414.sh](gsp414.sh) | - | Belum diuji | - |
@@ -272,26 +273,25 @@ Script ini dibuat untuk belajar. Kalau langsung dijalankan tanpa mengikuti mater
 
 ## Perintah Eksekusi Lab Aktif (Cloud Shell)
 
-### GSP762: Create PDFs with Go and Cloud Run
+### GSP651: Setting Up Cost Control with Quota
 
 Jalankan perintah one-liner berikut langsung di Cloud Shell:
 
 ```bash
-REGION=us-central1 curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp762.sh | bash
+curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp651.sh | bash
 ```
 
 Atau unduh terlebih dahulu dan jalankan:
 
 ```bash
-curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp762.sh
-bash gsp762.sh
+curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp651.sh
+bash gsp651.sh
 ```
 
-Setelah selesai, klik **Check my progress** untuk seluruh 4 checkpoint:
-- **Task 3**:
-  - Build an image with Cloud Build (25 pts)
-  - Deploy the PDF converter service (25 pts)
-- **Task 4**:
-  - Create a service account (25 pts)
-- **Task 6**:
-  - Confirm the Pub/Sub subscription (25 pts)
+Setelah selesai, klik **Check my progress** untuk seluruh 2 checkpoint:
+- **Task 1**: Query a public dataset in BigQuery (50 pts)
+- **Task 4**: Rerun your Query (50 pts)
+
+Kuis pilihan ganda di halaman modul lab:
+- **Task 1**: 1.36 TB
+- **Task 4**: Caching

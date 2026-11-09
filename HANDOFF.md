@@ -3,6 +3,17 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-09: GSP651 - Setting Up Cost Control with Quota
+
+- [`gsp651.sh`](gsp651.sh) + [runbook](docs/gsp651.md):
+  - Membuat script baru untuk otomasi pengendalian biaya BigQuery dengan modifikasi kuota API melalui Service Usage.
+  - Menjalankan kueri data publik `bigquery-public-data.wise_all_sky_data_release.mep_wise` yang memproses data ~1.36 TB (Checkpoint 1).
+  - Memperbarui kuota harian query per pengguna menjadi 262144 MiB (0.25 TiB) menggunakan `gcloud alpha services quota update`.
+  - Menguji eksekusi ulang kueri dengan `--nouse_cache` untuk memverifikasi penolakan kueri `Custom quota exceeded` (Checkpoint 2).
+  - Menyediakan dokumentasi jawaban kuis pilihan ganda (1.36 TB dan Caching).
+- **Status Terakhir**: Script siap diuji, lolos syntax check, shellcheck, dan dry-run test suite (33 panggilan ok).
+- **Next Action**: Jalankan di Cloud Shell lab GSP651 dan verifikasi 100/100 (2/2 checkpoint).
+
 ## Sesi 2026-11-09: GSP762 - Create PDFs with Go and Cloud Run
 
 - [`gsp762.sh`](gsp762.sh) + [runbook](docs/gsp762.md):
