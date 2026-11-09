@@ -91,7 +91,7 @@ echo "External IP: $EXTERNAL_IP"
 
 # ----------------------------------------------------------------- Task 2-4
 step "Task 2-4: Apache + Ops Agent + generate traffic"
-if gcloud compute ssh "$VM" --zone="$ZONE" --project="$PROJECT" --quiet \
+if gcloud compute ssh "$VM" --zone="$ZONE" --project="$PROJECT" --quiet < /dev/null \
     --command="systemctl is-active google-cloud-ops-agent" 2>/dev/null | grep -q "active"; then
   echo "Ops Agent sudah terpasang dan aktif di VM $VM, melewati Task 2-4."
 else
@@ -151,13 +151,13 @@ REMOTE_EOF
 
   n=1
   until gcloud compute scp "$REMOTE" "$VM":~/gsp1108_remote.sh \
-          --zone="$ZONE" --project="$PROJECT" --quiet; do
+          --zone="$ZONE" --project="$PROJECT" --quiet < /dev/null; do
     (( n++ >= 8 )) && { echo "SSH tidak siap setelah 7 percobaan."; exit 1; }
     echo "SSH belum siap, tunggu 15 detik (percobaan $n)..."
     sleep 15
   done
 
-  gcloud compute ssh "$VM" --zone="$ZONE" --project="$PROJECT" --quiet \
+  gcloud compute ssh "$VM" --zone="$ZONE" --project="$PROJECT" --quiet < /dev/null \
     --command="bash ~/gsp1108_remote.sh" || echo "Peringatan: SSH selesai, lanjut ke Task 5."
 fi
 
