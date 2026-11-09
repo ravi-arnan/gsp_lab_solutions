@@ -12,8 +12,8 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
   - Memastikan service account `network-admin` terdaftar dan mengikat role `roles/compute.networkAdmin` dan `roles/compute.securityAdmin` (`--condition=None`).
   - Menjaga firewall rule tetap aktif agar seluruh 6 checkpoint evaluasi di grader tetap bernilai hijau.
   - Menyertakan polling kesiapan startup script Nginx.
-- **Status Terakhir**: Siap diuji di live lab Cloud Shell. Lolos uji syntax `bash -n` dan dry-run test (71 panggilan stub).
-- **Next Action**: Jalankan one-liner di Cloud Shell, klik 6 Check my progress, dan catat skor 100/100.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (us-central1-b, 6/6 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-09: GSP211 - Create and Configure Multiple VPC Networks
 
