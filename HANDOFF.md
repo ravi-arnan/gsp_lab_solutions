@@ -3,6 +3,18 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-09: GSP761 - Developing a REST API with Go and Cloud Run
+
+- [`gsp761.sh`](gsp761.sh) + [runbook](docs/gsp761.md):
+  - Membuat script baru untuk otomasi penyusunan REST API backend dengan Go (versi 0.1 dan versi 0.2).
+  - Mengompilasi binary secara statis (`CGO_ENABLED=0 GOOS=linux go build -o server`) untuk kompatibilitas base distroless.
+  - Membangun container image ke Artifact Registry `my-repo` via Cloud Build dan men-deploy ke Cloud Run.
+  - Membuat database Firestore mode Native (`europe-west4`) secara idempoten dan mengimpor dataset pelanggan dari Cloud Storage.
+  - Menghubungkan endpoint REST API `/v1/customer/{id}` ke Firestore client dan CORS middleware.
+  - Menambahkan stub `go` pada test suite `test/stubs.sh` dan `test/run.sh`.
+- **Status Terakhir**: Siap diuji di live lab Cloud Shell (europe-west4). Lolos uji syntax `bash -n` dan dry-run test (19 panggilan stub).
+- **Next Action**: Jalankan one-liner di Cloud Shell, klik 4 Check my progress, dan catat skor 100/100.
+
 ## Sesi 2026-11-09: GSP521 - Secure Software Delivery: Challenge Lab
 
 - [`gsp521.sh`](gsp521.sh) + [runbook](docs/gsp521.md):

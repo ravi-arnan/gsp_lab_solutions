@@ -36,7 +36,7 @@ declare -A ENVS=(
 declare -A SKIP=( [gsp1154.sh]="terbukti 0/5, lab berbasis UI" )
 
 mkdir -p "$STUBS"
-for c in gcloud bq gsutil kubectl terraform curl git docker gh sleep; do
+for c in gcloud bq gsutil kubectl terraform curl git docker gh sleep go; do
   install -m755 "$ROOT/test/stubs.sh" "$STUBS/$c"
 done
 export PATH="$STUBS:$PATH"

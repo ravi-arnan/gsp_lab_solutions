@@ -115,6 +115,17 @@ gh)
   fi
   ;;
 
+go)
+  # go build -o <file> -> buat file dummy supaya file ada saat di-copy
+  out="server"
+  prev=""
+  for a in "$@"; do
+    [[ "$prev" == "-o" ]] && out="$a"
+    prev="$a"
+  done
+  touch "$out"
+  ;;
+
 sleep)
   # dry-run tidak perlu benar-benar menunggu
   ;;
