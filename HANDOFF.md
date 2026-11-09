@@ -10,8 +10,8 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
   - Memastikan pembuatan VM instances `managementnet-vm-1` dan `privatenet-vm-1` di zone utama (`us-central1-f`).
   - Memastikan pembuatan VM multi-NIC `vm-appliance` (`e2-standard-4`) dengan 3 network interfaces (`privatesubnet-1`, `managementsubnet-1`, `mynetwork`).
   - Auto-detection zone dan region dari instance default lab (`mynet-vm-1` dan `mynet-vm-2`).
-- **Status Terakhir**: Siap diuji di live lab Cloud Shell. Lolos uji syntax `bash -n` dan dry-run test (15 panggilan stub).
-- **Next Action**: Jalankan one-liner di Cloud Shell, klik 7 Check my progress, dan catat skor 100/100.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (us-central1-f, asia-east1, 7/7 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-09: GSP750 - Infrastructure as Code with Terraform
 
