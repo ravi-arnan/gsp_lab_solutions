@@ -99,7 +99,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP872 | API Gateway: Qwik Start | [gsp872.sh](gsp872.sh) | [docs/gsp872.md](docs/gsp872.md) | Terverifikasi, skor 100/100 | 2026-08-04 |
 | GSP080 | Cloud Run Functions: Qwik Start - Command Line | [gsp080.sh](gsp080.sh) | - | Terverifikasi, skor 100/100 di dua region (us-west4 2026-07-31, us-east1 2026-08-21) | 2026-08-21 |
 | GSP089 | Cloud Monitoring: Qwik Start | [gsp089.sh](gsp089.sh) | [docs/gsp089.md](docs/gsp089.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-08-04 |
-| GSP092 | Monitoring and Logging for Cloud Run Functions | [gsp092.sh](gsp092.sh) | [docs/gsp092.md](docs/gsp092.md) | Terverifikasi, skor 100/100; grader menuntut resource Cloud Functions v2, kebalikan GSP081 | 2026-08-04 |
+| GSP092 | Monitoring and Logging for Cloud Run Functions | [gsp092.sh](gsp092.sh) | [docs/gsp092.md](docs/gsp092.md) | Terverifikasi, skor 100/100 (us-central1); Cloud Functions v2 deployment | 2026-11-09 |
 | GSP1108 | Monitor an Apache Web Server using Ops Agent | [gsp1108.sh](gsp1108.sh) | [docs/gsp1108.md](docs/gsp1108.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-08-04 |
 | GSP736 | Debug Apps on Google Kubernetes Engine | [gsp736.sh](gsp736.sh) | [docs/gsp736.md](docs/gsp736.md) | Terverifikasi, skor 100/100; grader mencocokkan teks filter alerting policy (`resource.type` dulu) | 2026-08-04 |
 | GSP1024 | Using Prometheus for Monitoring on Google Cloud: Qwik Start | [gsp1024.sh](gsp1024.sh) | [docs/gsp1024.md](docs/gsp1024.md) | Diuji ulang 75/100 (Task 1, 3, dan 5 hijau; Task 4 merah walau deployment dan service aktif serta metrik ter-ingest) | 2026-10-27 |

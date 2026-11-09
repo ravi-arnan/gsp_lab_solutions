@@ -10,8 +10,8 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
   - Menambahkan flag `--quiet` dan `CLOUDSDK_CORE_DISABLE_PROMPTS=1` untuk eksekusi non-interaktif mulus.
   - Mempertahankan flow 2-step deployment: deploy via Cloud Functions v2 (`gcloud functions deploy --gen2`) kemudian update execution environment via Cloud Run (`gcloud run services update --execution-environment=gen2 --cpu=1 --memory=512Mi`).
   - Pembuatan logs-based metric `CloudRunFunctionLatency-Logs` (Distribution) serta load test 200 request paralel.
-- **Status Terakhir**: Script siap diuji ulang pada lab instance aktif (us-central1, 2/2 checkpoint).
-- **Next Action**: Jalankan di Cloud Shell lab GSP092 dan verifikasi 100/100.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (us-central1, 2/2 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-09: GSP651 - Setting Up Cost Control with Quota
 
