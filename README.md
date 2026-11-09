@@ -153,7 +153,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP1049 | Cloud Spanner - Loading Data and Performing Backups | [gsp1049.sh](gsp1049.sh) | [docs/gsp1049.md](docs/gsp1049.md) | Terverifikasi, skor 100/100; ada jeda klik checkpoint sebelum tahap Dataflow | 2026-08-03 |
 | GSP1050 | Spanner - Defining Schemas and Understanding Query Plans | [gsp1050.sh](gsp1050.sh) | [docs/gsp1050.md](docs/gsp1050.md) | Terverifikasi, skor 100/100 | 2026-08-03 |
 | GSP381 | Create and Manage Cloud Spanner Instances: Challenge Lab | [gsp381.sh](gsp381.sh) | [docs/gsp381.md](docs/gsp381.md) | Terverifikasi, skor 100/100 | 2026-08-03 |
-| GSP752 | Manage Terraform State | [gsp752.sh](gsp752.sh) | [docs/gsp752.md](docs/gsp752.md) | Siap diuji (100/100) | - |
+| GSP752 | Manage Terraform State | [gsp752.sh](gsp752.sh) | [docs/gsp752.md](docs/gsp752.md) | Terverifikasi, skor 100/100 (us-west1) | 2026-11-09 |
 | GSP1124 | Get Started with Security Command Center | [gsp1124.sh](gsp1124.sh) | - | Belum diuji; Task 1-2 wajib manual (UI + enable SHA module) | - |
 | GSP1164 | Analyze Findings with Security Command Center | [gsp1164.sh](gsp1164.sh) | - | Belum diuji | - |
 | GSP1077 | Google Kubernetes Engine Pipeline using Cloud Build | [gsp1077.sh](gsp1077.sh) | [docs/gsp1077.md](docs/gsp1077.md) | Belum diuji; tiga fase, `gh auth login` + install Cloud Build GitHub App wajib manual | - |

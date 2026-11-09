@@ -10,8 +10,8 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
   - Menghapus jeda interaktif `read -r` dan penghapusan bucket otomatis pada Task 1 agar checkpoint Task 1 (Work with backends, 100 poin) tetap hijau.
   - Memastikan migrasi local ke gcs backend berjalan mulus (`yes | terraform init -migrate-state`) dan label `key:value` disinkronkan via `terraform refresh`.
   - Mengotomasi Task 2 (Docker container import) tanpa jeda.
-- **Status Terakhir**: Lolos uji `bash -n`, `shellcheck`, dan dry-run (`bash test/run.sh gsp752.sh`).
-- **Next Action**: Jalankan script di Cloud Shell dan konfirmasi skor 100/100 di portal lab.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (us-west1).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-09: GSP751 - Interact with Terraform Modules
 
