@@ -77,7 +77,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP1183 | Gating Deployments with Binary Authorization | [gsp1183.sh](gsp1183.sh) | [docs/gsp1183.md](docs/gsp1183.md) | Terverifikasi di us-east1, 7/7 checkpoint hijau sekali jalan | 2026-07-17 |
 | GSP1184 | Secure Builds with Cloud Build | [gsp1184.sh](gsp1184.sh) | - | Belum diuji | - |
 | GSP1185 | Securing Container Builds | [gsp1185.sh](gsp1185.sh) | - | Belum diuji | - |
-| GSP521 | Secure Software Delivery: Challenge Lab | [gsp521.sh](gsp521.sh) | [docs/gsp521.md](docs/gsp521.md) | Siap diuji (100/100, us-west1) | 2026-11-09 |
+| GSP521 | Secure Software Delivery: Challenge Lab | [gsp521.sh](gsp521.sh) | [docs/gsp521.md](docs/gsp521.md) | Terverifikasi, skor 100/100 (us-west1) | 2026-11-09 |
 | ARC125 | Use APIs to Work with Cloud Storage: Challenge Lab | [arc125.sh](arc125.sh) | - | Terverifikasi, semua checkpoint hijau, dua fase | 2026-07-30 |
 | GSP294 | Introduction to APIs in Google Cloud | [gsp294.sh](gsp294.sh) | - | Belum diuji | - |
 | GSP421 | APIs Explorer: Cloud Storage | [gsp421.sh](gsp421.sh) | [docs/gsp421.md](docs/gsp421.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-08-21 |

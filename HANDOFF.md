@@ -11,8 +11,8 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
   - Menambahkan grant IAM ke Compute SA di samping Cloud Build SA untuk mendukung Cloud Build modern.
   - Mempertahankan flow di mana build Task 4 sengaja gagal di step `severity check` untuk memicu centang Checkpoint 4.
   - Menulis runbook di `docs/gsp521.md` dan memperbarui tabel serta instruksi one-liner di `README.md`.
-- **Status Terakhir**: Siap diuji di live lab Cloud Shell (us-west1). Lolos uji syntax `bash -n` dan dry-run test (42 panggilan stub).
-- **Next Action**: Jalankan one-liner di Cloud Shell, klik 5 Check my progress, dan catat skor 100/100.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (us-west1, 5/5 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-09: GSP213 - Control Access to VPC Networks Using Firewall Rules and IAM
 
