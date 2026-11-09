@@ -11,8 +11,8 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
   - Memperbaiki deteksi dummy wrapper Terraform Cloud Shell dan instalasi otomatis jika belum ada.
   - Menghapus pause interaktif `read -r` pada Task 5 agar eksekusi seluruh 7 task berjalan mulus tanpa jeda.
   - Menambahkan runbook dokumentasi di `docs/gsp345.md`.
-- **Status Terakhir**: Lolos uji `bash -n`, `shellcheck`, dan dry-run (`bash test/run.sh gsp345.sh`).
-- **Next Action**: Jalankan script di Cloud Shell dan konfirmasi skor 100/100 di portal lab.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (us-east1-c, debian-12, 7/7 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-09: GSP752 - Manage Terraform State
 
