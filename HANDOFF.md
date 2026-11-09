@@ -3,6 +3,16 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-09: GSP092 - Monitoring and Logging for Cloud Run Functions
+
+- [`gsp092.sh`](gsp092.sh) + [runbook](docs/gsp092.md):
+  - Memperbarui default region ke `us-central1` (mengikuti edisi terbaru lab).
+  - Menambahkan flag `--quiet` dan `CLOUDSDK_CORE_DISABLE_PROMPTS=1` untuk eksekusi non-interaktif mulus.
+  - Mempertahankan flow 2-step deployment: deploy via Cloud Functions v2 (`gcloud functions deploy --gen2`) kemudian update execution environment via Cloud Run (`gcloud run services update --execution-environment=gen2 --cpu=1 --memory=512Mi`).
+  - Pembuatan logs-based metric `CloudRunFunctionLatency-Logs` (Distribution) serta load test 200 request paralel.
+- **Status Terakhir**: Script siap diuji ulang pada lab instance aktif (us-central1, 2/2 checkpoint).
+- **Next Action**: Jalankan di Cloud Shell lab GSP092 dan verifikasi 100/100.
+
 ## Sesi 2026-11-09: GSP651 - Setting Up Cost Control with Quota
 
 - [`gsp651.sh`](gsp651.sh) + [runbook](docs/gsp651.md):

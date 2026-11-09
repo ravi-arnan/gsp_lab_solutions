@@ -273,25 +273,26 @@ Script ini dibuat untuk belajar. Kalau langsung dijalankan tanpa mengikuti mater
 
 ## Perintah Eksekusi Lab Aktif (Cloud Shell)
 
-### GSP651: Setting Up Cost Control with Quota
+### GSP092: Monitoring and Logging for Cloud Run Functions
 
 Jalankan perintah one-liner berikut langsung di Cloud Shell:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp651.sh | bash
+REGION=us-central1 curl -sL https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp092.sh | bash
 ```
 
 Atau unduh terlebih dahulu dan jalankan:
 
 ```bash
-curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp651.sh
-bash gsp651.sh
+curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp092.sh
+bash gsp092.sh
 ```
 
-Setelah selesai, klik **Check my progress** untuk seluruh 2 checkpoint:
-- **Task 1**: Query a public dataset in BigQuery (50 pts)
-- **Task 4**: Rerun your Query (50 pts)
+Setelah selesai, klik **Check my progress** untuk kedua checkpoint:
+- **Task 1**: Creating a Cloud Run function (50 pts)
+- **Task 2**: Create logs-based metric (50 pts)
 
 Kuis pilihan ganda di halaman modul lab:
-- **Task 1**: 1.36 TB
-- **Task 4**: Caching
+- **Task 5 (Dua tipe log-based metrics)**: Pilih `User-defined logs-based metrics` dan `System logs-based metrics`
+- **Task 5 (Vegeta is a versatile HTTP load testing tool...)**: Pilih `True`
+- **Task 5 (Logs-based metrics are Cloud Monitoring metrics...)**: Pilih `True`

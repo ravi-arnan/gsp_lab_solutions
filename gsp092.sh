@@ -21,6 +21,7 @@
 # LAMA: ~4 menit (deploy ~2 menit + generate traffic ~1 menit).
 
 set -euo pipefail
+export CLOUDSDK_CORE_DISABLE_PROMPTS=1
 
 # Tanya nilai ke user kalau belum di-set lewat env var. Kalau stdin bukan
 # terminal (curl | bash, nohup), langsung pakai default supaya tidak menggantung.
@@ -38,7 +39,10 @@ ask() {
   echo "$1 = ${!1}"
 }
 
-ask REGION "us-east4" "Region (cocokkan dengan panel lab)"
+DEFAULT_REGION="$(gcloud config get-value compute/region 2>/dev/null || true)"
+[[ -z "$DEFAULT_REGION" ]] && DEFAULT_REGION="us-central1"
+
+ask REGION "$DEFAULT_REGION" "Region (cocokkan dengan panel lab)"
 PROJECT="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
 [[ -n "$PROJECT" ]] || { echo "Project belum di-set. Jalankan: gcloud config set project <ID>"; exit 1; }
 
@@ -90,13 +94,15 @@ gcloud functions deploy "$SERVICE" \
   --trigger-http \
   --allow-unauthenticated \
   --max-instances=5 \
-  --project="$PROJECT"
+  --project="$PROJECT" \
+  --quiet
 
 # Cloud Functions tidak menyetel execution environment gen2; tambahkan lewat
 # Cloud Run. CPU wajib >= 1 untuk gen2, function default 0.1666.
 gcloud run services update "$SERVICE" \
   --region="$REGION" --project="$PROJECT" \
-  --execution-environment=gen2 --cpu=1 --memory=512Mi
+  --execution-environment=gen2 --cpu=1 --memory=512Mi \
+  --quiet
 
 CLOUD_RUN_URL="$(gcloud functions describe "$SERVICE" --region="$REGION" \
   --project="$PROJECT" --format='value(serviceConfig.uri)')"
@@ -123,7 +129,7 @@ bucketOptions:
     scale: 0.01
 EOF
   gcloud logging metrics create "$METRIC" \
-    --config-from-file=/tmp/gsp092_metric.yaml --project="$PROJECT"
+    --config-from-file=/tmp/gsp092_metric.yaml --project="$PROJECT" --quiet
 fi
 
 gcloud logging metrics describe "$METRIC" --project="$PROJECT" \
