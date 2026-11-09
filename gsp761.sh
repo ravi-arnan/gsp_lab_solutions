@@ -173,7 +173,7 @@ echo "Data customer berhasil di-import ke Firestore."
 # ----------------------------------------------------------------- Task 4 & 7: Connect REST API to Firestore & Deploy Revisi 0.2
 step "Task 4: Update main.go dengan Firestore integration"
 cd "$WORKDIR"
-cat > main.go << EOF
+cat > main.go << 'EOF'
 package main
 
 import (
@@ -195,7 +195,7 @@ var client *firestore.Client
 func main() {
 	var err error
 	ctx := context.Background()
-	client, err = firestore.NewClient(ctx, "$PROJECT_ID")
+	client, err = firestore.NewClient(ctx, "REPLACE_PROJECT_ID")
 	if err != nil {
 		log.Fatalf("Error initializing Cloud Firestore client: %v", err)
 	}
@@ -231,35 +231,35 @@ func customerHandler(w http.ResponseWriter, r *http.Request) {
 	customer, err := getCustomer(ctx, id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "{\"status\": \"fail\", \"data\": '%s'}", err)
+		fmt.Fprintf(w, `{"status": "fail", "data": '%s'}`, err)
 		return
 	}
 	if customer == nil {
 		w.WriteHeader(http.StatusNotFound)
-		msg := fmt.Sprintf("\`Customer \\\"%s\\\" not found\`", id)
-		fmt.Fprintf(w, fmt.Sprintf("{\"status\": \"fail\", \"data\": {\"title\": %s}}", msg))
+		msg := fmt.Sprintf("`Customer \"%s\" not found`", id)
+		fmt.Fprintf(w, fmt.Sprintf(`{"status": "fail", "data": {"title": %s}}`, msg))
 		return
 	}
 	amount, err := getAmounts(ctx, customer)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "{\"status\": \"fail\", \"data\": \"Unable to fetch amounts: %s\"}", err)
+		fmt.Fprintf(w, `{"status": "fail", "data": "Unable to fetch amounts: %s"}`, err)
 		return
 	}
 	data, err := json.Marshal(amount)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "{\"status\": \"fail\", \"data\": \"Unable to fetch amounts: %s\"}", err)
+		fmt.Fprintf(w, `{"status": "fail", "data": "Unable to fetch amounts: %s"}`, err)
 		return
 	}
-	fmt.Fprintf(w, fmt.Sprintf("{\"status\": \"success\", \"data\": %s}", data))
+	fmt.Fprintf(w, fmt.Sprintf(`{"status": "success", "data": %s}`, data))
 }
 
 type Customer struct {
-	Email string \`firestore:"email"\`
-	ID    string \`firestore:"id"\`
-	Name  string \`firestore:"name"\`
-	Phone string \`firestore:"phone"\`
+	Email string `firestore:"email"`
+	ID    string `firestore:"id"`
+	Name  string `firestore:"name"`
+	Phone string `firestore:"phone"`
 }
 
 func getCustomer(ctx context.Context, id string) (*Customer, error) {
@@ -311,6 +311,7 @@ func getAmounts(ctx context.Context, c *Customer) (map[string]int64, error) {
 	return result, nil
 }
 EOF
+sed -i "s/REPLACE_PROJECT_ID/$PROJECT_ID/g" main.go
 
 step "Task 7.1: Rebuild binary server"
 CGO_ENABLED=0 GOOS=linux go build -o server
