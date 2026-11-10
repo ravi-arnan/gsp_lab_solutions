@@ -11,8 +11,8 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
   - Mengotomasi pembuatan firewall rule `labnet-allow-internal` (ALLOW icmp,tcp:22 dari 0.0.0.0/0 pada network labnet).
   - Mengotomasi pembuatan firewall rule `privatenet-deny` (DENY icmp,tcp:22 dari 0.0.0.0/0 pada network privatenet).
   - Menguji konektivitas ping ke external IP masing-masing VM untuk memverifikasi isolasi jaringan.
-- **Status Terakhir**: Script siap dijalankan di Cloud Shell (2/2 checkpoint otomatis, estimasi skor 100/100).
-- **Next Action**: Jalankan `bash gsp694.sh` di Cloud Shell lab, klik 2 checkpoint, dan verifikasi skor penuh 100/100.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (2/2 checkpoint hijau sekali jalan).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-10: GSP185 - App Dev: Storing Image and Video Files in Cloud Storage - Python
 
