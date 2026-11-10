@@ -3,6 +3,19 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-10: GSP768 - Understanding and Combining GKE Autoscaling Strategies
+
+- [`gsp768.sh`](gsp768.sh) + [runbook](docs/gsp768.md):
+  - Membuat script baru untuk otomasi penuh autoscaling GKE (HPA, VPA, Cluster Autoscaler, Node Auto Provisioning, dan Pause Pods).
+  - Mengotomasi pembuatan cluster `scaling-demo` (3 node, VPA aktif) dan deployment `php-apache`.
+  - Menerapkan HPA pada `php-apache` (50% target CPU, 1-10 pods).
+  - Men-deploy `hello-server`, mengonfigurasi VPA `Auto`, dan menerapkan penyesuaian request CPU 25m secara instan.
+  - Mengaktifkan Cluster Autoscaler profil `optimize-utilization` dan 10 Pod Disruption Budgets (PDB) untuk kube-system pods.
+  - Mengaktifkan Node Auto Provisioning (NAP) dengan batasan resource cluster.
+  - Menerapkan PriorityClass overprovisioning (-1) dan Deployment Pause Pods untuk penanganan lonjakan beban secara efisien.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (6/6 checkpoint hijau sekali jalan).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
+
 ## Sesi 2026-11-10: GSP767 - Exploring Cost-optimization for GKE Virtual Machines
 
 - [`gsp767.sh`](gsp767.sh) + [runbook](docs/gsp767.md):
