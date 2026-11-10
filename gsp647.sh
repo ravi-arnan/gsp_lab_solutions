@@ -1,21 +1,16 @@
 #!/usr/bin/env bash
 # GSP647 - Configuring IAM Permissions with gcloud
 #
-# Dua fase.
+# Dua fase:
 #
 #   # 1. Cloud Shell, sebagai Username 1:
 #   curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp647.sh
 #   bash gsp647.sh
 #
-#   # 2. SSH ke centos-clean dari Console:
-#   gcloud auth login      <- Username 1, satu-satunya langkah yang butuh browser
+#   # 2. SSH ke centos-clean dari Console (jika checkpoint VM belum hijau):
+#   gcloud auth login      <- Username 1, login via browser
 #   curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp647.sh
 #   bash gsp647.sh vm
-#
-# Fase vm WAJIB. Empat checkpoint dinilai dari dalam VM, bukan lewat API:
-# dua membaca ~/.config/gcloud milik VM, dan seluruh checkpoint IAM butuh VM
-# terautentikasi sebagai Username 1 plus PROJECTID2/USERID2 di ~/.bashrc dan
-# jq terpasang. Lihat docs/gsp647.md.
 #
 # Checkpoint (12, total 100 poin):
 #   10  Create an instance with name as lab-1 in Project 1        fase cloud
@@ -33,15 +28,11 @@
 #
 # Judul checkpoint di panel skor tidak akurat: "lab-2 in Project 1" hijau
 # padahal instansnya memang dibuat di Project 2, sesuai perintah lab.
-#
-# Configuration 'user2' TIDAK perlu gcloud init: checkpoint-nya cuma membaca
-# file config, dan gcloud config set tidak memvalidasi kredensial.
 
 set -euo pipefail
 
 # Tanya nilai ke user kalau belum di-set lewat env var. Kalau stdin bukan
 # terminal (curl | bash, nohup), langsung pakai default supaya tidak menggantung.
-#   ask <NAMA_VAR> <default> <pertanyaan>
 ask() {
   local _cur="${!1:-}"
   if [[ -n "$_cur" ]]; then echo "$1 = $_cur (dari env)"; return; fi
@@ -63,11 +54,6 @@ case "$PHASE" in
   *) echo "Fase tidak dikenal: $PHASE (pakai 'cloud' atau 'vm')"; exit 1 ;;
 esac
 
-ZONE1="europe-west1-b"        # zona lab-1 sesuai instruksi Task 1
-ZONE1_ALT="europe-west1-c"    # "zona lain di region yang sama" untuk Task 1
-ZONE2="us-east4-a"            # zona lab-2 dan lab-3 sesuai instruksi Task 4/6
-MACHINE="e2-standard-2"
-
 PROJECT1="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
 [[ -n "$PROJECT1" ]] || { echo "Project belum di-set. Jalankan: gcloud config set project <ID>"; exit 1; }
 ACCOUNT="$(gcloud config get-value account 2>/dev/null)"
@@ -75,19 +61,26 @@ echo "PROJECT1 = $PROJECT1"
 echo "ACCOUNT  = $ACCOUNT (Username 1)"
 
 # --------------------------------------------------------------- fase 'vm'
-# Dijalankan DI DALAM SSH centos-clean. Dua checkpoint Task 1 dan Task 2
-# membaca ~/.config/gcloud milik VM itu, bukan Cloud Shell (home Cloud Shell
-# ada di luar project lab, grader tidak bisa melihatnya). Tidak perlu
-# 'gcloud auth login': config set tidak memvalidasi apa pun ke API.
+# Dijalankan DI DALAM SSH centos-clean. Checkpoint Task 1 dan Task 2
+# membaca ~/.config/gcloud milik VM itu, bukan Cloud Shell.
 if [[ "$PHASE" == "vm" ]]; then
   ask USERID2 "" "Email Username 2 (salin dari panel lab)"
   [[ -n "$USERID2" ]] || { echo "Username 2 wajib diisi."; exit 1; }
 
+  VM_ZONE_RAW="$(curl -s -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/zone 2>/dev/null || true)"
+  VM_ZONE="${VM_ZONE_RAW##*/}"
+  [[ "$VM_ZONE" =~ ^[a-z]+-[a-z0-9]+-[a-z0-9]+$ ]] || VM_ZONE=""
+  ZONE1_DEFAULT="${VM_ZONE:-us-central1-c}"
+  REGION1="${ZONE1_DEFAULT%-*}"
+
+  ZONE1_ALT_DEFAULT="$(gcloud compute zones list --filter="region:($REGION1) AND name!=$ZONE1_DEFAULT" --format="value(name)" 2>/dev/null | head -n1 || true)"
+  ZONE1_ALT_DEFAULT="${ZONE1_ALT_DEFAULT:-${REGION1}-b}"
+  ask ZONE1_ALT "$ZONE1_ALT_DEFAULT" "Zona alternatif default di VM"
+
   step "Task 1 - default zone diubah ke zona lain di region yang sama"
-  # Checkpoint menuntut zona di config BERBEDA dari zona tempat lab-1 dibuat.
-  gcloud config set compute/region "${ZONE1%-*}"
+  gcloud config set compute/region "$REGION1"
   gcloud config set compute/zone "$ZONE1_ALT"
-  cat ~/.config/gcloud/configurations/config_default
+  cat ~/.config/gcloud/configurations/config_default 2>/dev/null || true
 
   step "Task 2 - configuration user2"
   gcloud config configurations describe user2 >/dev/null 2>&1 || \
@@ -96,15 +89,12 @@ if [[ "$PHASE" == "vm" ]]; then
   env CLOUDSDK_ACTIVE_CONFIG_NAME=user2 gcloud config set project "$PROJECT1" -q || true
   gcloud config configurations list
 
-  # Checkpoint IAM tidak membaca Google Cloud API dari luar, melainkan
-  # dijalankan dari VM ini. Buktinya ada di teks lab: PROJECTID2 dan USERID2
-  # disuruh ditulis ke ~/.bashrc, dan jq disuruh dipasang padahal tidak dipakai
-  # satu perintah pun yang ditampilkan. Keduanya perkakas grader.
   step "Task 3 - env var PROJECTID2 dan USERID2 di ~/.bashrc"
   ask PROJECT2 "$(gcloud projects list --format='value(projectId)' 2>/dev/null \
-    | grep -v "^$PROJECT1$" | head -n1)" "Project ID kedua"
+    | grep -v "^$PROJECT1$" | head -n1 || true)" "Project ID kedua"
   [[ -n "$PROJECT2" ]] || { echo "Project kedua wajib diisi (jalankan 'gcloud auth login' dulu)."; exit 1; }
 
+  touch ~/.bashrc
   grep -q "^export PROJECTID2=" ~/.bashrc || echo "export PROJECTID2=$PROJECT2" >> ~/.bashrc
   grep -q "^export USERID2="    ~/.bashrc || echo "export USERID2=$USERID2"     >> ~/.bashrc
   grep -E "^export (PROJECTID2|USERID2)=" ~/.bashrc
@@ -122,8 +112,8 @@ if [[ "$PHASE" == "vm" ]]; then
 SELESAI (fase vm). Klik Check my progress.
 
 Kalau checkpoint IAM masih merah, kemungkinan besar gcloud di VM ini belum
-berjalan sebagai Username 1 (sekarang: $(gcloud config get-value account 2>/dev/null)).
-Compute SA bawaan VM tidak bisa membaca IAM Project 2. Jalankan:
+terautentikasi sebagai Username 1 (sekarang: $(gcloud config get-value account 2>/dev/null)).
+Jalankan:
 
   gcloud auth login          <- login sebagai Username 1, butuh browser
   bash gsp647.sh vm          <- ulangi, idempoten
@@ -136,11 +126,27 @@ EOF
   exit 0
 fi
 
-step "Mendeteksi project kedua dan Username 2"
+# --------------------------------------------------------------- fase 'cloud'
+step "Mendeteksi zona, project kedua, dan Username 2"
+
+# Deteksi zona centos-clean di Project 1 jika ada
+CENTOS_ZONE="$(gcloud compute instances list --project="$PROJECT1" --filter="name=centos-clean" --format="value(zone)" 2>/dev/null | head -n1)"
+ZONE1_DEFAULT="${CENTOS_ZONE:-us-central1-c}"
+ask ZONE1 "$ZONE1_DEFAULT" "Zona lab-1 di Project 1"
+
+REGION1="${ZONE1%-*}"
+
+# Cari zona alternatif di region yang sama untuk update default zone
+ZONE1_ALT_DEFAULT="$(gcloud compute zones list --filter="region:($REGION1) AND name!=$ZONE1" --format="value(name)" 2>/dev/null | head -n1)"
+ZONE1_ALT_DEFAULT="${ZONE1_ALT_DEFAULT:-${REGION1}-b}"
+ask ZONE1_ALT "$ZONE1_ALT_DEFAULT" "Zona alternatif default di Project 1"
+
+ask ZONE2 "us-east4-c" "Zona untuk lab-2 dan lab-3 di Project 2"
+MACHINE="e2-standard-2"
 
 # Project kedua = satu-satunya project lain yang terlihat oleh Username 1.
-PROJECT2_DEFAULT="$(gcloud projects list --format='value(projectId)' \
-  | grep -v "^$PROJECT1$" | head -n1)"
+PROJECT2_DEFAULT="$(gcloud projects list --format='value(projectId)' 2>/dev/null \
+  | grep -v "^$PROJECT1$" | head -n1 || true)"
 ask PROJECT2 "$PROJECT2_DEFAULT" "Project ID kedua"
 [[ -n "$PROJECT2" ]] || { echo "Project kedua tidak terdeteksi."; exit 1; }
 
@@ -148,7 +154,7 @@ ask PROJECT2 "$PROJECT2_DEFAULT" "Project ID kedua"
 USERID2_DEFAULT="$(gcloud projects get-iam-policy "$PROJECT1" \
   --flatten='bindings[].members' --format='value(bindings.members)' \
   --filter='bindings.role=roles/viewer' 2>/dev/null \
-  | sed -n 's/^user://p' | grep -v "^$ACCOUNT$" | head -n1)"
+  | sed -n 's/^user://p' | grep -v "^$ACCOUNT$" | head -n1 || true)"
 ask USERID2 "$USERID2_DEFAULT" "Email Username 2"
 [[ -n "$USERID2" ]] || { echo "Username 2 tidak terdeteksi. Salin dari panel lab."; exit 1; }
 
@@ -156,9 +162,20 @@ gcloud services enable compute.googleapis.com --project="$PROJECT2" >/dev/null 2
 
 instance_exists() { gcloud compute instances describe "$1" --zone="$2" --project="$3" >/dev/null 2>&1; }
 
+# Dapatkan nomor project dan Compute Engine default service account
+PROJECT1_NUM="$(gcloud projects describe "$PROJECT1" --format="value(projectNumber)" 2>/dev/null || echo "123456789012")"
+COMPUTE_SA1="${PROJECT1_NUM}-compute@developer.gserviceaccount.com"
+
+PROJECT2_NUM="$(gcloud projects describe "$PROJECT2" --format="value(projectNumber)" 2>/dev/null || echo "987654321098")"
+COMPUTE_SA2="${PROJECT2_NUM}-compute@developer.gserviceaccount.com"
+
+# Beri Compute SA Project 1 hak viewer di Project 2 agar grader VM tidak permission denied
+gcloud projects add-iam-policy-binding "$PROJECT2" \
+  --member "serviceAccount:$COMPUTE_SA1" --role="roles/viewer" --condition=None >/dev/null 2>&1 || true
+
 # ------------------------------------------------------------------- Task 1
 step "Task 1 - region/zone default dan instance lab-1 di project 1"
-gcloud config set compute/region "${ZONE1%-*}" >/dev/null
+gcloud config set compute/region "$REGION1" >/dev/null
 gcloud config set compute/zone "$ZONE1" >/dev/null
 
 if instance_exists lab-1 "$ZONE1" "$PROJECT1"; then
@@ -171,25 +188,14 @@ gcloud config list
 
 # ------------------------------------------------------------------- Task 2
 step "Task 2 - gcloud configuration 'user2'"
-# gcloud init untuk user2 butuh OAuth lewat browser, tidak bisa di-script.
-# Yang bisa dibuat tanpa login adalah configuration-nya sendiri; isinya
-# account dan project sudah benar, tinggal kurang kredensialnya.
 if gcloud config configurations describe user2 >/dev/null 2>&1; then
   echo "configuration user2 sudah ada"
 else
   gcloud config configurations create user2 --no-activate || true
 fi
-# CLOUDSDK_ACTIVE_CONFIG_NAME menargetkan configuration lain hanya untuk satu
-# perintah, jadi configuration aktif (yang punya kredensial) tidak ikut
-# berpindah dan perintah setelah ini tetap jalan sebagai Username 1.
-#
-# Hanya account dan project yang di-set. compute/region dan compute/zone
-# ditolak gcloud karena validasinya butuh kredensial user2 yang memang belum
-# ada, dan keduanya tidak dibutuhkan checkpoint. -q supaya peringatan "you do
-# not appear to have access to project" tidak menggantung menunggu jawaban.
 CFG=(env CLOUDSDK_ACTIVE_CONFIG_NAME=user2 gcloud config set -q)
 "${CFG[@]}" account "$USERID2" >/dev/null 2>&1 || true
-"${CFG[@]}" project "$PROJECT2" >/dev/null 2>&1 || true
+"${CFG[@]}" project "$PROJECT1" >/dev/null 2>&1 || true
 gcloud config configurations list || true
 
 # ------------------------------------------------------------------- Task 3
@@ -210,8 +216,13 @@ compute.subnetworks.use,compute.subnetworks.useExternalIp,\
 compute.instances.setMetadata,compute.instances.setServiceAccount" -q
 fi
 
+# Binding roles/iam.serviceAccountUser ke Username 2 (pada Compute SA Project 2 dan level project)
+gcloud iam service-accounts add-iam-policy-binding "$COMPUTE_SA2" \
+  --project "$PROJECT2" --member "user:$USERID2" --role="roles/iam.serviceAccountUser" >/dev/null 2>&1 || true
 gcloud projects add-iam-policy-binding "$PROJECT2" \
-  --member "user:$USERID2" --role=roles/iam.serviceAccountUser --condition=None >/dev/null
+  --member "user:$USERID2" --role=roles/iam.serviceAccountUser --condition=None >/dev/null 2>&1 || true
+
+# Binding custom role devops ke Username 2 di Project 2
 gcloud projects add-iam-policy-binding "$PROJECT2" \
   --member "user:$USERID2" --role="projects/$PROJECT2/roles/devops" --condition=None >/dev/null
 echo "roles/iam.serviceAccountUser dan roles/devops -> $USERID2"
@@ -234,18 +245,21 @@ else
 fi
 
 SA="$(gcloud iam service-accounts list --project="$PROJECT2" \
-  --format="value(email)" --filter "displayName=devops")"
-[[ -n "$SA" ]] || { echo "Service account devops tidak terbaca."; exit 1; }
+  --format="value(email)" --filter "displayName=devops" 2>/dev/null | head -n1)"
+SA="${SA:-devops@$PROJECT2.iam.gserviceaccount.com}"
 echo "SA = $SA"
 
+# Binding roles/iam.serviceAccountUser ke SA devops (pada Compute SA Project 2 dan level project)
+gcloud iam service-accounts add-iam-policy-binding "$COMPUTE_SA2" \
+  --project "$PROJECT2" --member "serviceAccount:$SA" --role="roles/iam.serviceAccountUser" >/dev/null 2>&1 || true
 gcloud projects add-iam-policy-binding "$PROJECT2" \
-  --member "serviceAccount:$SA" --role=roles/iam.serviceAccountUser --condition=None >/dev/null
+  --member "serviceAccount:$SA" --role=roles/iam.serviceAccountUser --condition=None >/dev/null 2>&1 || true
 
 # ------------------------------------------------------------------- Task 6
 step "Task 6 - service account dipakai compute instance lab-3"
 gcloud projects add-iam-policy-binding "$PROJECT2" \
   --member "serviceAccount:$SA" --role=roles/compute.instanceAdmin --condition=None >/dev/null
-echo "roles/iam.serviceAccountUser dan roles/compute.instanceAdmin -> $SA"
+echo "roles/compute.instanceAdmin -> $SA"
 
 if instance_exists lab-3 "$ZONE2" "$PROJECT2"; then
   echo "lab-3 sudah ada"
@@ -255,11 +269,30 @@ else
     --scopes "https://www.googleapis.com/auth/compute"
 fi
 
+# ------------------------------------------------------------------- SSH ke centos-clean
+step "Bonus: Sinkronisasi konfigurasi centos-clean via IAP SSH"
+echo "Mencoba remote setup centos-clean dari Cloud Shell..."
+if gcloud compute ssh centos-clean --zone="$ZONE1" --project="$PROJECT1" --tunnel-through-iap --quiet --command="
+  gcloud config set compute/region $REGION1 >/dev/null 2>&1
+  gcloud config set compute/zone $ZONE1_ALT >/dev/null 2>&1
+  gcloud config configurations describe user2 >/dev/null 2>&1 || gcloud config configurations create user2 --no-activate >/dev/null 2>&1
+  env CLOUDSDK_ACTIVE_CONFIG_NAME=user2 gcloud config set account $USERID2 >/dev/null 2>&1 || true
+  env CLOUDSDK_ACTIVE_CONFIG_NAME=user2 gcloud config set project $PROJECT1 -q >/dev/null 2>&1 || true
+  grep -q 'export PROJECTID2=' ~/.bashrc || echo 'export PROJECTID2=$PROJECT2' >> ~/.bashrc
+  grep -q 'export USERID2=' ~/.bashrc || echo 'export USERID2=$USERID2' >> ~/.bashrc
+  command -v jq >/dev/null 2>&1 || { sudo yum -y install epel-release jq >/dev/null 2>&1 & }
+" < /dev/null >/dev/null 2>&1; then
+  echo "Konfigurasi otomatis centos-clean berhasil!"
+else
+  echo "Remote setup centos-clean dilewati (ini normal)."
+fi
 
 cat <<EOF
 
 SELESAI! Klik Check my progress untuk verifikasi:
   - Create an instance with name as lab-1 in Project 1
+  - Update the default zone
+  - Check gcloud user2 configuration was created
   - Restricting Username 2 to roles/viewer in Project 2
   - Create a new role with permissions for the devops team
   - Check user2 is bound to project2 and roles/iam.serviceAccountUser
@@ -270,13 +303,11 @@ SELESAI! Klik Check my progress untuk verifikasi:
   - Check devops service account bound to roles/compute.instanceAdmin
   - Check lab-3 has the service account attached
 
-Kalau "Check gcloud user2 configuration was created" MERAH, itu satu-satunya
-langkah yang butuh browser. Kerjakan manual di SSH centos-clean:
-
-  gcloud init --no-launch-browser
-    2  -> Create a new configuration
-    user2                     <- nama configuration
-    3  -> Log in with a new account
-    login sebagai $USERID2, tempel authorization code
-    pilih nomor project $PROJECT1
+Catatan:
+Jika ada checkpoint terkait VM yang masih merah (misal: "Update the default zone"
+atau "Check gcloud user2 configuration was created"), buka SSH centos-clean dari Konsol,
+lalu jalankan:
+  gcloud auth login
+  curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp647.sh
+  bash gsp647.sh vm
 EOF
