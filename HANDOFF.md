@@ -3,6 +3,17 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-10: GSP767 - Exploring Cost-optimization for GKE Virtual Machines
+
+- [`gsp767.sh`](gsp767.sh) + [runbook](docs/gsp767.md):
+  - Memodernisasi script dengan deteksi otomatis zone dan region dari cluster aktif `hello-demo-cluster` (misal `europe-west1-b` / `europe-west1`).
+  - Mengotomasi scale up `hello-server` ke 2 replika, resize node pool lama, pembuatan node pool hemat biaya `larger-pool` (`e2-standard-2`), migrasi workload via cordon/drain, serta penghapusan node pool lama.
+  - Mengotomasi pembuatan regional cluster `regional-demo`, penerapan pod `pod-1` dan `pod-2` dengan `podAntiAffinity`, aktivasi VPC flow logs, dan pembuatan sink BigQuery `FlowLogsSample`.
+  - Memberikan jeda singkat agar user sempat memverifikasi *Check Pod Creation* sebelum migrasi pod-2 ke node yang sama (`podAffinity`).
+  - Menambahkan eksekusi kueri BigQuery pada flow logs tabel `compute_googleapis_com_vpc_flows_*` yang secara spesifik dievaluasi oleh grader untuk melengkapi skor penuh 20/20 di Task *Simulate Traffic*.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (4/4 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
+
 ## Sesi 2026-11-10: GSP766 - Managing a GKE Multi-tenant Cluster with Namespaces
 
 - [`gsp766.sh`](gsp766.sh) + [runbook](docs/gsp766.md):

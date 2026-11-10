@@ -221,11 +221,27 @@ if [[ -n "$POD2_IP" ]]; then
   kubectl exec pod-1 -- ping -c 5 "$POD2_IP" || true
 fi
 
-step "Task 3h: Query flow logs BigQuery (opsional)"
-TABLE="$(bq ls --format=json "${PROJECT}:us_flow_logs" 2>/dev/null | jq -r '.[0].tableReference.tableId // empty' 2>/dev/null || true)"
+step "Task 3h: Query flow logs di BigQuery (wajib untuk penilaian Simulate Traffic)"
+echo "--- menunggu sink Cloud Logging mengekspor data ke BigQuery:"
+TABLE=""
+if [[ -z "${DRYRUN:-}" ]]; then
+  for _ in $(seq 30); do
+    TABLE="$(bq ls --format=sparse "${PROJECT}:us_flow_logs" 2>/dev/null | grep -E 'vpc_flows' | awk '{print $1}' | head -n1 || true)"
+    if [[ -n "$TABLE" ]]; then
+      break
+    fi
+    sleep 3
+  done
+else
+  TABLE="compute_googleapis_com_vpc_flows_dryrun"
+fi
+
 if [[ -n "$TABLE" ]]; then
+  echo "Menjalankan kueri flow logs lintas-zona pada tabel $TABLE..."
   bq query --use_legacy_sql=false \
-    "SELECT jsonPayload.src_instance.zone AS src_zone, jsonPayload.src_instance.vm_name AS src_vm, jsonPayload.dest_instance.zone AS dest_zone, jsonPayload.dest_instance.vm_name FROM \`${PROJECT}.us_flow_logs.${TABLE}\` LIMIT 10" 2>/dev/null || true
+    "SELECT jsonPayload.src_instance.zone AS src_zone, jsonPayload.src_instance.vm_name AS src_vm, jsonPayload.dest_instance.zone AS dest_zone, jsonPayload.dest_instance.vm_name FROM \`${PROJECT}.us_flow_logs.${TABLE}\` LIMIT 50" 2>/dev/null || true
+else
+  echo "Tabel flow logs belum terbentuk. Silakan jalankan query manual di Console bila poin belum masuk."
 fi
 
 cat <<EOF
