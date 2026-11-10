@@ -14,6 +14,8 @@
 
 set -euo pipefail
 
+export CLOUDSDK_CORE_DISABLE_PROMPTS=1
+
 step() { echo; echo "=== $* ==="; }
 
 PROJECT="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
@@ -21,28 +23,11 @@ PROJECT="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
 
 echo "PROJECT = $PROJECT"
 
-# ------------------------------------------------------------------- Task 1
-step "Task 1 - Enable Security Health Analytics dan refresh metadata VPC"
-gcloud services enable securitycenter.googleapis.com --project="$PROJECT" >/dev/null 2>&1 || true
-
-gcloud scc manage services update sha \
-  --project="$PROJECT" \
-  --enablement-state=ENABLED >/dev/null 2>&1 || true
-
-gcloud compute networks update default --bgp-routing-mode=regional >/dev/null 2>&1 || true
-gcloud compute networks subnets update default \
-  --region=us-central1 \
-  --no-enable-private-ip-google-access >/dev/null 2>&1 || true
-gcloud compute firewall-rules update default-allow-ssh \
-  --description="Allow SSH from anywhere" >/dev/null 2>&1 || true
-gcloud compute firewall-rules update default-allow-rdp \
-  --description="Allow RDP from anywhere" >/dev/null 2>&1 || true
-
-# ------------------------------------------------------------------- Task 3a
-step "Task 3 - Create mute rule mute-flowlogs-findings"
+# ------------------------------------------------------------------- Task 3a: Mute Rule
+step "Task 3a - Create mute rule mute-flowlogs-findings"
 if gcloud scc muteconfigs describe mute-flowlogs-findings \
   --project="$PROJECT" --location=global >/dev/null 2>&1; then
-  echo "Mute rule sudah ada, dilewati"
+  echo "Mute rule sudah ada, dilewati."
 else
   gcloud scc muteconfigs create mute-flowlogs-findings \
     --project="$PROJECT" \
@@ -50,27 +35,28 @@ else
     --description="Mute rule for VPC Flow Logs" \
     --filter='category="FLOW_LOGS_DISABLED"' \
     --type=DYNAMIC -q
-  echo "Mute rule 'mute-flowlogs-findings' berhasil dibuat"
+  echo "Mute rule 'mute-flowlogs-findings' berhasil dibuat."
 fi
 
-# ------------------------------------------------------------------- Task 3b
-step "Task 3 - Create VPC network scc-lab-net"
+# ------------------------------------------------------------------- Task 3b: VPC Network
+step "Task 3b - Create VPC network scc-lab-net"
 if gcloud compute networks describe scc-lab-net --project="$PROJECT" >/dev/null 2>&1; then
-  echo "Network scc-lab-net sudah ada, dilewati"
+  echo "Network scc-lab-net sudah ada, dilewati."
 else
+  echo "Membuat network scc-lab-net (estimasi ~20 detik)..."
   gcloud compute networks create scc-lab-net --subnet-mode=auto --project="$PROJECT" -q
-  echo "Network scc-lab-net berhasil dibuat"
+  echo "Network scc-lab-net berhasil dibuat."
 fi
 
-# ------------------------------------------------------------------- Task 3c
-step "Task 3 - Update firewall rules default-allow-rdp dan default-allow-ssh"
+# ------------------------------------------------------------------- Task 3c: Firewall Rules
+step "Task 3c - Update firewall rules (SSH dan RDP) ke range IAP"
 IAP_RANGE="35.235.240.0/20"
 
 if gcloud compute firewall-rules describe default-allow-rdp --project="$PROJECT" >/dev/null 2>&1; then
   gcloud compute firewall-rules update default-allow-rdp \
     --source-ranges="$IAP_RANGE" \
     --project="$PROJECT" -q
-  echo "default-allow-rdp berhasil diperbarui ke $IAP_RANGE"
+  echo "default-allow-rdp berhasil diperbarui ke $IAP_RANGE."
 else
   gcloud compute firewall-rules create default-allow-rdp \
     --direction=INGRESS \
@@ -80,13 +66,14 @@ else
     --rules=tcp:3389 \
     --source-ranges="$IAP_RANGE" \
     --project="$PROJECT" -q
+  echo "default-allow-rdp berhasil dibuat."
 fi
 
 if gcloud compute firewall-rules describe default-allow-ssh --project="$PROJECT" >/dev/null 2>&1; then
   gcloud compute firewall-rules update default-allow-ssh \
     --source-ranges="$IAP_RANGE" \
     --project="$PROJECT" -q
-  echo "default-allow-ssh berhasil diperbarui ke $IAP_RANGE"
+  echo "default-allow-ssh berhasil diperbarui ke $IAP_RANGE."
 else
   gcloud compute firewall-rules create default-allow-ssh \
     --direction=INGRESS \
@@ -96,6 +83,7 @@ else
     --rules=tcp:22 \
     --source-ranges="$IAP_RANGE" \
     --project="$PROJECT" -q
+  echo "default-allow-ssh berhasil dibuat."
 fi
 
 cat <<EOF
