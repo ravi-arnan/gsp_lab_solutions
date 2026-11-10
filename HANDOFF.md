@@ -3,6 +3,17 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-10: GSP1125 - Detect and Investigate Threats with Security Command Center
+
+- [`gsp1125.sh`](gsp1125.sh) + [runbook](docs/gsp1125.md):
+  - Membuat script baru untuk otomasi Event Threat Detection dan Security Health Analytics.
+  - Menyimulasikan ancaman persistensi via grant IAM ke `demouser1@gmail.com` dan mencabutnya untuk mitigasi (Checkpoint 1).
+  - Mengaktifkan audit logs `ADMIN_READ` pada `cloudresourcemanager.googleapis.com` via manipulasi JSON policy IAM, membuat VM `instance-1` dengan scope `cloud-platform`, serta menyimulasikan panggilan `get-iam-policy` mandiri via IAP SSH dan menerapkan mute config (Checkpoint 2).
+  - Membuat Cloud DNS server policy `dns-test-policy` dengan logging aktif pada network `default` dan menguji resolusi domain malware `etd-malware-trigger.goog` (Checkpoint 3).
+  - Mempertahankan VM tetap hidup hingga verifikasi checkpoint selesai sebelum cleanup opsional.
+- **Status Terakhir**: Terverifikasi sukses 60/60 di live lab Cloud Shell (us-central1, 3/3 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
+
 ## Sesi 2026-11-10: GSP199 - Service Accounts and Roles: Fundamentals
 
 - [`gsp199.sh`](gsp199.sh) + [runbook](docs/gsp199.md):

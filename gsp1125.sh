@@ -127,7 +127,7 @@ echo "Menunggu VM memproses startup script dan mencatat event ancaman (15 detik)
 sleep 15
 
 # Eksekusi tambahan via SSH sebagai kepastian ganda
-if gcloud compute ssh instance-1 --zone="$ZONE" --project="$PROJECT" --quiet < /dev/null --command="
+if gcloud compute ssh instance-1 --zone="$ZONE" --project="$PROJECT" --tunnel-through-iap --quiet < /dev/null --command="
   gcloud projects get-iam-policy \$(gcloud config get-value project) >/dev/null 2>&1 || true
   curl -m 10 -s http://etd-malware-trigger.goog >/dev/null 2>&1 || true
 " >/dev/null 2>&1; then
