@@ -234,15 +234,47 @@ bq query \
   --replace=true \
   "$(cat "$USAGE_METERING_QUERY")" 2>/dev/null || true
 
-echo "Mencoba mendaftarkan scheduled query..."
-bq query \
-  --project_id="$PROJECT" \
-  --use_legacy_sql=false \
-  --destination_table="${USAGE_METERING_DATASET_ID}.${COST_BREAKDOWN_TABLE_ID}" \
-  --schedule='every 24 hours' \
-  --display_name="GKE Usage Metering Cost Breakdown Scheduled Query" \
-  --replace=true \
-  "$(cat "$USAGE_METERING_QUERY")" 2>/dev/null || true
+echo "Mendaftarkan scheduled query via Data Transfer API..."
+gcloud services enable bigquerydatatransfer.googleapis.com --project="$PROJECT" -q
+
+TOKEN="$(gcloud auth print-access-token 2>/dev/null || true)"
+if [[ -n "$TOKEN" ]]; then
+  PAYLOAD=$(python3 -c "
+import json
+with open('$USAGE_METERING_QUERY') as f:
+    query = f.read()
+data = {
+    'displayName': 'GKE Usage Metering Cost Breakdown Scheduled Query',
+    'dataSourceId': 'scheduled_query',
+    'destinationDatasetId': 'cluster_dataset',
+    'schedule': 'every 24 hours',
+    'params': {
+        'query': query,
+        'destination_table_name_template': 'usage_metering_cost_breakdown',
+        'write_disposition': 'WRITE_TRUNCATE'
+    }
+}
+print(json.dumps(data))
+" 2>/dev/null || true)
+
+  if [[ -n "$PAYLOAD" ]]; then
+    for LOC in us US ""; do
+      if [[ -n "$LOC" ]]; then
+        URL="https://bigquerydatatransfer.googleapis.com/v1/projects/${PROJECT}/locations/${LOC}/transferConfigs"
+      else
+        URL="https://bigquerydatatransfer.googleapis.com/v1/projects/${PROJECT}/transferConfigs"
+      fi
+      RESP=$(curl -s -X POST "$URL" \
+        -H "Authorization: Bearer ${TOKEN}" \
+        -H "Content-Type: application/json" \
+        -d "$PAYLOAD" 2>/dev/null || true)
+      if echo "$RESP" | grep -q '"name"'; then
+        echo "Scheduled query transfer config berhasil dibuat (${LOC:-global})."
+        break
+      fi
+    done
+  fi
+fi
 
 cat <<EOF
 
