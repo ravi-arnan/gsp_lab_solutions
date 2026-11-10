@@ -3,6 +3,17 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-10: GSP185 - App Dev: Storing Image and Video Files in Cloud Storage - Python
+
+- [`gsp185.sh`](gsp185.sh) + [runbook](docs/gsp185.md):
+  - Membuat script baru untuk otomasi penuh konfigurasi media storage kuis Python di Cloud Storage (`<PROJECT_ID>-media`) dan integrasi Datastore.
+  - Mengotomasi setup environment Python virtualenv, instalasi requirements, serta inisialisasi entitas Cloud Datastore.
+  - Memodifikasi `quiz/gcp/storage.py` dan `quiz/webapp/questions.py` sesuai arahan lab (upload blob, set public, update imageUrl entity).
+  - Mengunggah berkas `Google_Cloud_Storage_logo.png`, menyetel ACL publik, serta menyimpan entitas pertanyaan kuis ke Datastore tanpa perlu input UI manual.
+  - Menjalankan server kuis di port 8080 dan memvalidasi respons endpoint API `/api/quizzes/gcp`.
+- **Status Terakhir**: Script siap dijalankan di Cloud Shell (2/2 checkpoint otomatis, estimasi skor 100/100).
+- **Next Action**: Jalankan `bash gsp185.sh` di Cloud Shell lab, klik 2 checkpoint, dan verifikasi skor penuh 100/100.
+
 ## Sesi 2026-11-10: GSP183 - App Dev: Setting up a Development Environment - Python
 
 - [`gsp183.sh`](gsp183.sh) + [runbook](docs/gsp183.md):
