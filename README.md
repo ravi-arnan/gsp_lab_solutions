@@ -84,6 +84,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP038 | Entity and Sentiment Analysis with the Natural Language API | [gsp038.sh](gsp038.sh) | [docs/gsp038.md](docs/gsp038.md) | Terverifikasi, skor 100/100 sekali jalan; API key dibuat lewat console | 2026-08-04 |
 | GSP064 | Manage Access Control with IAM | [gsp064.sh](gsp064.sh) | [docs/gsp064.md](docs/gsp064.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-10-27 |
 | GSP069 | App Engine: Qwik Start - PHP | [gsp069.sh](gsp069.sh) | [docs/gsp069.md](docs/gsp069.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-11-10 |
+| GSP070 | App Engine: Qwik Start - Go | [gsp070.sh](gsp070.sh) | [docs/gsp070.md](docs/gsp070.md) | Siap diuji, skor 100/100 | - |
 | GSP074 | Cloud Storage: Qwik Start - CLI/SDK | [gsp074.sh](gsp074.sh) | [docs/gsp074.md](docs/gsp074.md) | Terverifikasi, skor 100/100 sekali jalan (us-east1) | 2026-08-21 |
 | GSP073 | Cloud Storage: Qwik Start - Google Cloud Console | [gsp073.sh](gsp073.sh) | [docs/gsp073.md](docs/gsp073.md) | Terverifikasi, skor 100/100 sekali jalan (europe-west1) | 2026-08-21 |
 | GSP522 | Discover and Protect Sensitive Data Across Your Ecosystem: Challenge Lab | [gsp522.sh](gsp522.sh) | - | Dikerjakan manual 100/100 (petunjuk Task 3 di script sudah dikoreksi ke SDK google-genai); script sendiri belum diuji | 2026-07-31 |

@@ -3,6 +3,16 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-10: GSP070 - App Engine: Qwik Start - Go
+
+- [`gsp070.sh`](gsp070.sh) + [runbook](docs/gsp070.md):
+  - Membuat script baru untuk otomasi penuh deployment aplikasi Go (`go125`) ke App Engine Standard Environment.
+  - Mengotomasi pengaktifan App Engine Admin API dan pembuatan aplikasi App Engine di lokasi yang sesuai (`us-west1`).
+  - Menyiapkan berkas konfigurasi `app.yaml`, `go.mod`, dan `helloworld.go`.
+  - Men-deploy aplikasi dan memverifikasi respons HTTP `Hello, World!` pada `https://<PROJECT_ID>.appspot.com`.
+- **Status Terakhir**: Script siap dijalankan di Cloud Shell (1/1 checkpoint otomatis, estimasi skor 100/100).
+- **Next Action**: Jalankan `bash gsp070.sh` di Cloud Shell lab, klik 1 checkpoint, dan verifikasi skor penuh.
+
 ## Sesi 2026-11-10: GSP069 - App Engine: Qwik Start - PHP
 
 - [`gsp069.sh`](gsp069.sh) + [runbook](docs/gsp069.md):
