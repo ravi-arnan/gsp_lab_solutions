@@ -3,6 +3,17 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-10: GSP694 - gcloud for Network Configuration
+
+- [`gsp694.sh`](gsp694.sh) + [runbook](docs/gsp694.md):
+  - Membuat script baru untuk otomasi konfigurasi firewall jaringan VPC (`labnet` dan `privatenet`).
+  - Mendeteksi zona instance `lnet-vm` / `pnet-vm` secara otomatis.
+  - Mengotomasi pembuatan firewall rule `labnet-allow-internal` (ALLOW icmp,tcp:22 dari 0.0.0.0/0 pada network labnet).
+  - Mengotomasi pembuatan firewall rule `privatenet-deny` (DENY icmp,tcp:22 dari 0.0.0.0/0 pada network privatenet).
+  - Menguji konektivitas ping ke external IP masing-masing VM untuk memverifikasi isolasi jaringan.
+- **Status Terakhir**: Script siap dijalankan di Cloud Shell (2/2 checkpoint otomatis, estimasi skor 100/100).
+- **Next Action**: Jalankan `bash gsp694.sh` di Cloud Shell lab, klik 2 checkpoint, dan verifikasi skor penuh 100/100.
+
 ## Sesi 2026-11-10: GSP185 - App Dev: Storing Image and Video Files in Cloud Storage - Python
 
 - [`gsp185.sh`](gsp185.sh) + [runbook](docs/gsp185.md):
