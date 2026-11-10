@@ -3,6 +3,18 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-10: GSP183 - App Dev: Setting up a Development Environment - Python
+
+- [`gsp183.sh`](gsp183.sh) + [runbook](docs/gsp183.md):
+  - Membuat script baru untuk otomasi penuh pembuatan environment development Python pada VM Compute Engine `dev-instance` (Debian 12 Bookworm, machine type `e2-medium`, tags `http-server`, scopes `cloud-platform`).
+  - Mengonfigurasi firewall rule port 80 HTTP `default-allow-http` bila belum ada.
+  - Mengotomasi instalasi paket sistem Git, build-essential, python3-dev, dan pip terkini via `get-pip.py --break-system-packages` melalui remote SSH.
+  - Mengunduh lab assets devenv dari Cloud Storage bucket project (`gs://${PROJECT_ID}-assets/devenv`) dengan mekanisme fallback mandiri.
+  - Menjalankan `server.py` di latar belakang pada port 80 HTTP, memverifikasi respons `Hello GCP dev!` via curl lokal dan eksternal Cloud Shell.
+  - Menginstal `requirements.txt` dan mengeksekusi script enumerasi instance `python3 list-gce-instances.py`.
+- **Status Terakhir**: Script siap dijalankan di Cloud Shell (3/3 checkpoint otomatis, estimasi skor 100/100).
+- **Next Action**: Jalankan `bash gsp183.sh` di Cloud Shell lab, klik 3 checkpoint, dan verifikasi skor penuh 100/100.
+
 ## Sesi 2026-11-10: GSP343 - Optimize Costs for Google Kubernetes Engine: Challenge Lab
 
 - [`gsp343.sh`](gsp343.sh) + [runbook](docs/gsp343.md):
