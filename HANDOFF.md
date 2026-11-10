@@ -3,6 +3,17 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-10: GSP1124 - Get Started with Security Command Center
+
+- [`gsp1124.sh`](gsp1124.sh) + [runbook](docs/gsp1124.md):
+  - Memperbarui script otomasi penuh sekali jalan tanpa langkah blocking Task 1/2.
+  - Membuat dynamic mute rule `mute-flowlogs-findings` untuk kategori `FLOW_LOGS_DISABLED` (Checkpoint 1).
+  - Membuat auto-mode VPC network `scc-lab-net` (Checkpoint 2).
+  - Mengupdate firewall rules `default-allow-rdp` dan `default-allow-ssh` ke range Google IAP `35.235.240.0/20` (Checkpoint 3).
+  - Menulis runbook lengkap di `docs/gsp1124.md` dan memvalidasi `test/run.sh`.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (3/3 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
+
 ## Sesi 2026-11-10: GSP1331 - Request Temporary Elevated Access with Privileged Access Manager
 
 - [`gsp1331.sh`](gsp1331.sh) + [runbook](docs/gsp1331.md):
