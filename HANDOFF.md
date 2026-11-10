@@ -3,6 +3,17 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-10: GSP976 - Optimizing Applications Using Cloud Profiler
+
+- [`gsp976.sh`](gsp976.sh) + [runbook](docs/gsp976.md):
+  - Membuat script baru untuk otomasi pengaktifan Cloud Profiler API (`cloudprofiler.googleapis.com`) dan optimasi aplikasi Go `shakesapp`.
+  - Mengunduh sample application `golang-samples/profiler/shakesapp`.
+  - Menerapkan optimasi CPU time pada `server.go` dengan mengganti regex berulang menjadi `strings.Contains`.
+  - Menerapkan optimasi heap memory allocation dengan caching in-memory slice global `var files []string` pada pembacaan file Storage.
+  - Menjalankan uji performa versi 4 teroptimasi untuk memvalidasi throughput tinggi (>15 reqs/sec).
+- **Status Terakhir**: Script siap dijalankan di Cloud Shell (1/1 checkpoint otomatis, estimasi skor 100/100).
+- **Next Action**: Jalankan `bash gsp976.sh` di Cloud Shell lab, klik 1 checkpoint, dan verifikasi skor penuh 100/100.
+
 ## Sesi 2026-11-10: GSP694 - gcloud for Network Configuration
 
 - [`gsp694.sh`](gsp694.sh) + [runbook](docs/gsp694.md):
