@@ -86,7 +86,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP074 | Cloud Storage: Qwik Start - CLI/SDK | [gsp074.sh](gsp074.sh) | [docs/gsp074.md](docs/gsp074.md) | Terverifikasi, skor 100/100 sekali jalan (us-east1) | 2026-08-21 |
 | GSP073 | Cloud Storage: Qwik Start - Google Cloud Console | [gsp073.sh](gsp073.sh) | [docs/gsp073.md](docs/gsp073.md) | Terverifikasi, skor 100/100 sekali jalan (europe-west1) | 2026-08-21 |
 | GSP522 | Discover and Protect Sensitive Data Across Your Ecosystem: Challenge Lab | [gsp522.sh](gsp522.sh) | - | Dikerjakan manual 100/100 (petunjuk Task 3 di script sudah dikoreksi ke SDK google-genai); script sendiri belum diuji | 2026-07-31 |
-| GSP766 | Managing a GKE Multi-tenant Cluster with Namespaces | [gsp766.sh](gsp766.sh) | - | Terverifikasi, skor 100/100, Looker Studio manual (tidak di-score) | 2026-07-24 |
+| GSP766 | Managing a GKE Multi-tenant Cluster with Namespaces | [gsp766.sh](gsp766.sh) | [docs/gsp766.md](docs/gsp766.md) | Otomatis penuh Task 1-5; Looker Studio manual (tidak di-score) | 2026-11-10 |
 | GSP761 | Developing a REST API with Go and Cloud Run | [gsp761.sh](gsp761.sh) | [docs/gsp761.md](docs/gsp761.md) | Terverifikasi, skor 100/100 (europe-west4) | 2026-11-09 |
 | GSP762 | Create PDFs with Go and Cloud Run | [gsp762.sh](gsp762.sh) | [docs/gsp762.md](docs/gsp762.md) | Terverifikasi, skor 100/100 (us-central1) | 2026-11-09 |
 | GSP651 | Setting Up Cost Control with Quota | [gsp651.sh](gsp651.sh) | [docs/gsp651.md](docs/gsp651.md) | Terverifikasi, skor 100/100 (global US) | 2026-11-09 |
