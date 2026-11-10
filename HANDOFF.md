@@ -3,6 +3,18 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-10: GSP199 - Service Accounts and Roles: Fundamentals
+
+- [`gsp199.sh`](gsp199.sh) + [runbook](docs/gsp199.md):
+  - Membuat script baru untuk otomasi service account dan integrasi BigQuery Python client library.
+  - Membuat service account `my-sa-123` dan memberikan role `roles/storage.admin` (Checkpoint 1).
+  - Membuat service account `bigquery-qwiklab` dengan role `roles/bigquery.dataViewer` dan `roles/bigquery.user`.
+  - Meluncurkan VM instance `bigquery-instance` (Debian 12, `e2-medium`) yang diasosiasikan dengan service account `bigquery-qwiklab`.
+  - Menginstal dependensi Python dan mengeksekusi `query.py` terhadap dataset publik `publicdata.samples.natality` via SSH ke VM (Checkpoint 2).
+  - Memasang isolasi stdin `< /dev/null` pada SCP dan SSH untuk eksekusi non-interaktif mulus.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (us-east4, 2/2 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
+
 ## Sesi 2026-11-10: GSP1124 - Get Started with Security Command Center
 
 - [`gsp1124.sh`](gsp1124.sh) + [runbook](docs/gsp1124.md):
