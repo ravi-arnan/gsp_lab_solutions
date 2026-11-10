@@ -3,6 +3,17 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-10: GSP382 - Mitigate Threats and Vulnerabilities with Security Command Center: Challenge Lab
+
+- [`gsp382.sh`](gsp382.sh) + [runbook](docs/gsp382.md):
+  - Membuat script baru untuk otomasi penuh challenge lab SCC.
+  - Membuat tiga static mute rules (`muting-flow-log-findings`, `muting-audit-logging-findings`, `muting-admin-sa-findings`) dan mem-mute temuan terkait (Checkpoint 1).
+  - Membatasi firewall rules SSH (port 22) dan RDP (port 3389) publik ke range Google IAP `35.235.240.0/20` (Checkpoint 2).
+  - Mereserve external IP `cls-vm` menjadi static IP `static-ip` dan memicu Web Security Scanner (WSS) terhadap `http://<IP>:8080` via REST API (Checkpoint 3).
+  - Membuat Cloud Storage bucket regional `scc-export-bucket-$PROJECT` di `us-central1` dan mengekspor seluruh temuan SCC ke `findings.jsonl` (Checkpoint 4).
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (4/4 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
+
 ## Sesi 2026-11-10: GSP1125 - Detect and Investigate Threats with Security Command Center
 
 - [`gsp1125.sh`](gsp1125.sh) + [runbook](docs/gsp1125.md):
