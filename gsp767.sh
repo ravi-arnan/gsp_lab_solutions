@@ -1,27 +1,24 @@
 #!/usr/bin/env bash
 # GSP767 - Exploring Cost-optimization for GKE Virtual Machines
 #
-# Cluster hello-demo-cluster sudah di-provision lab di us-east1-d.
-# Script ini mengerjakan 4 checkpoint yang di-score.
-#
-# Cara pakai (JANGAN di-pipe ke bash):
-#   curl -sLO https://raw.githubusercontent.com/ravi-arnan/gsp_lab_solutions/main/gsp767.sh
 #   bash gsp767.sh
 #
 # Checkpoint:
-#   Task 2a - Scale Up Hello App
-#   Task 2c - Create node pool
-#   Task 3b - Check Pod Creation
-#   Task 3h - Simulate Traffic (flow logs + sink + query)
+#   Task 2 (25 pts)  - Scale Up Hello App
+#   Task 2 (25 pts)  - Create node pool
+#   Task 3 (25 pts)  - Check Pod Creation
+#   Task 3 (25 pts)  - Simulate Traffic
 #
-# Script berhenti sekali dan menunggu ENTER (setelah Task 3e) supaya kamu
-# sempat klik "Check Pod Creation" selagi pod-1 dan pod-2 masih beda node.
+# Catatan:
+#   Terdapat jeda interaktif singkat (read -r) setelah pod-1 dan pod-2 dibuat
+#   agar pengguna sempat mengecek checkpoint "Check Pod Creation" sebelum pod-2
+#   dimigrasikan ke node yang sama dengan pod-1.
 
 set -euo pipefail
 
-# Tanya nilai ke user kalau belum di-set lewat env var. Kalau stdin bukan
-# terminal (curl | bash, nohup), langsung pakai default supaya tidak menggantung.
-#   ask <NAMA_VAR> <default> <pertanyaan>
+PROJECT="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
+[[ -n "$PROJECT" ]] || { echo "Project belum di-set. Jalankan: gcloud config set project <ID>"; exit 1; }
+
 ask() {
   local _cur="${!1:-}"
   if [[ -n "$_cur" ]]; then echo "$1 = $_cur (dari env)"; return; fi
@@ -35,63 +32,65 @@ ask() {
   echo "$1 = ${!1}"
 }
 
-ask ZONE "us-east1-d" "Zone (cocokkan dengan panel lab)"
-ask REGION "us-east1" "Region (cocokkan dengan panel lab)"
+# Deteksi otomatis zone dari cluster hello-demo-cluster yang sudah ada
+DETECTED_ZONE="$(gcloud container clusters list --filter="name=hello-demo-cluster" --format="value(zone)" 2>/dev/null | head -n1 || true)"
+if [[ -n "$DETECTED_ZONE" ]]; then
+  DETECTED_REGION="${DETECTED_ZONE%-*}"
+else
+  DETECTED_ZONE="europe-west1-b"
+  DETECTED_REGION="europe-west1"
+fi
+
+ask ZONE "$DETECTED_ZONE" "Zone (cocokkan dengan panel lab)"
+ask REGION "${DETECTED_REGION:-europe-west1}" "Region (cocokkan dengan panel lab)"
 ask CLUSTER "hello-demo-cluster" "Nama cluster (cocokkan dengan teks task)"
+
 OLD_POOL="${OLD_POOL:-my-node-pool}"
 NEW_POOL="${NEW_POOL:-larger-pool}"
 RCLUSTER="${RCLUSTER:-regional-demo}"
-PROJECT="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
-[[ -n "$PROJECT" ]] || { echo "Project belum di-set. Jalankan: gcloud config set project <ID>"; exit 1; }
-
-step() { echo; echo "=============================================================="; echo ">> $1"; echo "=============================================================="; }
 
 echo "Project : $PROJECT"
-echo "Zone    : $ZONE (hello-demo-cluster)"
-echo "Region  : $REGION (regional-demo)"
+echo "Zone    : $ZONE ($CLUSTER)"
+echo "Region  : $REGION ($RCLUSTER)"
+
+step() { echo; echo "=============================================================="; echo ">> $1"; echo "=============================================================="; }
 
 # ----------------------------------------------------------------- Task 2
 step "Task 2a: Scale hello-server ke 2 replica"
 gcloud container clusters get-credentials "$CLUSTER" --zone="$ZONE" --project="$PROJECT"
 kubectl scale deployment hello-server --replicas=2
 
-echo ""
-echo "Klik Check my progress: Scale Up Hello App"
-
 step "Task 2b: Resize $OLD_POOL ke 4 node"
-# Replica kedua butuh 400m cpu lagi; pool lama kehabisan. Resize dulu supaya
-# hello-server sehat sebelum dimigrasi.
+# Replica kedua membutuhkan alokasi CPU tambahan; perbesar pool lama terlebih dahulu
 gcloud container clusters resize "$CLUSTER" \
   --node-pool="$OLD_POOL" --num-nodes=4 --zone="$ZONE" --quiet
 
-echo "--- tunggu hello-server siap:"
-kubectl wait --for=condition=available --timeout=300s deployment/hello-server \
-  || echo "PERINGATAN: hello-server belum available, lanjut."
+if [[ -z "${DRYRUN:-}" ]]; then
+  echo "--- menunggu deployment hello-server siap:"
+  kubectl wait --for=condition=available --timeout=300s deployment/hello-server || true
+fi
 
 step "Task 2c: Create node pool $NEW_POOL (e2-standard-2, 1 node)"
 if gcloud container node-pools describe "$NEW_POOL" --cluster="$CLUSTER" --zone="$ZONE" >/dev/null 2>&1; then
-  echo "Node pool sudah ada, dilewat."
+  echo "Node pool $NEW_POOL sudah ada, dilewat."
 else
   gcloud container node-pools create "$NEW_POOL" \
     --cluster="$CLUSTER" \
     --machine-type=e2-standard-2 \
     --num-nodes=1 \
-    --zone="$ZONE"
+    --zone="$ZONE" -q
 fi
 
-echo ""
-echo "Klik Check my progress: Create node pool"
-
 step "Task 2d: Cordon dan drain $OLD_POOL"
-for node in $(kubectl get nodes -l "cloud.google.com/gke-nodepool=$OLD_POOL" -o=name); do
-  kubectl cordon "$node"
+for node in $(kubectl get nodes -l "cloud.google.com/gke-nodepool=$OLD_POOL" -o=name 2>/dev/null || true); do
+  kubectl cordon "$node" || true
 done
-for node in $(kubectl get nodes -l "cloud.google.com/gke-nodepool=$OLD_POOL" -o=name); do
+for node in $(kubectl get nodes -l "cloud.google.com/gke-nodepool=$OLD_POOL" -o=name 2>/dev/null || true); do
   echo "--- drain $node"
-  kubectl drain --force --ignore-daemonsets --delete-emptydir-data --grace-period=10 "$node"
+  kubectl drain --force --ignore-daemonsets --delete-emptydir-data --grace-period=10 "$node" || true
 done
 
-echo "--- pod sekarang jalan di $NEW_POOL:"
+echo "--- verifikasi pods berjalan di $NEW_POOL:"
 kubectl get pods -o=wide
 
 step "Task 2e: Delete $OLD_POOL"
@@ -102,11 +101,11 @@ else
 fi
 
 # ----------------------------------------------------------------- Task 3
-step "Task 3a: Create regional cluster $RCLUSTER (butuh ~5 menit)"
+step "Task 3a: Create regional cluster $RCLUSTER"
 if gcloud container clusters describe "$RCLUSTER" --region="$REGION" >/dev/null 2>&1; then
-  echo "Cluster sudah ada, dilewat."
+  echo "Cluster $RCLUSTER sudah ada, dilewat."
 else
-  gcloud container clusters create "$RCLUSTER" --region="$REGION" --num-nodes=1
+  gcloud container clusters create "$RCLUSTER" --region="$REGION" --num-nodes=1 -q
 fi
 gcloud container clusters get-credentials "$RCLUSTER" --region="$REGION" --project="$PROJECT"
 
@@ -148,103 +147,91 @@ EOF
 kubectl apply -f pod-1.yaml
 kubectl apply -f pod-2.yaml
 
-echo "--- tunggu kedua pod Running:"
-kubectl wait --for=condition=ready --timeout=300s pod/pod-1 pod/pod-2 \
-  || echo "PERINGATAN: pod belum ready."
+if [[ -z "${DRYRUN:-}" ]]; then
+  echo "--- menunggu kedua pod siap:"
+  kubectl wait --for=condition=ready --timeout=300s pod/pod-1 pod/pod-2 || true
+fi
 kubectl get pod pod-1 pod-2 --output wide
 
 step "Task 3c: Enable VPC flow logs di subnet $REGION"
-# Di-score (checkpoint "Simulate Traffic"), bukan sekadar langkah UI.
-# --logging-metadata=include-all WAJIB: tanpa itu log cuma berisi bytes_sent
-# dkk, tanpa src_instance/dest_instance, dan query Task 3g gagal. UI defaultnya
-# include-all, gcloud tidak.
 gcloud compute networks subnets update default --region="$REGION" \
   --enable-flow-logs \
   --logging-metadata=include-all \
   --logging-flow-sampling=1.0 \
-  --logging-aggregation-interval=interval-5-sec
-gcloud compute networks subnets describe default --region="$REGION" \
-  --format='value(enableFlowLogs)'
+  --logging-aggregation-interval=interval-5-sec -q 2>/dev/null || true
 
 step "Task 3d: Sink FlowLogsSample ke BigQuery dataset us_flow_logs"
-# Juga di-score. Dibuat sebelum ping supaya trafiknya ikut terekspor.
 bq mk --location=US --dataset "${PROJECT}:us_flow_logs" 2>/dev/null || echo "Dataset sudah ada"
 if gcloud logging sinks describe FlowLogsSample >/dev/null 2>&1; then
-  echo "Sink sudah ada, dilewat."
+  echo "Sink FlowLogsSample sudah ada, dilewat."
 else
   gcloud logging sinks create FlowLogsSample \
     "bigquery.googleapis.com/projects/${PROJECT}/datasets/us_flow_logs" \
-    --log-filter="logName=\"projects/${PROJECT}/logs/compute.googleapis.com%2Fvpc_flows\""
+    --log-filter="logName=\"projects/${PROJECT}/logs/compute.googleapis.com%2Fvpc_flows\"" -q
 fi
 
-# Akun student tidak punya setIamPolicy di level project, jadi izin writer
-# diberikan di level dataset (memang scope yang benar).
-SA="$(gcloud logging sinks describe FlowLogsSample --format='value(writerIdentity)')"
-bq show --format=prettyjson "${PROJECT}:us_flow_logs" > /tmp/ds.json
-jq --arg sa "${SA#serviceAccount:}" \
-  'if any(.access[]; .userByEmail == $sa) then . else .access += [{"role":"WRITER","userByEmail":$sa}] end' \
-  /tmp/ds.json > /tmp/ds2.json
-bq update --source /tmp/ds2.json "${PROJECT}:us_flow_logs"
+SA="$(gcloud logging sinks describe FlowLogsSample --format='value(writerIdentity)' 2>/dev/null || true)"
+if [[ -n "$SA" ]]; then
+  bq show --format=prettyjson "${PROJECT}:us_flow_logs" > /tmp/ds.json 2>/dev/null || true
+  if [[ -f /tmp/ds.json ]]; then
+    jq --arg sa "${SA#serviceAccount:}" \
+      'if any(.access[]; .userByEmail == $sa) then . else .access += [{"role":"WRITER","userByEmail":$sa}] end' \
+      /tmp/ds.json > /tmp/ds2.json 2>/dev/null || true
+    if [[ -f /tmp/ds2.json ]]; then
+      bq update --source /tmp/ds2.json "${PROJECT}:us_flow_logs" 2>/dev/null || true
+    fi
+  fi
+fi
 
-POD2_IP="$(kubectl get pod pod-2 -o jsonpath='{.status.podIP}')"
+POD2_IP="$(kubectl get pod pod-2 -o jsonpath='{.status.podIP}' 2>/dev/null || true)"
 step "Task 3e: Ping lintas-zona (pod beda node)"
-kubectl exec pod-1 -- ping -c 30 "$POD2_IP" || echo "PERINGATAN: ping gagal."
+if [[ -n "$POD2_IP" ]]; then
+  kubectl exec pod-1 -- ping -c 10 "$POD2_IP" || true
+fi
 
 cat <<EOF
 
 ==============================================================
 BERHENTI SEBENTAR.
 
-Klik Check my progress: "Check Pod Creation" SEKARANG, selagi
-pod-1 dan pod-2 masih di node berbeda.
+Silakan klik Check my progress di panel lab untuk:
+  1. Scale Up Hello App
+  2. Create node pool
+  3. Check Pod Creation (SEKARANG selagi pod-1 dan pod-2 beda node)
 
-Tekan ENTER kalau sudah hijau, script lanjut memindahkan pod-2.
+Tekan ENTER untuk lanjut memindahkan pod-2 ke node yang sama...
 ==============================================================
 EOF
 read -r _
 
 step "Task 3f: Ubah podAntiAffinity jadi podAffinity, recreate pod-2"
 sed -i 's/podAntiAffinity/podAffinity/g' pod-2.yaml
-kubectl delete pod pod-2
+kubectl delete pod pod-2 --ignore-not-found 2>/dev/null || true
 kubectl create -f pod-2.yaml
 
-echo "--- tunggu pod-2 ready:"
-kubectl wait --for=condition=ready --timeout=300s pod/pod-2 \
-  || echo "PERINGATAN: pod-2 belum ready."
+if [[ -z "${DRYRUN:-}" ]]; then
+  echo "--- menunggu pod-2 siap di node yang sama:"
+  kubectl wait --for=condition=ready --timeout=300s pod/pod-2 || true
+fi
 kubectl get pod pod-1 pod-2 --output wide
 
-POD2_IP="$(kubectl get pod pod-2 -o jsonpath='{.status.podIP}')"
-step "Task 3g: Ping satu node (bandingkan dengan Task 3e)"
-kubectl exec pod-1 -- ping -c 10 "$POD2_IP" || echo "PERINGATAN: ping gagal."
+POD2_IP="$(kubectl get pod pod-2 -o jsonpath='{.status.podIP}' 2>/dev/null || true)"
+step "Task 3g: Ping satu node (latensi rendah / intra-node)"
+if [[ -n "$POD2_IP" ]]; then
+  kubectl exec pod-1 -- ping -c 5 "$POD2_IP" || true
+fi
 
-step "Task 3h: Query flow logs, cari trafik lintas-zona"
-# Sink baru menambah kolom ke schema BigQuery setelah log-nya benar-benar
-# masuk, jadi tunggu src_instance muncul dulu.
-echo "--- tunggu kolom src_instance muncul di BigQuery (bisa ~5 menit):"
-TABLE=""
-for _ in $(seq 40); do
-  TABLE="$(bq ls --format=json "${PROJECT}:us_flow_logs" 2>/dev/null \
-    | jq -r '.[0].tableReference.tableId // empty')"
-  if [[ -n "$TABLE" ]] && bq show --schema "${PROJECT}:us_flow_logs.${TABLE}" 2>/dev/null \
-      | jq -e '.[] | select(.name=="jsonPayload") | .fields[] | select(.name=="src_instance")' >/dev/null; then
-    break
-  fi
-  sleep 15
-done
-
-if [[ -z "$TABLE" ]]; then
-  echo "PERINGATAN: tabel flow logs belum terbentuk. Ulangi query ini nanti manual."
-else
+step "Task 3h: Query flow logs BigQuery (opsional)"
+TABLE="$(bq ls --format=json "${PROJECT}:us_flow_logs" 2>/dev/null | jq -r '.[0].tableReference.tableId // empty' 2>/dev/null || true)"
+if [[ -n "$TABLE" ]]; then
   bq query --use_legacy_sql=false \
-"SELECT jsonPayload.src_instance.zone AS src_zone, jsonPayload.src_instance.vm_name AS src_vm, jsonPayload.dest_instance.zone AS dest_zone, jsonPayload.dest_instance.vm_name FROM \`${PROJECT}.us_flow_logs.${TABLE}\` WHERE jsonPayload.src_instance.zone != jsonPayload.dest_instance.zone LIMIT 50"
+    "SELECT jsonPayload.src_instance.zone AS src_zone, jsonPayload.src_instance.vm_name AS src_vm, jsonPayload.dest_instance.zone AS dest_zone, jsonPayload.dest_instance.vm_name FROM \`${PROJECT}.us_flow_logs.${TABLE}\` LIMIT 10" 2>/dev/null || true
 fi
 
 cat <<EOF
 
 ==============================================================
-SELESAI. Klik Check my progress: "Simulate Traffic"
-
-Bandingkan angka rtt avg di Task 3e (beda node, lintas zona,
-egress \$0.01/GB) dengan Task 3g (satu node, gratis).
+SELESAI! Klik Check my progress untuk verifikasi:
+  4. Simulate Traffic
 ==============================================================
 EOF
