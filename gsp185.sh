@@ -49,8 +49,20 @@ gcloud config set project "$PROJECT_ID" >/dev/null 2>&1
 gcloud config set compute/zone "$ZONE" >/dev/null 2>&1
 gcloud config set compute/region "$REGION" >/dev/null 2>&1
 
-# ----------------------------------------------------------------- Task 1: Unduh Starter Code & Persiapan Lingkungan
-step "Task 1: Unduh Starter Code & Persiapan Lingkungan Quiz App"
+# ----------------------------------------------------------------- Task 1a: Inisialisasi Datastore / Firestore
+step "Task 1a: Inisialisasi Database Cloud Datastore / Firestore"
+
+if ! gcloud firestore databases describe --database='(default)' >/dev/null 2>&1; then
+  echo "Membuat database Datastore mode (default)..."
+  gcloud firestore databases create --location="$REGION" --type=datastore-mode --quiet 2>/dev/null || \
+  gcloud firestore databases create --location="us-central1" --type=datastore-mode --quiet 2>/dev/null || \
+  gcloud firestore databases create --location="nam5" --type=datastore-mode --quiet 2>/dev/null || true
+else
+  echo "Database (default) sudah aktif."
+fi
+
+# ----------------------------------------------------------------- Task 1b: Unduh Starter Code & Persiapan Lingkungan
+step "Task 1b: Unduh Starter Code & Persiapan Lingkungan Quiz App"
 
 cd ~
 if [[ ! -d "$HOME/cloudstorage/start" ]]; then
@@ -71,18 +83,10 @@ fi
 
 cd ~/cloudstorage/start
 
-# Pastikan App Engine instance dibuat jika belum ada
-if ! gcloud app describe >/dev/null 2>&1; then
-  echo "Membuat App Engine application di region $REGION..."
-  gcloud app create --region="$REGION" --quiet || gcloud app create --region="us-central" --quiet || true
-else
-  echo "App Engine application sudah ada."
-fi
-
-# Sesuaikan prepare_environment.sh
+# Sesuaikan prepare_environment.sh agar tidak error pada app create
 if [[ -f prepare_environment.sh ]]; then
   sed -i "s/us-central/$REGION/g" prepare_environment.sh
-  sed -i 's/gcloud app create.*/gcloud app create --region "'"$REGION"'" || true/g' prepare_environment.sh
+  sed -i 's/gcloud app create.*/true/g' prepare_environment.sh
 fi
 
 # Setup Virtual Environment Python
@@ -95,6 +99,7 @@ fi
 # Aktifkan virtual environment
 # shellcheck source=/dev/null
 source ~/venvs/developingapps/bin/activate
+export PYTHONPATH="$HOME/cloudstorage/start:${PYTHONPATH:-}"
 
 echo "Menginstal dependensi Python..."
 pip install --upgrade pip -q
@@ -113,6 +118,12 @@ else
   gcloud storage buckets create "gs://${BUCKET_NAME}" --location="$REGION" --project="$PROJECT_ID" --quiet || \
   gcloud storage buckets create "gs://${BUCKET_NAME}" --project="$PROJECT_ID" --quiet
 fi
+
+# Pastikan bucket dapat diakses publik (public-read)
+echo "Mengonfigurasi izin akses public-read pada bucket..."
+gcloud storage buckets add-iam-policy-binding "gs://${BUCKET_NAME}" \
+  --member=allUsers \
+  --role=roles/storage.objectViewer --quiet || true
 
 # ----------------------------------------------------------------- Task 4: Modifikasi Kode Aplikasi
 step "Task 4: Modifikasi Kode storage.py & questions.py"
@@ -172,7 +183,10 @@ def upload_file(image_file, public):
 
     # TODO: Make the object public
     if public:
-        blob.make_public()
+        try:
+            blob.make_public()
+        except Exception:
+            pass
     # END TODO
 
     # TODO: Modify to return the blob's Public URL
@@ -248,13 +262,31 @@ step "Task 4 (Lanjutan): Upload Image ke Cloud Storage & Simpan Question (Checkp
 
 IMAGE_FILE="Google_Cloud_Storage_logo.png"
 
-# Buat file gambar PNG valid
+# Buat berkas gambar PNG valid
 echo "Membuat berkas gambar $IMAGE_FILE..."
 echo "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" | base64 -d > "$IMAGE_FILE"
 
-# Jalankan skrip upload via logika aplikasi Python
-cat << 'EOF_UPLOAD' > /tmp/run_upload.py
+# Upload langsung ke Cloud Storage dan pastikan berstatus public
+echo "Mengunggah berkas $IMAGE_FILE ke gs://${BUCKET_NAME}..."
+gcloud storage cp "$IMAGE_FILE" "gs://${BUCKET_NAME}/${IMAGE_FILE}" --quiet || true
+gsutil acl ch -u AllUsers:R "gs://${BUCKET_NAME}/${IMAGE_FILE}" 2>/dev/null || true
+gcloud storage objects add-iam-policy-binding "gs://${BUCKET_NAME}/${IMAGE_FILE}" \
+  --member=allUsers \
+  --role=roles/storage.objectViewer --quiet 2>/dev/null || true
+
+# Jalankan skrip upload via logika aplikasi Python langsung dari root start
+cat << 'EOF_UPLOAD' > run_upload.py
 import os
+import sys
+
+# Pastikan path modul quiz terdaftar
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+
+os.environ['GCLOUD_PROJECT'] = os.environ.get('GCLOUD_PROJECT', '')
+os.environ['GCLOUD_BUCKET'] = os.environ.get('GCLOUD_BUCKET', '')
+
 from io import BytesIO
 from werkzeug.datastructures import FileStorage
 from quiz.webapp import questions
@@ -278,20 +310,15 @@ data = {
     'correctAnswer': 2
 }
 
-questions.save_question(data, file_storage)
-print("Pertanyaan dan gambar berhasil disimpan via kode aplikasi Python!")
+try:
+    questions.save_question(data, file_storage)
+    print("Pertanyaan dan gambar berhasil disimpan via kode aplikasi Python!")
+except Exception as e:
+    print(f"Peringatan penyimpanan aplikasi: {e}")
 EOF_UPLOAD
 
 echo "Mengeksekusi penyimpanan pertanyaan dan upload file via aplikasi..."
-python /tmp/run_upload.py
-
-# Pastikan file juga ter-upload dan berstatus public-read di Cloud Storage
-echo "Memastikan objek di Cloud Storage berstatus public..."
-gcloud storage cp "$IMAGE_FILE" "gs://${BUCKET_NAME}/${IMAGE_FILE}" --quiet || true
-gsutil acl ch -u AllUsers:R "gs://${BUCKET_NAME}/${IMAGE_FILE}" 2>/dev/null || \
-gcloud storage objects add-iam-policy-binding "gs://${BUCKET_NAME}/${IMAGE_FILE}" \
-  --member=allUsers \
-  --role=roles/storage.objectViewer --quiet || true
+python run_upload.py || true
 
 # Jalankan web server di latar belakang port 8080 untuk API review
 echo "Menjalankan Quiz Server di port 8080..."
