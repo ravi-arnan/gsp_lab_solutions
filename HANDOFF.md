@@ -3,6 +3,18 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-10: GSP1331 - Request Temporary Elevated Access with Privileged Access Manager
+
+- [`gsp1331.sh`](gsp1331.sh) + [runbook](docs/gsp1331.md):
+  - Membuat script baru untuk otomasi Privileged Access Manager (PAM).
+  - Mengaktifkan API `privilegedaccessmanager.googleapis.com` dan memberi role `roles/privilegedaccessmanager.serviceAgent` ke service agent tingkat organisasi `service-org-$ORG@gcp-sa-pam.iam.gserviceaccount.com` (Checkpoint 1).
+  - Membuat entitlement `pam-entitlement` dengan role `roles/resourcemanager.projectIamAdmin` dan durasi 1 Day / 86400s (Checkpoint 2).
+  - Mengupdate entitlement ke durasi maksimal 10 jam / 36000s dengan penanganan `etag` dinamis (Checkpoint 3).
+  - Mengajukan permohonan grant durasi 10 jam dengan justifikasi `pam-test`, serta menyediakan alur persetujuan approver (`approve`) untuk Secondary User (Checkpoint 4).
+  - Menambahkan stub PAM pada test runner `test/stubs.sh` dan mendaftarkan mock env di `test/run.sh`.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (4/4 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
+
 ## Sesi 2026-11-10: GSP647 - Configuring IAM Permissions with gcloud
 
 - [`gsp647.sh`](gsp647.sh) + [runbook](docs/gsp647.md):
