@@ -11,8 +11,8 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
   - Menyiapkan berkas konfigurasi `app.yaml` dan skrip `index.php`.
   - Men-deploy aplikasi dan memverifikasi ketersediaan web endpoint `https://<PROJECT_ID>.appspot.com`.
   - Memperbarui pesan ke `goodbye world!` dan men-deploy versi pembaruan.
-- **Status Terakhir**: Script siap dijalankan di Cloud Shell (1/1 checkpoint otomatis, estimasi skor 100/100).
-- **Next Action**: Jalankan `bash gsp069.sh` di Cloud Shell lab, klik 1 checkpoint, dan verifikasi skor penuh.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (1/1 checkpoint hijau sekali jalan).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-10: GSP976 - Optimizing Applications Using Cloud Profiler
 
