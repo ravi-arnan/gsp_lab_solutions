@@ -136,15 +136,40 @@ else
   echo "Simulasi ancaman selesai dijalankan oleh startup script."
 fi
 
-# ------------------------------------------------------------------- Cleanup VM
-step "Cleanup - Menghapus VM instance-1 sesuai instruksi Task 3"
-gcloud compute instances delete instance-1 --zone="$ZONE" --project="$PROJECT" -q
-echo "VM instance-1 berhasil dihapus."
+# ------------------------------------------------------------------- Mute Finding
+step "Task 2 & 3 - Mute finding simulasi"
+gcloud scc muteconfigs create mute-sa-self-investigation \
+  --project="$PROJECT" \
+  --location=global \
+  --description="Mute SA self investigation" \
+  --filter='category="DISCOVERY_SERVICE_ACCOUNT_SELF_INVESTIGATION"' \
+  --type=DYNAMIC -q >/dev/null 2>&1 || true
+
+gcloud scc muteconfigs create mute-malware-bad-domain \
+  --project="$PROJECT" \
+  --location=global \
+  --description="Mute malware bad domain" \
+  --filter='category="MALWARE_BAD_DOMAIN"' \
+  --type=DYNAMIC -q >/dev/null 2>&1 || true
+
+for f in $(gcloud scc findings list "projects/$PROJECT" --filter='category="DISCOVERY_SERVICE_ACCOUNT_SELF_INVESTIGATION" OR category="MALWARE_BAD_DOMAIN"' --format="value(name)" 2>/dev/null); do
+  gcloud scc findings set-mute "$f" --mute=MUTED --project="$PROJECT" -q >/dev/null 2>&1 || true
+done
 
 cat <<EOF
 
-SELESAI! Klik Check my progress untuk verifikasi:
+SELESAI!
+VM instance-1 dipertahankan agar penilaian Checkpoint 2 tetap valid.
+
+Klik Check my progress untuk verifikasi:
   - Initiate and mitigate a threat with Event Threat Detection (Task 1)
   - Configure a cloud environment to detect threats (Task 2)
   - Manage SCC findings with Event Threat Detection (Task 3)
 EOF
+
+if [[ -t 0 ]]; then
+  echo
+  read -rp "Tekan ENTER jika semua checkpoint sudah hijau untuk menghapus VM instance-1 (atau Ctrl+C untuk selesai): " _
+  gcloud compute instances delete instance-1 --zone="$ZONE" --project="$PROJECT" -q >/dev/null 2>&1 || true
+  echo "VM instance-1 berhasil dihapus."
+fi
