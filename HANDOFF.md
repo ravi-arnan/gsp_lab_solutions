@@ -3,6 +3,16 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-10: GSP766 - Managing a GKE Multi-tenant Cluster with Namespaces
+
+- [`gsp766.sh`](gsp766.sh) + [runbook](docs/gsp766.md):
+  - Memodernisasi script lama agar mendukung zone dinamis via helper `ask` (default `us-west1-b`).
+  - Idempoten penuh untuk konfigurasi namespace (`team-a`, `team-b`), pods `app-server`, IAM binding `roles/container.clusterViewer`, k8s role/rolebinding `developer`, quota `test-quota` (patch 6 pods), dan quota komputasi `cpu-mem-quota`.
+  - Mengatasi kendala deprecation OAuth OOB (`Error 400: invalid_scope`) pada `bq query --schedule` dengan memanggil BigQuery Data Transfer Service REST API secara langsung menggunakan bearer token Cloud Shell.
+  - Menjalankan custom query `SELECT * FROM \`...cluster_dataset.usage_metering_cost_breakdown\` LIMIT 10` via CLI, sehingga seluruh checkpoint (termasuk Task 5 bernilai 40 poin) berhasil otomatis 100% tanpa perlu membuka Looker Studio / Data Studio di browser.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (4/4 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
+
 ## Sesi 2026-11-10: GSP382 - Mitigate Threats and Vulnerabilities with Security Command Center: Challenge Lab
 
 - [`gsp382.sh`](gsp382.sh) + [runbook](docs/gsp382.md):

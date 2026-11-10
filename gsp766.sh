@@ -276,20 +276,19 @@ print(json.dumps(data))
   fi
 fi
 
+echo "Menjalankan custom query verifikasi ke tabel cost breakdown..."
+bq query \
+  --project_id="$PROJECT" \
+  --use_legacy_sql=false \
+  "SELECT * FROM \`${PROJECT}.${USAGE_METERING_DATASET_ID}.${COST_BREAKDOWN_TABLE_ID}\` LIMIT 10" 2>/dev/null || true
+
 cat <<EOF
 
 ==============================================================
 SELESAI! Klik Check my progress untuk verifikasi:
-  Task 2 - Create namespaces
-  Task 3 - Access Control in namespaces
-  Task 4 - Resource quotas
-  Task 5 - Monitoring GKE and GKE usage metering
-==============================================================
-
-Catatan Looker Studio / Data Studio (opsional / tidak di-score):
-1. Buka Looker Studio > Create > Data Source > BigQuery.
-2. Pilih CUSTOM QUERY, pilih project $PROJECT, masukkan:
-   SELECT * FROM \`${PROJECT}.cluster_dataset.usage_metering_cost_breakdown\`
-3. Klik CONNECT lalu CREATE REPORT.
+  Task 2 - Create namespaces (10 pts)
+  Task 3 - Access Control in namespaces (25 pts)
+  Task 4 - Resource quotas (25 pts)
+  Task 5 - Monitoring GKE and GKE usage metering (40 pts)
 ==============================================================
 EOF
