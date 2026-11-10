@@ -3,6 +3,17 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-10: GSP343 - Optimize Costs for Google Kubernetes Engine: Challenge Lab
+
+- [`gsp343.sh`](gsp343.sh) + [runbook](docs/gsp343.md):
+  - Memodernisasi script challenge lab GKE cost optimization dengan dukungan nama cluster dan node pool dinamis per lab instance via helper `ask` (misal `onlineboutique-cluster-445` dan `optimized-pool-6743` di `europe-west4-c`).
+  - Mengotomasi pembuatan cluster rapid release 2 node `e2-standard-2`, namespaces `dev` dan `prod`, serta deploy manifest OnlineBoutique (Checkpoint 1).
+  - Mengotomasi pembuatan custom node pool `e2-custom-2-3584`, migrasi workload via cordon/drain pada `default-pool`, dan penghapusan `default-pool` (Checkpoint 2).
+  - Mengonfigurasi Pod Disruption Budget `onlineboutique-frontend-pdb` (min-available 1) dan rolling update image frontend ke `gcr.io/qwiklabs-resources/onlineboutique-frontend:v2.1` dengan `imagePullPolicy: Always` (Checkpoint 3).
+  - Mengonfigurasi HPA frontend (50% target CPU, 1-12 pods), Cluster Autoscaler pada pool baru (1-6 node), dan HPA recommendationservice (1-5 pods) (Checkpoint 4).
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (4/4 checkpoint hijau sekali jalan).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
+
 ## Sesi 2026-11-10: GSP768 - Understanding and Combining GKE Autoscaling Strategies
 
 - [`gsp768.sh`](gsp768.sh) + [runbook](docs/gsp768.md):
