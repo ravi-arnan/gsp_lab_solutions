@@ -1,7 +1,17 @@
-# Handoff (terakhir diperbarui 2026-11-09)
+# Handoff (terakhir diperbarui 2026-11-10)
 
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
+
+## Sesi 2026-11-10: GSP647 - Configuring IAM Permissions with gcloud
+
+- [`gsp647.sh`](gsp647.sh) + [runbook](docs/gsp647.md):
+  - Memperbarui script untuk mendukung deteksi dinamis zona dari `centos-clean` (default `us-central1-c`), zona alternatif untuk update default zone (`us-central1-b`), dan zona instans Project 2 (`us-east4-c`).
+  - Menerapkan binding `roles/iam.serviceAccountUser` pada level Compute Engine default service account (`$COMPUTE_SA2`) sesuai prinsip least-privilege pada instruksi resmi lab, sekaligus mempertahankan binding project-level.
+  - Menambahkan percobaan sinkronisasi otomatis ke VM `centos-clean` via IAP SSH langsung dari Cloud Shell (`~/.config/gcloud/`, `~/.bashrc`, `jq`).
+  - Mendaftarkan mock test env di `test/run.sh` dan memvalidasi `shellcheck` serta dry-run.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (12/12 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-09: GSP093 - Compute Engine: Qwik Start - Windows
 
