@@ -166,7 +166,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP1164 | Analyze Findings with Security Command Center | [gsp1164.sh](gsp1164.sh) | - | Belum diuji | - |
 | GSP1077 | Google Kubernetes Engine Pipeline using Cloud Build | [gsp1077.sh](gsp1077.sh) | [docs/gsp1077.md](docs/gsp1077.md) | Belum diuji; tiga fase, `gh auth login` + install Cloud Build GitHub App wajib manual | - |
 | GSP183 | App Dev: Setting up a Development Environment - Python | [gsp183.sh](gsp183.sh) | [docs/gsp183.md](docs/gsp183.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-11-10 |
-| GSP185 | App Dev: Storing Image and Video Files in Cloud Storage - Python | [gsp185.sh](gsp185.sh) | [docs/gsp185.md](docs/gsp185.md) | Siap diuji, skor 100/100 | - |
+| GSP185 | App Dev: Storing Image and Video Files in Cloud Storage - Python | [gsp185.sh](gsp185.sh) | [docs/gsp185.md](docs/gsp185.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-11-10 |
 | GSP190 | IAM Custom Roles | [gsp190.sh](gsp190.sh) | [docs/gsp190.md](docs/gsp190.md) | Terverifikasi, skor 100/100; keenam checkpoint diklik sekaligus di akhir | 2026-08-07 |
 | GSP192 | Dataflow: Qwik Start - Templates | [gsp192.sh](gsp192.sh) | [docs/gsp192.md](docs/gsp192.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-10-27 |
 | GSP199 | Service Accounts and Roles: Fundamentals | [gsp199.sh](gsp199.sh) | [docs/gsp199.md](docs/gsp199.md) | Terverifikasi, skor 100/100 (us-east4) | 2026-11-10 |

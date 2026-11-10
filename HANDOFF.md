@@ -11,8 +11,8 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
   - Memodifikasi `quiz/gcp/storage.py` dan `quiz/webapp/questions.py` sesuai arahan lab (upload blob, set public, update imageUrl entity).
   - Mengunggah berkas `Google_Cloud_Storage_logo.png`, menyetel ACL publik, serta menyimpan entitas pertanyaan kuis ke Datastore tanpa perlu input UI manual.
   - Menjalankan server kuis di port 8080 dan memvalidasi respons endpoint API `/api/quizzes/gcp`.
-- **Status Terakhir**: Script siap dijalankan di Cloud Shell (2/2 checkpoint otomatis, estimasi skor 100/100).
-- **Next Action**: Jalankan `bash gsp185.sh` di Cloud Shell lab, klik 2 checkpoint, dan verifikasi skor penuh 100/100.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (2/2 checkpoint hijau sekali jalan).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-10: GSP183 - App Dev: Setting up a Development Environment - Python
 
