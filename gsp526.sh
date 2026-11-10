@@ -165,7 +165,7 @@ step "Task 2 - membuat entitlement $ENTITLEMENT"
 # User kedua = principal user di IAM policy project yang bukan akun aktif.
 SECONDARY_DEFAULT="$(gcloud projects get-iam-policy "$PROJECT" \
   --flatten='bindings[].members' --format='value(bindings.members)' 2>/dev/null \
-  | sed -n 's/^user://p' | sort -u | grep -v "^$ACCOUNT$" | head -n1)"
+  | sed -n 's/^user://p' | sort -u | grep -v "^$ACCOUNT$" | head -n1 || true)"
 ask PRIMARY "$ACCOUNT" "Requester principal (user 1)"
 ask SECONDARY "$SECONDARY_DEFAULT" "Approver principal (user 2)"
 [[ -n "$SECONDARY" ]] || { echo "User kedua tidak terdeteksi. Salin dari panel lab."; exit 1; }

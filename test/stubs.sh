@@ -48,6 +48,9 @@ gcloud)
     echo "custom.googleapis.com/opencensus/my.videoservice.org/measure/input_queue_size"
   elif has 'instances get-serial-port-output' ; then echo "Instance setup finished. instance is ready to use."
   elif has 'run services describe' || has 'value(status.url)' ; then echo "https://pdf-converter-dryrun.a.run.app"
+  elif has 'projects get-ancestors'       ; then printf '123456789012 project\n987654321 organization\n'
+  elif has 'pam entitlements describe' && has 'etag' ; then echo "fake-etag-123"
+  elif has 'pam grants search'             ; then echo "projects/dryrun-project/locations/global/entitlements/pam-entitlement/grants/fake-grant"
   elif has 'config get-value'              ; then echo "us-central1"
   elif has '--format=json'                 ; then echo '[]'   # jangan bikin `| python3 -c json.load` meledak
   fi
