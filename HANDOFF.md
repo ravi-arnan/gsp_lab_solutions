@@ -1,16 +1,16 @@
-# Handoff (terakhir diperbarui 2026-11-13)
+# Handoff (terakhir diperbarui 2026-11-14)
 
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
-## Sesi 2026-11-13: GSP219 - Network Tiers - Optimizing Network Spend
+## Sesi 2026-11-14: GSP219 - Network Tiers - Optimizing Network Spend
 
 - [`gsp219.sh`](gsp219.sh) + [runbook](docs/gsp219.md):
   - Membuat script baru untuk otomasi pembuatan VM `vm-premium` (Tier Premium) dan `vm-standard` (Tier Standard) secara paralel di zone `us-east1-c` (`e2-medium`).
   - Menyiapkan firewall ICMP untuk uji latency & traceroute.
   - Menampilkan external IP kedua instance dan menyediakan jawaban kuis pemahaman materi.
-- **Status Terakhir**: Script siap dijalankan di Cloud Shell (1/1 checkpoint otomatis, estimasi skor 100/100).
-- **Next Action**: Jalankan `bash gsp219.sh` di Cloud Shell lab, klik checkpoint Task 1, dan verifikasi skor 100/100.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (1/1 checkpoint hijau sekali jalan).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-13: GSP190 - IAM Custom Roles
 

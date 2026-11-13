@@ -117,7 +117,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP207 | Dataflow: Qwik Start - Python | [gsp207.sh](gsp207.sh) | [docs/gsp207.md](docs/gsp207.md) | Terverifikasi, skor 100/100 (asia-southeast1); jalannya lama, 10-15 menit | 2026-08-21 |
 | GSP211 | Create and Configure Multiple VPC Networks | [gsp211.sh](gsp211.sh) | [docs/gsp211.md](docs/gsp211.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-11-09 |
 | GSP213 | Control Access to VPC Networks Using Firewall Rules and IAM | [gsp213.sh](gsp213.sh) | [docs/gsp213.md](docs/gsp213.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-11-09 |
-| GSP219 | Network Tiers - Optimizing Network Spend | [gsp219.sh](gsp219.sh) | [docs/gsp219.md](docs/gsp219.md) | Siap dijalankan, skor 100/100 (us-east1-c) | 2026-11-13 |
+| GSP219 | Network Tiers - Optimizing Network Spend | [gsp219.sh](gsp219.sh) | [docs/gsp219.md](docs/gsp219.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-11-14 |
 | GSP281 | Introduction to SQL for BigQuery and Cloud SQL | [gsp281.sh](gsp281.sh) | [docs/gsp281.md](docs/gsp281.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-10-27 |
 | GSP351 | Migrate MySQL Data to Cloud SQL Using DMS: Challenge Lab | [gsp351.sh](gsp351.sh) | [docs/gsp351.md](docs/gsp351.md) | Terverifikasi, skor 100/100 (us-central1), dua fase; destination existing wajib `demote-destination` dulu | 2026-08-22 |
 | GSP903 | Stream Processing with Cloud Pub/Sub and Dataflow: Qwik Start | [gsp903.sh](gsp903.sh) | [docs/gsp903.md](docs/gsp903.md) | Terverifikasi, skor 100/100 (us-central1), dua fase | 2026-08-21 |
