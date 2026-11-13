@@ -170,7 +170,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP1125 | Detect and Investigate Threats with Security Command Center | [gsp1125.sh](gsp1125.sh) | [docs/gsp1125.md](docs/gsp1125.md) | Terverifikasi, skor 60/60 (us-central1) | 2026-11-10 |
 | GSP1164 | Analyze Findings with Security Command Center | [gsp1164.sh](gsp1164.sh) | - | Belum diuji | - |
 | GSP1077 | Google Kubernetes Engine Pipeline using Cloud Build | [gsp1077.sh](gsp1077.sh) | [docs/gsp1077.md](docs/gsp1077.md) | Belum diuji; tiga fase, `gh auth login` + install Cloud Build GitHub App wajib manual | - |
-| GSP178 | Setting up a Private Kubernetes Cluster | [gsp178.sh](gsp178.sh) | [docs/gsp178.md](docs/gsp178.md) | Siap dijalankan, skor 100/100 (dua fase atau interaktif) | 2026-11-14 |
+| GSP178 | Setting up a Private Kubernetes Cluster | [gsp178.sh](gsp178.sh) | [docs/gsp178.md](docs/gsp178.md) | Terverifikasi, skor 100/100 (us-west1-b) | 2026-11-14 |
 | GSP183 | App Dev: Setting up a Development Environment - Python | [gsp183.sh](gsp183.sh) | [docs/gsp183.md](docs/gsp183.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-11-10 |
 | GSP185 | App Dev: Storing Image and Video Files in Cloud Storage - Python | [gsp185.sh](gsp185.sh) | [docs/gsp185.md](docs/gsp185.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-11-10 |
 | GSP190 | IAM Custom Roles | [gsp190.sh](gsp190.sh) | [docs/gsp190.md](docs/gsp190.md) | Terverifikasi, skor 100/100; keenam checkpoint diklik sekaligus di akhir | 2026-08-07 |

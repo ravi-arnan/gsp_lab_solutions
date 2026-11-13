@@ -8,8 +8,9 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 - [`gsp178.sh`](gsp178.sh) + [runbook](docs/gsp178.md):
   - Membuat script baru untuk otomasi pembuatan cluster GKE private (`private-cluster` & `private-cluster2`), VM `source-instance`, dan otorisasi external IP.
   - Membagi eksekusi ke dalam 2 fase (`part1` dan `part2`, atau mode interaktif dengan jeda) agar checkpoint Task 2 dan Task 4 diverifikasi sebelum cluster dihapus di Task 5.
-- **Status Terakhir**: Script siap dijalankan di Cloud Shell (7/7 checkpoint otomatis, estimasi skor 100/100).
-- **Next Action**: Jalankan `bash gsp178.sh` di Cloud Shell lab, klik checkpoint sesuai instruksi jeda, dan verifikasi skor 100/100.
+  - Berhasil terverifikasi 100/100 di live lab Cloud Shell Qwiklabs (7/7 checkpoint hijau).
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (7/7 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-14: GSP219 - Network Tiers - Optimizing Network Spend
 
