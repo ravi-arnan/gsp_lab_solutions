@@ -23,7 +23,7 @@ PROJECT="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
 [[ -n "$PROJECT" ]] || { echo "Project belum di-set. Jalankan: gcloud config set project <ID>"; exit 1; }
 echo "PROJECT = $PROJECT"
 
-gcloud config set compute/region us-east1 >/dev/null 2>&1
+gcloud config set compute/region "${REGION:-us-west1}" >/dev/null 2>&1
 gcloud config set accessibility/screen_reader false >/dev/null 2>&1
 
 RES="//cloudresourcemanager.googleapis.com/projects/$PROJECT"
