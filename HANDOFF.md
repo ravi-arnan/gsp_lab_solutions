@@ -3,6 +3,14 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-14: GSP178 - Setting up a Private Kubernetes Cluster
+
+- [`gsp178.sh`](gsp178.sh) + [runbook](docs/gsp178.md):
+  - Membuat script baru untuk otomasi pembuatan cluster GKE private (`private-cluster` & `private-cluster2`), VM `source-instance`, dan otorisasi external IP.
+  - Membagi eksekusi ke dalam 2 fase (`part1` dan `part2`, atau mode interaktif dengan jeda) agar checkpoint Task 2 dan Task 4 diverifikasi sebelum cluster dihapus di Task 5.
+- **Status Terakhir**: Script siap dijalankan di Cloud Shell (7/7 checkpoint otomatis, estimasi skor 100/100).
+- **Next Action**: Jalankan `bash gsp178.sh` di Cloud Shell lab, klik checkpoint sesuai instruksi jeda, dan verifikasi skor 100/100.
+
 ## Sesi 2026-11-14: GSP219 - Network Tiers - Optimizing Network Spend
 
 - [`gsp219.sh`](gsp219.sh) + [runbook](docs/gsp219.md):
