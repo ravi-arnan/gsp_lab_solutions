@@ -36,11 +36,25 @@ ask() {
   echo "$1 = ${!1}"
 }
 
-PHASE="${1:-main}"
-ask REGION "europe-west1" "Location bucket (cocokkan dengan teks Task 1)"
-
 PROJECT_ID="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}"
 [[ -n "$PROJECT_ID" ]] || { echo "Project belum di-set. Jalankan: gcloud config set project <ID>"; exit 1; }
+
+PHASE="${1:-main}"
+
+# Deteksi region bawaan lab / org policy constraint jika ada
+DEF_REGION="$(gcloud compute project-info describe --format='value(commonInstanceMetadata.items[google-compute-default-region])' 2>/dev/null || true)"
+ORG_LOC="$(gcloud resource-manager org-policies describe constraints/gcp.resourceLocations --project="$PROJECT_ID" --format="value(listPolicy.allowedValues)" 2>/dev/null || true)"
+
+DEFAULT_LOCATION="europe-west1"
+if [[ -n "$DEF_REGION" ]]; then
+  DEFAULT_LOCATION="$DEF_REGION"
+elif [[ "$ORG_LOC" =~ us- ]]; then
+  DEFAULT_LOCATION="us-central1"
+elif [[ "$ORG_LOC" =~ europe- ]]; then
+  DEFAULT_LOCATION="europe-west4"
+fi
+
+ask REGION "$DEFAULT_LOCATION" "Location bucket (cocokkan dengan teks Task 1)"
 
 # Teks lab menyarankan memakai Project ID sebagai nama bucket karena pasti unik.
 BUCKET="${BUCKET:-$PROJECT_ID}"
@@ -65,17 +79,41 @@ step "Task 1: buat bucket (checkpoint 1)"
 # Uniform access control + public access prevention DIMATIKAN, sesuai teks lab.
 # Tanpa --no-public-access-prevention, Task 3 akan ditolak karena project
 # Qwiklabs memakai default 'inherited' yang bisa berujung enforced.
+create_bucket() {
+  local loc="$1"
+  gcloud storage buckets create "gs://$BUCKET" \
+    --location="$loc" \
+    --default-storage-class=STANDARD \
+    --uniform-bucket-level-access \
+    --no-public-access-prevention
+}
+
 if gcloud storage buckets describe "gs://$BUCKET" >/dev/null 2>&1; then
   echo "Bucket sudah ada, disesuaikan saja."
   gcloud storage buckets update "gs://$BUCKET" \
     --uniform-bucket-level-access \
     --no-public-access-prevention
 else
-  gcloud storage buckets create "gs://$BUCKET" \
-    --location="$REGION" \
-    --default-storage-class=STANDARD \
-    --uniform-bucket-level-access \
-    --no-public-access-prevention
+  if ! create_bucket "$REGION"; then
+    echo "Gagal membuat bucket di '$REGION' (kemungkinan kendala constraints/gcp.resourceLocations)."
+    # Coba fallback ke region lain yang lazim diizinkan
+    SUCCESS=0
+    for FALLBACK in "$DEF_REGION" "us-central1" "us-east1" "us-west1" "europe-west4"; do
+      if [[ -n "$FALLBACK" && "$FALLBACK" != "$REGION" ]]; then
+        echo "Mencoba fallback ke location: $FALLBACK ..."
+        if create_bucket "$FALLBACK"; then
+          REGION="$FALLBACK"
+          echo "Berhasil membuat bucket di $REGION!"
+          SUCCESS=1
+          break
+        fi
+      fi
+    done
+    if [[ $SUCCESS -ne 1 ]]; then
+      echo "Gagal membuat bucket di seluruh kandidat region. Cek allowed locations pada panel lab."
+      exit 1
+    fi
+  fi
 fi
 
 gcloud storage buckets describe "gs://$BUCKET" \
