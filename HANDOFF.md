@@ -1,7 +1,43 @@
-# Handoff (terakhir diperbarui 2026-11-10)
+# Handoff (terakhir diperbarui 2026-11-13)
 
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
+
+## Sesi 2026-11-13: GSP219 - Network Tiers - Optimizing Network Spend
+
+- [`gsp219.sh`](gsp219.sh) + [runbook](docs/gsp219.md):
+  - Membuat script baru untuk otomasi pembuatan VM `vm-premium` (Tier Premium) dan `vm-standard` (Tier Standard) secara paralel di zone `us-east1-c` (`e2-medium`).
+  - Menyiapkan firewall ICMP untuk uji latency & traceroute.
+  - Menampilkan external IP kedua instance dan menyediakan jawaban kuis pemahaman materi.
+- **Status Terakhir**: Script siap dijalankan di Cloud Shell (1/1 checkpoint otomatis, estimasi skor 100/100).
+- **Next Action**: Jalankan `bash gsp219.sh` di Cloud Shell lab, klik checkpoint Task 1, dan verifikasi skor 100/100.
+
+## Sesi 2026-11-13: GSP190 - IAM Custom Roles
+
+- [`gsp190.sh`](gsp190.sh) + [runbook](docs/gsp190.md):
+  - Memperbarui skrip otomasi dengan region `us-west1` yang dinamis sesuai kebutuhan lab.
+  - Otomasi Task 1-3 (inspeksi permissions dan roles), Task 4 (buat custom role editor via YAML dan viewer via flag), Task 5 (listing roles), Task 6 (update role editor dan viewer dengan storage permissions), Task 7 (disable role viewer), Task 8 (hapus role viewer), dan Task 9 (undelete role viewer).
+  - Berhasil terverifikasi 100/100 di live lab Cloud Shell Qwiklabs (6/6 checkpoint hijau sekaligus).
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (6/6 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
+
+## Sesi 2026-11-13: GSP074 - Cloud Storage: Qwik Start - CLI/SDK
+
+- [`gsp074.sh`](gsp074.sh) + [runbook](docs/gsp074.md):
+  - Memperbarui skrip otomasi dengan deteksi region default lab (`DEF_REGION` / `us-central1`), fallback pembuatan bucket jika terkena constraint lokasi, serta fallback gambar lokal bila unduhan Wikimedia bermasalah.
+  - Otomasi Task 1 (create bucket), Task 2-3 (unduh/unggah objek `ada.jpg`), Task 4 (salin ke `image-folder/`), Task 5-6 (list & inspect metadata), dan Task 7 (akses publik `allUsers` role READER via ACL).
+  - Berhasil terverifikasi 100/100 di live lab Cloud Shell Qwiklabs.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (3/3 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
+
+## Sesi 2026-11-13: GSP073 - Cloud Storage: Qwik Start - Google Cloud Console
+
+- [`gsp073.sh`](gsp073.sh) + [runbook](docs/gsp073.md):
+  - Memperbarui skrip otomasi dengan deteksi region default lab (`google-compute-default-region`) dan fallback otomatis ke region yang diizinkan saat terkena constraint org policy `constraints/gcp.resourceLocations`.
+  - Otomasi Task 1 (create bucket uniform & no public access prevention), Task 2 (upload kitten.png), Task 3 (public access allUsers Storage Object Viewer), dan Task 4 (nested folder1/folder2).
+  - Berhasil terverifikasi 100/100 di live lab Cloud Shell Qwiklabs.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (3/3 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-10: GSP070 - App Engine: Qwik Start - Go
 
