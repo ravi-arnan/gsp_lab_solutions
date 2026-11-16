@@ -1,7 +1,16 @@
-# Handoff (terakhir diperbarui 2026-11-14)
+# Handoff (terakhir diperbarui 2026-11-16)
 
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
+
+## Sesi 2026-11-16: GSP182 - Distributed Load Testing Using Kubernetes
+
+- [`gsp182.sh`](gsp182.sh) + [runbook](docs/gsp182.md):
+  - Membuat script baru untuk otomasi implementasi framework distributed load testing menggunakan Locust di Google Kubernetes Engine (GKE) dan backend target di Google App Engine.
+  - Mengupdate runtime Python di `sample-webapp/app.yaml` ke `python312`, build Docker image via Cloud Build, deploy App Engine secara non-interaktif, provision GKE cluster 5-node, deploy Locust master & service LoadBalancer, serta scale Locust worker hingga 20 pods.
+  - Berhasil terverifikasi 100/100 di live lab Cloud Shell Qwiklabs (5/5 checkpoint hijau sekaligus).
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (5/5 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-14: GSP178 - Setting up a Private Kubernetes Cluster
 
