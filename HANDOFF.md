@@ -3,6 +3,15 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-16: GSP090 - Monitor Multiple Google Cloud Projects with Cloud Monitoring
+
+- [`gsp090.sh`](gsp090.sh) + [runbook](docs/gsp090.md):
+  - Membuat script baru untuk otomasi konfigurasi multi-project Cloud Monitoring Metrics Scope, pembuatan VM `instance2` di Project 2, dynamic Resource Group `DemoGroup` via REST API, TCP Uptime Check port 22 ke resource group, dan Alerting Policy `Uptime Check Policy`.
+  - Mengatasi deteksi project ganda dengan memeriksa VM bawaan pada project `qwiklabs-gcp-*` (mengabaikan `qwiklabs-resources`), menyelaraskan filter group ke `resource.metadata.name = has_substring("instance")`, serta formatting JSON valid untuk `conditionAbsent`.
+  - Berhasil terverifikasi 20/20 di live lab Cloud Shell Qwiklabs (4/4 checkpoint hijau).
+- **Status Terakhir**: Terverifikasi sukses 20/20 di live lab Cloud Shell (4/4 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
+
 ## Sesi 2026-11-16: GSP182 - Distributed Load Testing Using Kubernetes
 
 - [`gsp182.sh`](gsp182.sh) + [runbook](docs/gsp182.md):
