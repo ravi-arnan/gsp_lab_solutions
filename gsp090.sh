@@ -111,23 +111,31 @@ gcurl -X POST \
   -d "{\"name\": \"locations/global/metricsScopes/${PROJECT_2}/projects/${PROJECT_1}\"}" >/dev/null || true
 
 # ----------------------------------------------------------------- Task 2
-step "Task 2: Buat Cloud Monitoring Group (DemoGroup)"
+step "Task 2: Konfigurasi Cloud Monitoring Group (DemoGroup)"
 GROUP_ID=""
 
-# Cek apakah DemoGroup sudah ada
 EXISTING_GROUPS=$(gcurl "https://monitoring.googleapis.com/v3/projects/${PROJECT_2}/groups")
 
 if command -v jq >/dev/null 2>&1; then
   GROUP_ID=$(echo "$EXISTING_GROUPS" | jq -r '.group[]? | select(.displayName=="DemoGroup") | .name' 2>/dev/null | awk -F'/' '{print $NF}' | head -n 1)
 fi
 
-if [[ -z "$GROUP_ID" ]]; then
+if [[ -n "$GROUP_ID" ]]; then
+  echo "Memperbarui filter DemoGroup (ID: $GROUP_ID) ke resource.metadata.name..."
+  gcurl -X PUT \
+    "https://monitoring.googleapis.com/v3/projects/${PROJECT_2}/groups/${GROUP_ID}" \
+    -d "{
+      \"name\": \"projects/${PROJECT_2}/groups/${GROUP_ID}\",
+      \"displayName\": \"DemoGroup\",
+      \"filter\": \"resource.metadata.name = has_substring(\\\"instance\\\")\"
+    }" >/dev/null || true
+else
   echo "Membuat group DemoGroup..."
   CREATE_GROUP_RESP=$(gcurl -X POST \
     "https://monitoring.googleapis.com/v3/projects/${PROJECT_2}/groups" \
     -d '{
       "displayName": "DemoGroup",
-      "filter": "metadata.system_labels.name = has_substring(\"instance\")"
+      "filter": "resource.metadata.name = has_substring(\"instance\")"
     }')
 
   if command -v jq >/dev/null 2>&1; then
@@ -135,17 +143,12 @@ if [[ -z "$GROUP_ID" ]]; then
   fi
 fi
 
-if [[ -n "$GROUP_ID" ]]; then
-  echo "Group DemoGroup ID: $GROUP_ID"
-else
-  echo "Peringatan: Gagal mendapatkan Group ID via API. Lanjut ke langkah berikutnya."
-fi
+echo "Group DemoGroup ID: ${GROUP_ID:-tidak ditemukan}"
 
 # ----------------------------------------------------------------- Task 3
 step "Task 3: Buat Uptime Check untuk DemoGroup (port 22 TCP)"
 CHECK_ID=""
 
-# Cek apakah Uptime Check sudah ada
 EXISTING_CHECKS=$(gcurl "https://monitoring.googleapis.com/v3/projects/${PROJECT_2}/uptimeCheckConfigs")
 
 if command -v jq >/dev/null 2>&1; then
@@ -174,16 +177,12 @@ if [[ -z "$CHECK_ID" && -n "$GROUP_ID" ]]; then
   fi
 fi
 
-if [[ -n "$CHECK_ID" ]]; then
-  echo "Uptime Check ID: $CHECK_ID"
-else
-  echo "Peringatan: Check ID tidak terdeteksi via API, menggunakan fallback filter."
-fi
+echo "Uptime Check ID: ${CHECK_ID:-tidak ditemukan}"
 
 # ----------------------------------------------------------------- Task 4
 step "Task 4: Buat Alerting Policy (Uptime Check Policy)"
 WORKDIR="$(mktemp -d)"
-POLICY_FILE="$WORKDIR/uptime-policy.json"
+POLICY_FILE="$WORKDIR/awesome.json"
 
 CHECK_FILTER="resource.type = \"gce_instance\" AND metric.type = \"monitoring.googleapis.com/uptime_check/check_passed\""
 if [[ -n "$CHECK_ID" ]]; then
@@ -221,11 +220,20 @@ cat > "$POLICY_FILE" <<EOF
 }
 EOF
 
-echo "Mendaftarkan Alerting Policy..."
-if ! gcloud monitoring policies create --policy-from-file="$POLICY_FILE" --project="$PROJECT_2" -q 2>/dev/null; then
-  gcurl -X POST \
-    "https://monitoring.googleapis.com/v3/projects/${PROJECT_2}/alertPolicies" \
-    -d @"$POLICY_FILE" >/dev/null || true
+# Hapus policy lama jika sudah ada agar bersih
+EXISTING_POLICIES=$(gcloud monitoring policies list --project="$PROJECT_2" --filter='displayName="Uptime Check Policy"' --format="value(name)" 2>/dev/null || true)
+for pol in $EXISTING_POLICIES; do
+  echo "Menghapus policy lama: $pol..."
+  gcloud monitoring policies delete "$pol" --project="$PROJECT_2" -q 2>/dev/null || true
+done
+
+echo "Mendaftarkan Alerting Policy baru..."
+if ! gcloud alpha monitoring policies create --policy-from-file="$POLICY_FILE" --project="$PROJECT_2" -q 2>/dev/null; then
+  if ! gcloud monitoring policies create --policy-from-file="$POLICY_FILE" --project="$PROJECT_2" -q 2>/dev/null; then
+    gcurl -X POST \
+      "https://monitoring.googleapis.com/v3/projects/${PROJECT_2}/alertPolicies" \
+      -d @"$POLICY_FILE"
+  fi
 fi
 
 rm -rf "$WORKDIR"
