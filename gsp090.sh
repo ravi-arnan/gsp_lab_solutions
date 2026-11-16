@@ -36,12 +36,12 @@ gcurl() {
 }
 
 echo "Mendeteksi daftar project Google Cloud..."
-ALL_PROJECTS=($(gcloud projects list --format="value(projectId)" 2>/dev/null | sort))
+ALL_PROJECTS=($(gcloud projects list --format="value(projectId)" 2>/dev/null | grep -E '^qwiklabs-gcp-' | sort))
 
 DEFAULT_P1=""
 DEFAULT_P2=""
 
-# Project 1 memiliki VM bawaan lab. Project 2 adalah project baru tanpa VM bawaan.
+# Project 1 memiliki VM bawaan lab. Project 2 adalah project baru tempat instance2 dibuat.
 for p in "${ALL_PROJECTS[@]}"; do
   VMS="$(gcloud compute instances list --project="$p" --format="value(name)" 2>/dev/null || true)"
   VMS_EXISTING="$(echo "$VMS" | grep -v "^instance2$" || true)"
@@ -52,21 +52,18 @@ for p in "${ALL_PROJECTS[@]}"; do
   fi
 done
 
-# Fallback jika belum terdeteksi sempurna
-CURRENT_PROJECT="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null || true)}"
-if [[ -z "$DEFAULT_P1" || -z "$DEFAULT_P2" || "$DEFAULT_P1" == "$DEFAULT_P2" ]]; then
-  if [[ -n "$CURRENT_PROJECT" && ${#ALL_PROJECTS[@]} -ge 2 ]]; then
-    DEFAULT_P1="$CURRENT_PROJECT"
-    for p in "${ALL_PROJECTS[@]}"; do
-      if [[ "$p" != "$CURRENT_PROJECT" ]]; then
-        DEFAULT_P2="$p"
-        break
-      fi
-    done
-  elif [[ ${#ALL_PROJECTS[@]} -ge 2 ]]; then
-    DEFAULT_P1="${ALL_PROJECTS[0]}"
-    DEFAULT_P2="${ALL_PROJECTS[1]}"
-  fi
+# Pastikan P1 dan P2 terisi dari dua project qwiklabs-gcp- yang berbeda
+if [[ -z "$DEFAULT_P1" && -n "$DEFAULT_P2" ]]; then
+  for p in "${ALL_PROJECTS[@]}"; do
+    if [[ "$p" != "$DEFAULT_P2" ]]; then DEFAULT_P1="$p"; break; fi
+  done
+elif [[ -z "$DEFAULT_P2" && -n "$DEFAULT_P1" ]]; then
+  for p in "${ALL_PROJECTS[@]}"; do
+    if [[ "$p" != "$DEFAULT_P1" ]]; then DEFAULT_P2="$p"; break; fi
+  done
+elif [[ -z "$DEFAULT_P1" && -z "$DEFAULT_P2" && ${#ALL_PROJECTS[@]} -ge 2 ]]; then
+  DEFAULT_P2="${ALL_PROJECTS[0]}"
+  DEFAULT_P1="${ALL_PROJECTS[1]}"
 fi
 
 ask PROJECT_2 "${DEFAULT_P2}" "Project ID 2 (scoping project tempat instance2 dibuat)"
