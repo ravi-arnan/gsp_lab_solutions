@@ -1,7 +1,15 @@
-# Handoff (terakhir diperbarui 2026-11-16)
+# Handoff (terakhir diperbarui 2026-11-17)
 
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
+
+## Sesi 2026-11-17: GSP091 - Creating and Alerting on Logs-based Metrics
+
+- [`gsp091.sh`](gsp091.sh) + [runbook](docs/gsp091.md):
+  - Membuat script baru untuk otomasi pembuatan cluster GKE `gmp-cluster`, email notification channel, log-based alert `stopped vm`, Docker repository `docker-repo` di Artifact Registry, deploy aplikasi Flask `hello` di namespace `gmp-test`, user-defined log-based metric `hello-app-error`, metrics-based alert `log based metric alert`, dan pembangkitan request error untuk memicu alert.
+  - Berhasil terverifikasi 100/100 di live lab Cloud Shell Qwiklabs (7/7 checkpoint hijau sekali jalan).
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (7/7 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-16: GSP090 - Monitor Multiple Google Cloud Projects with Cloud Monitoring
 
