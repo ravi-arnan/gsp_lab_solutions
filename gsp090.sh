@@ -184,12 +184,7 @@ step "Task 4: Buat Alerting Policy (Uptime Check Policy)"
 WORKDIR="$(mktemp -d)"
 POLICY_FILE="$WORKDIR/awesome.json"
 
-CHECK_FILTER="resource.type = \"gce_instance\" AND metric.type = \"monitoring.googleapis.com/uptime_check/check_passed\""
-if [[ -n "$CHECK_ID" ]]; then
-  CHECK_FILTER="${CHECK_FILTER} AND metric.labels.check_id = \"${CHECK_ID}\""
-fi
-
-cat > "$POLICY_FILE" <<EOF
+cat > "$POLICY_FILE" <<'EOF'
 {
   "displayName": "Uptime Check Policy",
   "userLabels": {},
@@ -197,7 +192,7 @@ cat > "$POLICY_FILE" <<EOF
     {
       "displayName": "VM Instance - Check passed",
       "conditionAbsent": {
-        "filter": "${CHECK_FILTER}",
+        "filter": "resource.type = \"gce_instance\" AND metric.type = \"monitoring.googleapis.com/uptime_check/check_passed\" AND metric.labels.check_id = \"CHECK_ID_PLACEHOLDER\"",
         "aggregations": [
           {
             "alignmentPeriod": "300s",
@@ -219,6 +214,12 @@ cat > "$POLICY_FILE" <<EOF
   "severity": "SEVERITY_UNSPECIFIED"
 }
 EOF
+
+if [[ -n "$CHECK_ID" ]]; then
+  sed -i "s/CHECK_ID_PLACEHOLDER/$CHECK_ID/g" "$POLICY_FILE"
+else
+  sed -i 's/ AND metric.labels.check_id = \\"CHECK_ID_PLACEHOLDER\\"//g' "$POLICY_FILE"
+fi
 
 # Hapus policy lama jika sudah ada agar bersih
 EXISTING_POLICIES=$(gcloud monitoring policies list --project="$PROJECT_2" --filter='displayName="Uptime Check Policy"' --format="value(name)" 2>/dev/null || true)
