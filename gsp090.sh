@@ -28,29 +28,49 @@ ask() {
   echo "$1 = ${!1}"
 }
 
-# Deteksi otomatis project list
+# Helper untuk REST call ke Cloud Monitoring
+gcurl() {
+  local token
+  token="$(gcloud auth print-access-token)"
+  curl -s -H "Authorization: Bearer $token" -H "Content-Type: application/json" "$@"
+}
+
+echo "Mendeteksi daftar project Google Cloud..."
 ALL_PROJECTS=($(gcloud projects list --format="value(projectId)" 2>/dev/null | sort))
 
 DEFAULT_P1=""
 DEFAULT_P2=""
 
+# Project 1 memiliki VM bawaan lab. Project 2 adalah project baru tanpa VM bawaan.
 for p in "${ALL_PROJECTS[@]}"; do
-  if [[ "$p" =~ -02- ]]; then
-    DEFAULT_P2="$p"
-  elif [[ "$p" =~ -01- ]]; then
+  VMS="$(gcloud compute instances list --project="$p" --format="value(name)" 2>/dev/null || true)"
+  VMS_EXISTING="$(echo "$VMS" | grep -v "^instance2$" || true)"
+  if [[ -n "$VMS_EXISTING" ]]; then
     DEFAULT_P1="$p"
+  else
+    DEFAULT_P2="$p"
   fi
 done
 
-if [[ -z "$DEFAULT_P1" && ${#ALL_PROJECTS[@]} -ge 1 ]]; then
-  DEFAULT_P1="${ALL_PROJECTS[0]}"
-fi
-if [[ -z "$DEFAULT_P2" && ${#ALL_PROJECTS[@]} -ge 2 ]]; then
-  DEFAULT_P2="${ALL_PROJECTS[1]}"
+# Fallback jika belum terdeteksi sempurna
+CURRENT_PROJECT="${DEVSHELL_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null || true)}"
+if [[ -z "$DEFAULT_P1" || -z "$DEFAULT_P2" || "$DEFAULT_P1" == "$DEFAULT_P2" ]]; then
+  if [[ -n "$CURRENT_PROJECT" && ${#ALL_PROJECTS[@]} -ge 2 ]]; then
+    DEFAULT_P1="$CURRENT_PROJECT"
+    for p in "${ALL_PROJECTS[@]}"; do
+      if [[ "$p" != "$CURRENT_PROJECT" ]]; then
+        DEFAULT_P2="$p"
+        break
+      fi
+    done
+  elif [[ ${#ALL_PROJECTS[@]} -ge 2 ]]; then
+    DEFAULT_P1="${ALL_PROJECTS[0]}"
+    DEFAULT_P2="${ALL_PROJECTS[1]}"
+  fi
 fi
 
-ask PROJECT_2 "${DEFAULT_P2}" "Project ID 2 (scoping project / tempat instance2)"
-ask PROJECT_1 "${DEFAULT_P1}" "Project ID 1 (monitored project / tempat instance1)"
+ask PROJECT_2 "${DEFAULT_P2}" "Project ID 2 (scoping project tempat instance2 dibuat)"
+ask PROJECT_1 "${DEFAULT_P1}" "Project ID 1 (monitored project tempat instance1 berada)"
 
 [[ -n "$PROJECT_2" ]] || { echo "PROJECT_2 belum di-set."; exit 1; }
 [[ -n "$PROJECT_1" ]] || { echo "PROJECT_1 belum di-set."; exit 1; }
@@ -61,10 +81,10 @@ ask ZONE "europe-west1-b" "Zone untuk instance2"
 step() { echo; echo "=============================================================="; echo ">> $1"; echo "=============================================================="; }
 
 # ----------------------------------------------------------------- Setup & Task 1
-step "Task 1: Set Project 2 dan buat VM instance2"
+step "Task 1: Set Project 2 ($PROJECT_2) dan buat VM instance2"
 gcloud config set project "$PROJECT_2"
 
-# Enable API yang diperlukan
+# Enable API yang diperlukan di Project 2
 gcloud services enable \
   compute.googleapis.com \
   monitoring.googleapis.com \
@@ -87,14 +107,10 @@ else
 fi
 
 # ----------------------------------------------------------------- Metrics Scope
-step "Setup Metrics Scope: Tambahkan Project 1 ke Metrics Scope Project 2"
-TOKEN="$(gcloud auth print-access-token)"
-
+step "Setup Metrics Scope: Tambahkan Project 1 ($PROJECT_1) ke Metrics Scope Project 2 ($PROJECT_2)"
 echo "Menghubungkan Metrics Scope..."
-curl -s -X POST \
+gcurl -X POST \
   "https://monitoring.googleapis.com/v1/locations/global/metricsScopes/${PROJECT_2}/projects" \
-  -H "Authorization: Bearer ${TOKEN}" \
-  -H "Content-Type: application/json" \
   -d "{\"name\": \"locations/global/metricsScopes/${PROJECT_2}/projects/${PROJECT_1}\"}" >/dev/null || true
 
 # ----------------------------------------------------------------- Task 2
@@ -102,9 +118,7 @@ step "Task 2: Buat Cloud Monitoring Group (DemoGroup)"
 GROUP_ID=""
 
 # Cek apakah DemoGroup sudah ada
-EXISTING_GROUPS=$(curl -s \
-  "https://monitoring.googleapis.com/v3/projects/${PROJECT_2}/groups" \
-  -H "Authorization: Bearer ${TOKEN}")
+EXISTING_GROUPS=$(gcurl "https://monitoring.googleapis.com/v3/projects/${PROJECT_2}/groups")
 
 if command -v jq >/dev/null 2>&1; then
   GROUP_ID=$(echo "$EXISTING_GROUPS" | jq -r '.group[]? | select(.displayName=="DemoGroup") | .name' 2>/dev/null | awk -F'/' '{print $NF}' | head -n 1)
@@ -112,10 +126,8 @@ fi
 
 if [[ -z "$GROUP_ID" ]]; then
   echo "Membuat group DemoGroup..."
-  CREATE_GROUP_RESP=$(curl -s -X POST \
+  CREATE_GROUP_RESP=$(gcurl -X POST \
     "https://monitoring.googleapis.com/v3/projects/${PROJECT_2}/groups" \
-    -H "Authorization: Bearer ${TOKEN}" \
-    -H "Content-Type: application/json" \
     -d '{
       "displayName": "DemoGroup",
       "filter": "metadata.system_labels.name = has_substring(\"instance\")"
@@ -137,9 +149,7 @@ step "Task 3: Buat Uptime Check untuk DemoGroup (port 22 TCP)"
 CHECK_ID=""
 
 # Cek apakah Uptime Check sudah ada
-EXISTING_CHECKS=$(curl -s \
-  "https://monitoring.googleapis.com/v3/projects/${PROJECT_2}/uptimeCheckConfigs" \
-  -H "Authorization: Bearer ${TOKEN}")
+EXISTING_CHECKS=$(gcurl "https://monitoring.googleapis.com/v3/projects/${PROJECT_2}/uptimeCheckConfigs")
 
 if command -v jq >/dev/null 2>&1; then
   CHECK_ID=$(echo "$EXISTING_CHECKS" | jq -r '.uptimeCheckConfigs[]? | select(.displayName=="DemoGroup uptime check") | .name' 2>/dev/null | awk -F'/' '{print $NF}' | head -n 1)
@@ -147,10 +157,8 @@ fi
 
 if [[ -z "$CHECK_ID" && -n "$GROUP_ID" ]]; then
   echo "Membuat Uptime Check 'DemoGroup uptime check'..."
-  CREATE_CHECK_RESP=$(curl -s -X POST \
+  CREATE_CHECK_RESP=$(gcurl -X POST \
     "https://monitoring.googleapis.com/v3/projects/${PROJECT_2}/uptimeCheckConfigs" \
-    -H "Authorization: Bearer ${TOKEN}" \
-    -H "Content-Type: application/json" \
     -d "{
       \"displayName\": \"DemoGroup uptime check\",
       \"resourceGroup\": {
@@ -218,10 +226,8 @@ EOF
 
 echo "Mendaftarkan Alerting Policy..."
 if ! gcloud monitoring policies create --policy-from-file="$POLICY_FILE" --project="$PROJECT_2" -q 2>/dev/null; then
-  curl -s -X POST \
+  gcurl -X POST \
     "https://monitoring.googleapis.com/v3/projects/${PROJECT_2}/alertPolicies" \
-    -H "Authorization: Bearer ${TOKEN}" \
-    -H "Content-Type: application/json" \
     -d @"$POLICY_FILE" >/dev/null || true
 fi
 
