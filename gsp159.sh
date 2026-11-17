@@ -39,10 +39,6 @@ ask REGION_3 "us-central1" "Region 3 untuk subnet ketiga (cocokkan dengan Task 1
 
 step() { echo; echo "=============================================================="; echo ">> $1"; echo "=============================================================="; }
 
-# ----------------------------------------------------------------- API
-step "Pastikan Compute Engine API aktif"
-gcloud services enable compute.googleapis.com --project="$PROJECT"
-
 # ----------------------------------------------------------------- Task 1
 step "Task 1: Buat custom VPC network 'taw-custom-network' dan 3 subnetwork"
 
