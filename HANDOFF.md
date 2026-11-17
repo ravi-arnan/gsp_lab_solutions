@@ -3,13 +3,31 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-17: AppSheet Series (GSP883, GSP910, GSP1030, ARC105)
+
+- Lab UI-only di AppSheet & Google Drive/Sheets (tanpa GCP project / Cloud Shell, tidak di-script):
+  - **GSP883** (Google AppSheet: Getting Started): 100/100.
+  - **GSP910** (Connect and Configure Data for your AppSheet App): 100/100.
+  - **GSP1030** (Publish your AppSheet App): 100/100.
+  - **ARC105** (App Building with AppSheet: Challenge Lab): 100/100.
+- **Status Terakhir**: Seluruh seri AppSheet terverifikasi 100/100.
+- **Next Action**: Lanjutkan lab arcade berikutnya.
+
+## Sesi 2026-11-17: GSP188 - App Dev: Deploying the Application into Kubernetes Engine - Python
+
+- [`gsp188.sh`](gsp188.sh) + [runbook](docs/gsp188.md):
+  - Membuat script baru untuk otomasi penuh Task 1-5: unduh starter `kubernetesengine`, sesuaikan `prepare_environment.sh` (`python3.12`, region/app_region), buat GKE cluster `quiz-cluster` (3 node, full Cloud API scopes), Artifact Registry `container-dev-repo`, `frontend/Dockerfile` & `backend/Dockerfile` + Cloud Build, serta `kubectl apply` untuk deployment dan `frontend-service.yaml`.
+  - Berhasil terverifikasi 100/100 di live lab Cloud Shell Qwiklabs sekali jalan.
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell.
+- **Next Action**: Lanjutkan lab arcade berikutnya.
+
 ## Sesi 2026-11-17: GSP186 - App Dev: Adding User Authentication to your Application - Python
 
 - [`gsp186.sh`](gsp186.sh) + [runbook](docs/gsp186.md):
-  - Membuat script baru untuk otomasi persiapan Quiz application (Datastore database mode default, Cloud Storage media bucket, virtualenv python, `add_entities.py`), inisialisasi Identity Platform via REST API (`initializeAuth`), aktivasi provider Email/Password (`signIn.email`), pendaftaran authorized domains, pembuatan user `user1@example.com` (`abc123!`) dan `user2@example.com` (`abcd1234$`), serta injeksi konfigurasi Firebase SDK ke `index.html`.
-  - Skrip sudah di-push ke remote GitHub repo dan siap dieksekusi di Cloud Shell.
-- **Status Terakhir**: Skrip dan runbook selesai dibuat, di-commit dan di-push ke main.
-- **Next Action**: Uji di live lab Cloud Shell Qwiklabs untuk verifikasi skor 100/100.
+  - Menambahkan jeda interaktif sebelum Task 3 agar user klik **ENABLE IDENTITY PLATFORM** di Cloud Console (karena akun student Qwiklabs tidak punya izin IAM untuk mengaktifkan `identityplatform.googleapis.com` via CLI) serta memperbaiki kurung kurawal ganda pada snippet JS `uiConfig` di `index.html`.
+  - Berhasil terverifikasi 100/100 di live lab Cloud Shell Qwiklabs (2/2 checkpoint hijau).
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell.
+- **Next Action**: Lanjutkan lab arcade berikutnya.
 
 ## Sesi 2026-11-17: GSP159 - Create a Custom Network and Apply Firewall Rules
 

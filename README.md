@@ -175,7 +175,8 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP178 | Setting up a Private Kubernetes Cluster | [gsp178.sh](gsp178.sh) | [docs/gsp178.md](docs/gsp178.md) | Terverifikasi, skor 100/100 (us-west1-b) | 2026-11-14 |
 | GSP183 | App Dev: Setting up a Development Environment - Python | [gsp183.sh](gsp183.sh) | [docs/gsp183.md](docs/gsp183.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-11-10 |
 | GSP185 | App Dev: Storing Image and Video Files in Cloud Storage - Python | [gsp185.sh](gsp185.sh) | [docs/gsp185.md](docs/gsp185.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-11-10 |
-| GSP186 | App Dev: Adding User Authentication to your Application - Python | [gsp186.sh](gsp186.sh) | [docs/gsp186.md](docs/gsp186.md) | Siap uji; otomatis penuh Task 1 (Datastore) & Task 3 (Identity Platform) | - |
+| GSP186 | App Dev: Adding User Authentication to your Application - Python | [gsp186.sh](gsp186.sh) | [docs/gsp186.md](docs/gsp186.md) | Terverifikasi, skor 100/100 (us-east4); jeda klik Enable Identity Platform di Console sebelum Task 3 | 2026-11-17 |
+| GSP188 | App Dev: Deploying the Application into Kubernetes Engine - Python | [gsp188.sh](gsp188.sh) | [docs/gsp188.md](docs/gsp188.md) | Terverifikasi, skor 100/100 (europe-west1-c); otomatis penuh Task 1-5 | 2026-11-17 |
 | GSP190 | IAM Custom Roles | [gsp190.sh](gsp190.sh) | [docs/gsp190.md](docs/gsp190.md) | Terverifikasi, skor 100/100; keenam checkpoint diklik sekaligus di akhir | 2026-08-07 |
 | GSP192 | Dataflow: Qwik Start - Templates | [gsp192.sh](gsp192.sh) | [docs/gsp192.md](docs/gsp192.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-10-27 |
 | GSP199 | Service Accounts and Roles: Fundamentals | [gsp199.sh](gsp199.sh) | [docs/gsp199.md](docs/gsp199.md) | Terverifikasi, skor 100/100 (us-east4) | 2026-11-10 |
