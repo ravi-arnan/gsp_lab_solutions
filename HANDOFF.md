@@ -7,9 +7,9 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 
 - [`arc101.sh`](arc101.sh) + [runbook](docs/arc101.md):
   - Membuat script baru untuk otomasi pembuatan bucket `travel-bucket-<PROJECT_ID>` di `us-central1` dan grant IAM `roles/storage.objectViewer` ke user kedua (`USER2`), Pub/Sub topic `$TOPIC`, Cloud Run Function Gen2 `travel-thumbnail-creator` (Node.js 22) dengan trigger Cloud Storage dan IAM binding Eventarc, upload `travel.jpg` untuk memicu fungsi, serta Alerting Policy `Active Cloud Run Function Instances` untuk metrik `cloudfunctions.googleapis.com/function/active_instances` (threshold > 0).
-  - Skrip sudah di-push ke remote GitHub repo dan siap dieksekusi di Cloud Shell.
-- **Status Terakhir**: Skrip dan runbook selesai dibuat, di-commit dan di-push ke main.
-- **Next Action**: Uji di live lab Cloud Shell Qwiklabs untuk verifikasi skor 100/100.
+  - Berhasil terverifikasi 100/100 di live lab Cloud Shell Qwiklabs (4/4 checkpoint hijau sekali jalan).
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (4/4 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-17: GSP091 - Creating and Alerting on Logs-based Metrics
 
