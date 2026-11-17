@@ -3,6 +3,14 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-17: GSP186 - App Dev: Adding User Authentication to your Application - Python
+
+- [`gsp186.sh`](gsp186.sh) + [runbook](docs/gsp186.md):
+  - Membuat script baru untuk otomasi persiapan Quiz application (Datastore database mode default, Cloud Storage media bucket, virtualenv python, `add_entities.py`), inisialisasi Identity Platform via REST API (`initializeAuth`), aktivasi provider Email/Password (`signIn.email`), pendaftaran authorized domains, pembuatan user `user1@example.com` (`abc123!`) dan `user2@example.com` (`abcd1234$`), serta injeksi konfigurasi Firebase SDK ke `index.html`.
+  - Skrip sudah di-push ke remote GitHub repo dan siap dieksekusi di Cloud Shell.
+- **Status Terakhir**: Skrip dan runbook selesai dibuat, di-commit dan di-push ke main.
+- **Next Action**: Uji di live lab Cloud Shell Qwiklabs untuk verifikasi skor 100/100.
+
 ## Sesi 2026-11-17: GSP159 - Create a Custom Network and Apply Firewall Rules
 
 - [`gsp159.sh`](gsp159.sh) + [runbook](docs/gsp159.md):
