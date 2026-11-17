@@ -49,6 +49,7 @@ gcloud config set compute/region "$REGION" >/dev/null 2>&1
 # ----------------------------------------------------------------- API
 step "Pastikan API yang dibutuhkan aktif"
 gcloud services enable \
+  identityplatform.googleapis.com \
   identitytoolkit.googleapis.com \
   apikeys.googleapis.com \
   appengine.googleapis.com \
@@ -153,19 +154,27 @@ PROVIDER_RESP=$(curl -s -X PATCH \
 echo "  Respon email provider: $(echo "$PROVIDER_RESP" | head -n 5)"
 
 echo "Mendaftarkan Authorized Domains (localhost, cloudshell.dev, firebaseapp.com)..."
+DOMAINS_JSON=$(python3 -c '
+import json, os
+domains = [
+    "localhost",
+    "cloudshell.dev",
+    "'"${PROJECT_ID}"'.firebaseapp.com",
+    "'"${PROJECT_ID}"'.web.app"
+]
+web_host = os.environ.get("WEB_HOST", "")
+if web_host:
+    domains.append(web_host)
+    domains.append(f"8080-{web_host}")
+print(json.dumps(domains))
+')
+
 curl -s -X PATCH \
   "https://identitytoolkit.googleapis.com/admin/v2/projects/${PROJECT_ID}/config?updateMask=authorizedDomains" \
   -H "Authorization: Bearer ${TOKEN}" \
   -H "X-Goog-User-Project: ${PROJECT_ID}" \
   -H "Content-Type: application/json" \
-  -d '{
-    "authorizedDomains": [
-      "localhost",
-      "cloudshell.dev",
-      "'"${PROJECT_ID}"'.firebaseapp.com",
-      "'"${PROJECT_ID}"'.web.app"
-    ]
-  }' >/dev/null 2>&1 || true
+  -d "{\"authorizedDomains\": ${DOMAINS_JSON}}" >/dev/null 2>&1 || true
 
 # Mengambil atau membuat API Key Browser
 echo "Mengambil Browser Web API Key..."
