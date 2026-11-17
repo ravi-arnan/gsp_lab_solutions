@@ -36,9 +36,11 @@ ask ZONE "$DEFAULT_ZONE" "Zone (cocokkan dengan panel lab)"
 REGION="${ZONE%-*}"
 ask REGION "$REGION" "Region (cocokkan dengan panel lab)"
 
-echo "Project ID : $PROJECT_ID"
-echo "Zone       : $ZONE"
-echo "Region     : $REGION"
+PROJECT_NUMBER=$(gcloud projects describe "$PROJECT_ID" --format="value(projectNumber)")
+
+echo "Project ID     : $PROJECT_ID ($PROJECT_NUMBER)"
+echo "Zone           : $ZONE"
+echo "Region         : $REGION"
 
 gcloud config set project "$PROJECT_ID" >/dev/null 2>&1
 gcloud config set compute/zone "$ZONE" >/dev/null 2>&1
@@ -48,6 +50,7 @@ gcloud config set compute/region "$REGION" >/dev/null 2>&1
 step "Pastikan API yang dibutuhkan aktif"
 gcloud services enable \
   identitytoolkit.googleapis.com \
+  apikeys.googleapis.com \
   appengine.googleapis.com \
   firestore.googleapis.com \
   datastore.googleapis.com \
@@ -125,16 +128,19 @@ step "Task 3: Konfigurasi Identity Platform Authentication (checkpoint 2)"
 TOKEN="$(gcloud auth print-access-token)"
 
 echo "Menginisialisasi Identity Platform..."
-curl -s -X POST \
+INIT_RESP=$(curl -s -X POST \
   "https://identitytoolkit.googleapis.com/v2/projects/${PROJECT_ID}/identityPlatform:initializeAuth" \
   -H "Authorization: Bearer ${TOKEN}" \
+  -H "X-Goog-User-Project: ${PROJECT_ID}" \
   -H "Content-Type: application/json" \
-  -d '{}' >/dev/null 2>&1 || true
+  -d '{}' 2>&1 || true)
+echo "  Respon initializeAuth: $INIT_RESP"
 
 echo "Mengaktifkan Email / Password Provider..."
-curl -s -X PATCH \
+PROVIDER_RESP=$(curl -s -X PATCH \
   "https://identitytoolkit.googleapis.com/admin/v2/projects/${PROJECT_ID}/config?updateMask=signIn.email" \
   -H "Authorization: Bearer ${TOKEN}" \
+  -H "X-Goog-User-Project: ${PROJECT_ID}" \
   -H "Content-Type: application/json" \
   -d '{
     "signIn": {
@@ -143,12 +149,14 @@ curl -s -X PATCH \
         "passwordRequired": true
       }
     }
-  }' >/dev/null 2>&1 || true
+  }' 2>&1 || true)
+echo "  Respon email provider: $(echo "$PROVIDER_RESP" | head -n 5)"
 
 echo "Mendaftarkan Authorized Domains (localhost, cloudshell.dev, firebaseapp.com)..."
 curl -s -X PATCH \
   "https://identitytoolkit.googleapis.com/admin/v2/projects/${PROJECT_ID}/config?updateMask=authorizedDomains" \
   -H "Authorization: Bearer ${TOKEN}" \
+  -H "X-Goog-User-Project: ${PROJECT_ID}" \
   -H "Content-Type: application/json" \
   -d '{
     "authorizedDomains": [
@@ -159,36 +167,83 @@ curl -s -X PATCH \
     ]
   }' >/dev/null 2>&1 || true
 
-echo "Membuat user Identity Platform (user1@example.com)..."
-curl -s -X POST \
-  "https://identitytoolkit.googleapis.com/v1/projects/${PROJECT_ID}/accounts" \
+# Mengambil atau membuat API Key Browser
+echo "Mengambil Browser Web API Key..."
+API_KEY=""
+KEY_NAME=$(curl -s -X GET \
+  "https://apikeys.googleapis.com/v2/projects/${PROJECT_NUMBER}/locations/global/keys" \
   -H "Authorization: Bearer ${TOKEN}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user1@example.com",
-    "password": "abc123!",
-    "displayName": "user1"
-  }' >/dev/null 2>&1 || true
+  -H "X-Goog-User-Project: ${PROJECT_ID}" 2>/dev/null | jq -r '.keys[0].name // empty' 2>/dev/null || true)
 
-echo "Membuat user kedua Identity Platform (user2@example.com)..."
-curl -s -X POST \
-  "https://identitytoolkit.googleapis.com/v1/projects/${PROJECT_ID}/accounts" \
-  -H "Authorization: Bearer ${TOKEN}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user2@example.com",
-    "password": "abcd1234$",
-    "displayName": "user2"
-  }' >/dev/null 2>&1 || true
+if [[ -n "$KEY_NAME" ]]; then
+  API_KEY=$(curl -s -X GET \
+    "https://apikeys.googleapis.com/v2/${KEY_NAME}/keyString" \
+    -H "Authorization: Bearer ${TOKEN}" \
+    -H "X-Goog-User-Project: ${PROJECT_ID}" 2>/dev/null | jq -r '.keyString // empty' 2>/dev/null || true)
+fi
+
+if [[ -z "$API_KEY" ]]; then
+  API_KEY_NAME=$(gcloud services api-keys list --project="$PROJECT_ID" --format="value(name)" 2>/dev/null | head -n 1 || true)
+  if [[ -n "$API_KEY_NAME" ]]; then
+    API_KEY=$(gcloud services api-keys get-key-string "$API_KEY_NAME" --project="$PROJECT_ID" --format="value(keyString)" 2>/dev/null || true)
+  fi
+fi
+
+echo "  API Key: ${API_KEY:-tidak ditemukan otomatis}"
+
+# Mendaftarkan user via API Key jika ada
+if [[ -n "$API_KEY" ]]; then
+  echo "Mendaftarkan user1@example.com via Identity Toolkit API..."
+  SIGNUP_RESP=$(curl -s -X POST \
+    "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "email": "user1@example.com",
+      "password": "abc123!",
+      "returnSecureToken": true
+    }' 2>&1 || true)
+  echo "  Respon signUp user1: $(echo "$SIGNUP_RESP" | jq -r '.email // .error.message // empty' 2>/dev/null || echo "$SIGNUP_RESP")"
+fi
+
+# Mendaftarkan user via Python firebase-admin (metode andal menggunakan ADC)
+echo "Mendaftarkan user user1@example.com via Python firebase-admin..."
+python3 -c "
+import subprocess, sys
+
+try:
+    import firebase_admin
+    from firebase_admin import auth
+except ImportError:
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'firebase-admin', '--quiet'])
+    import firebase_admin
+    from firebase_admin import auth
+
+try:
+    if not firebase_admin._apps:
+        firebase_admin.initialize_app(options={'projectId': '${PROJECT_ID}'})
+    try:
+        user = auth.create_user(email='user1@example.com', password='abc123!')
+        print('  User user1@example.com berhasil dibuat UID:', user.uid)
+    except Exception as e:
+        if 'EMAIL_EXISTS' in str(e):
+            print('  User user1@example.com sudah ada.')
+        else:
+            print('  Info pembuatan user1:', e)
+
+    try:
+        user2 = auth.create_user(email='user2@example.com', password='abcd1234$')
+        print('  User user2@example.com berhasil dibuat UID:', user2.uid)
+    except Exception as e:
+        if 'EMAIL_EXISTS' in str(e):
+            print('  User user2@example.com sudah ada.')
+        else:
+            print('  Info pembuatan user2:', e)
+except Exception as err:
+    print('  Firebase admin error:', err)
+" || true
 
 # ----------------------------------------------------------------- Task 4 (Integrasi Client)
 step "Task 4: Integrasi Client-side index.html dengan Identity Platform"
-
-API_KEY_NAME=$(gcloud services api-keys list --project="$PROJECT_ID" --format="value(name)" 2>/dev/null | head -n 1 || true)
-API_KEY=""
-if [[ -n "$API_KEY_NAME" ]]; then
-  API_KEY=$(gcloud services api-keys get-key-string "$API_KEY_NAME" --project="$PROJECT_ID" --format="value(keyString)" 2>/dev/null || true)
-fi
 
 CLIENT_INDEX="$HOME/firebase/start/quiz/webapp/static/client/index.html"
 if [[ -f "$CLIENT_INDEX" && -n "$API_KEY" ]]; then
