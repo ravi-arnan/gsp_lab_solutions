@@ -7,9 +7,9 @@ Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 
 - [`gsp159.sh`](gsp159.sh) + [runbook](docs/gsp159.md):
   - Membuat script baru untuk otomasi pembuatan custom VPC network `taw-custom-network`, 3 subnet (`subnet-us-east4` di `us-east4`, `subnet-europe-west4` di `europe-west4`, `subnet-us-central1` di `us-central1`), serta 5 firewall rules (`nw101-allow-http`, `nw101-allow-icmp`, `nw101-allow-internal`, `nw101-allow-ssh`, `nw101-allow-rdp`).
-  - Skrip sudah di-push ke remote GitHub repo dan siap dieksekusi di Cloud Shell.
-- **Status Terakhir**: Skrip dan runbook selesai dibuat, di-commit dan di-push ke main.
-- **Next Action**: Uji di live lab Cloud Shell Qwiklabs untuk verifikasi skor 100/100.
+  - Berhasil terverifikasi 100/100 di live lab Cloud Shell Qwiklabs (2/2 checkpoint hijau).
+- **Status Terakhir**: Terverifikasi sukses 100/100 di live lab Cloud Shell (2/2 checkpoint hijau).
+- **Next Action**: Lanjutkan lab arcade berikutnya dari daftar antrean.
 
 ## Sesi 2026-11-17: ARC101 - Monitor and Manage Google Cloud Resources: Challenge Lab
 

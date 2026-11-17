@@ -137,7 +137,7 @@ Region di lab ini diisi dinamis per instance, jadi cocokkan dengan halaman lab-m
 | GSP659 | Deploy Your Website on Cloud Run | [gsp659.sh](gsp659.sh) | [docs/gsp659.md](docs/gsp659.md) | Terverifikasi, skor 100/100 (us-west1), dua fase | 2026-08-21 |
 | GSP694 | gcloud for Network Configuration | [gsp694.sh](gsp694.sh) | [docs/gsp694.md](docs/gsp694.md) | Terverifikasi, skor 100/100 sekali jalan | 2026-11-10 |
 | GSP156 | Terraform Fundamentals | [gsp156.sh](gsp156.sh) | [docs/gsp156.md](docs/gsp156.md) | Terverifikasi, skor 100/100 (debian-12, us-east1-c) | 2026-11-09 |
-| GSP159 | Create a Custom Network and Apply Firewall Rules | [gsp159.sh](gsp159.sh) | [docs/gsp159.md](docs/gsp159.md) | Siap uji; otomatis penuh Task 1-2 (Custom VPC, 3 Subnet, 5 Firewall Rules) | - |
+| GSP159 | Create a Custom Network and Apply Firewall Rules | [gsp159.sh](gsp159.sh) | [docs/gsp159.md](docs/gsp159.md) | Terverifikasi, skor 100/100 (us-east4); otomatis penuh Task 1-2 | 2026-11-17 |
 | GSP413 | Creating a Data Warehouse Through Joins and Unions | [gsp413.sh](gsp413.sh) | [docs/gsp413.md](docs/gsp413.md) | Belum diuji | - |
 | GSP1158 | Assessing Data Quality with Knowledge Catalog | [gsp1158.sh](gsp1158.sh) | [docs/gsp1158.md](docs/gsp1158.md) | Belum diuji, maks 60/100 (Task 2 & 5 wajib manual) | - |
 | GSP048 | Transkripsi Speech-to-Text dengan Speech-to-Text API | [gsp048.sh](gsp048.sh) | [docs/gsp048.md](docs/gsp048.md) | Belum diuji; API key wajib dibuat manual di console | - |
