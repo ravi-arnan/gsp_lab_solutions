@@ -49,7 +49,6 @@ gcloud config set compute/region "$REGION" >/dev/null 2>&1
 # ----------------------------------------------------------------- API
 step "Pastikan API yang dibutuhkan aktif"
 gcloud services enable \
-  identityplatform.googleapis.com \
   identitytoolkit.googleapis.com \
   apikeys.googleapis.com \
   appengine.googleapis.com \
@@ -57,6 +56,9 @@ gcloud services enable \
   datastore.googleapis.com \
   storage.googleapis.com \
   --project="$PROJECT_ID"
+
+# Coba aktifkan identityplatform via CLI jika diizinkan (abaikan jika restricted)
+gcloud services enable identityplatform.googleapis.com --project="$PROJECT_ID" 2>/dev/null || true
 
 # ----------------------------------------------------------------- Task 1
 step "Task 1: Persiapan Aplikasi Quiz & Cloud Datastore (checkpoint 1)"
@@ -125,6 +127,19 @@ python add_entities.py 2>/dev/null || python3 add_entities.py 2>/dev/null || tru
 
 # ----------------------------------------------------------------- Task 3
 step "Task 3: Konfigurasi Identity Platform Authentication (checkpoint 2)"
+
+if [[ -t 0 ]]; then
+  cat <<'EOF'
+LANGKAH MANUAL WAJIB (sekali klik di Console):
+  1. Buka Google Cloud Console > ketik "Identity Platform" di Search bar
+  2. Klik hasil pencarian "Identity Platform"
+  3. Klik tombol biru [ENABLE IDENTITY PLATFORM]
+     (Jika muncul pop-up "Leave site", klik Leave)
+  4. Tunggu hingga halaman Identity Platform terbuka di Console.
+
+EOF
+  read -rp "Jika sudah klik Enable Identity Platform di Console, tekan [Enter] untuk lanjut..." _
+fi
 
 TOKEN="$(gcloud auth print-access-token)"
 
@@ -263,7 +278,7 @@ with open('$CLIENT_INDEX', 'r') as f:
 if 'firebase.initializeApp' not in content:
     idx = content.find('<script')
     if idx != -1:
-        snippet = '''    <script src=\"https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js\"></script>\n    <script src=\"https://www.gstatic.com/firebasejs/7.14.0/firebase-auth.js\"></script>\n    <script>\n      var uiConfig = {{\n        apiKey: \"$API_KEY\",\n        authDomain: \"$PROJECT_ID.firebaseapp.com\"\n      }};\n      firebase.initializeApp(uiConfig);\n    </script>\n\n'''
+        snippet = '''    <script src=\"https://www.gstatic.com/firebasejs/7.14.0/firebase-app.js\"></script>\n    <script src=\"https://www.gstatic.com/firebasejs/7.14.0/firebase-auth.js\"></script>\n    <script>\n      var uiConfig = {\n        apiKey: \"$API_KEY\",\n        authDomain: \"$PROJECT_ID.firebaseapp.com\"\n      };\n      firebase.initializeApp(uiConfig);\n    </script>\n\n'''
         content = content[:idx] + snippet + content[idx:]
         with open('$CLIENT_INDEX', 'w') as f:
             f.write(content)
@@ -274,10 +289,15 @@ fi
 cat <<EOF
 
 ==============================================================
-SELESAI! Klik Check my progress untuk kedua checkpoint:
+SELESAI! Langkah verifikasi lab:
 
-  [Task 1] Configure the case study application
-  [Task 3] Configure Identity Platform Authentication
+1. Jika checkpoint Task 3 meminta aktifkan API:
+   - Buka Google Cloud Console > Search "Identity Platform"
+   - Klik tombol [ENABLE IDENTITY PLATFORM]
+
+2. Klik Check my progress di panel lab:
+   - [Task 1] Configure the case study application (50 pts)
+   - [Task 3] Configure Identity Platform Authentication (50 pts)
 
 Untuk menjalankan web server Quiz secara lokal di Cloud Shell:
   cd ~/firebase/start
