@@ -3,6 +3,14 @@
 Catatan serah-terima sesi kerja lab Arcade. Baca ini dulu, lalu
 [AGENTS.md](AGENTS.md) untuk konvensi script.
 
+## Sesi 2026-11-17: GSP159 - Create a Custom Network and Apply Firewall Rules
+
+- [`gsp159.sh`](gsp159.sh) + [runbook](docs/gsp159.md):
+  - Membuat script baru untuk otomasi pembuatan custom VPC network `taw-custom-network`, 3 subnet (`subnet-us-east4` di `us-east4`, `subnet-europe-west4` di `europe-west4`, `subnet-us-central1` di `us-central1`), serta 5 firewall rules (`nw101-allow-http`, `nw101-allow-icmp`, `nw101-allow-internal`, `nw101-allow-ssh`, `nw101-allow-rdp`).
+  - Skrip sudah di-push ke remote GitHub repo dan siap dieksekusi di Cloud Shell.
+- **Status Terakhir**: Skrip dan runbook selesai dibuat, di-commit dan di-push ke main.
+- **Next Action**: Uji di live lab Cloud Shell Qwiklabs untuk verifikasi skor 100/100.
+
 ## Sesi 2026-11-17: ARC101 - Monitor and Manage Google Cloud Resources: Challenge Lab
 
 - [`arc101.sh`](arc101.sh) + [runbook](docs/arc101.md):
