@@ -82,13 +82,27 @@ sp() {
   rm -f /tmp/sp.on; trap - INT; sleep 0.3; printf "\r\033[K"; return $s
 }
 
+ensure_apis() {
+  local enabled missing=() api
+  enabled=$(gcloud services list --enabled --format='value(config.name)' 2>/dev/null)
+  for api in "$@"; do
+    grep -qxF "$api" <<<"$enabled" || missing+=("$api")
+  done
+  [ ${#missing[@]} -eq 0 ] && return 0
+  for try in 1 2; do
+    gcloud services enable "${missing[@]}" && return 0
+    [ "$try" -eq 1 ] && sleep 20
+  done
+  return 1
+}
+
 s3() {
   ER=
   P=$(gcloud config get-value project 2>/dev/null)
   A=$(gcloud config get-value account 2>/dev/null)
   [ -z "$P" ] && { echo "[ERROR] No project selected. Select your project in Cloud Shell, then run this block again."; return 1; }
-  if ! sp "Enabling the APIs for $P" gcloud services enable compute.googleapis.com aiplatform.googleapis.com cloudbilling.googleapis.com; then
-    echo "[ERROR] Could not enable the APIs:"; tail -n 5 /tmp/arcade_step.log
+  if ! sp "Checking/enabling APIs for $P" ensure_apis compute.googleapis.com aiplatform.googleapis.com cloudbilling.googleapis.com; then
+    echo "[ERROR] Could not enable the APIs:"; tail -n 10 /tmp/arcade_step.log
     echo "If it mentions billing, link your credit: https://console.cloud.google.com/billing/linkedaccount?project=$P"; return 1
   fi
   SA=$(gcloud projects describe "$P" --format='value(projectNumber)')-compute@developer.gserviceaccount.com
@@ -455,7 +469,7 @@ s5() {
   [ -n "$M$K" ] && return 1
   echo "[OK] Project setup confirmed"
 
-  sp "Turning on Cloud Run..." gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com || { echo "[ERROR] Could not turn on Cloud Run:"; tail -n 5 "$L"; return 1; }
+  sp "Turning on Cloud Run..." ensure_apis run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com || { echo "[ERROR] Could not turn on Cloud Run:"; tail -n 10 "$L"; return 1; }
   echo "[OK] Services ready"
   echo "Deploy memakan waktu hingga 10 menit. Tunggu sampai selesai..."
   for t in 1 2 3; do
@@ -481,7 +495,7 @@ s5 || exit 1
 step "Step 7: Verifikasi kesiapan submission form"
 s7() {
   cd "$WORKDIR" 2>/dev/null
-  gcloud services enable cloudbilling.googleapis.com &>/dev/null
+  ensure_apis cloudbilling.googleapis.com &>/dev/null
   P=$(gcloud config get-value project 2>/dev/null)
   A=$(gcloud config get-value account 2>/dev/null)
   V=group:arcade-agent-verifier@google.com
